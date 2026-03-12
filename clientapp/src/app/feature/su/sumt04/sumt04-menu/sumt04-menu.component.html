@@ -1,0 +1,76 @@
+<app-modal header="{{ 'label.SUMT04.Menu' | translate}}" (onClose)="close()">
+    <app-card>
+        <div class="card-content">
+            <form [formGroup]="searchForm">
+                <div class="row" style="display: flex; align-items: center;">
+                    <div class="col-4">
+                        <select-input formControlName="systemCode" [items]="master.data.master.system">{{ 'label.SUMT04.System' | translate }}</select-input>
+                    </div>
+                    <div class="col-3">
+                        <textbox formControlName="menuCode">{{ 'label.SUMT04.MenuCode' | translate }}</textbox>
+                    </div>
+                    <div class="col-3">
+                        <textbox formControlName="menuName">{{ 'label.SUMT04.MenuName' | translate }}</textbox>
+                    </div>
+                    <div class="col-2 text-right">
+                        <br>
+                        <button class="btn btn-primary" (click)="onSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div class="row">
+                <div class="col">
+                    <app-table server [dataSource]="dataSource" [columns]="displayedSelectColumns">
+                        <ng-container matSort>
+                            <ng-container matColumnDef="select">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="30px" class="text-center">
+                                    <checkbox [hasLabel]="false"
+                                        [indeterminate]="selection.hasValue() && !isAllSelected(dataSource.data)"
+                                        [value]="selection.hasValue() && isAllSelected(dataSource.data)"
+                                        (afterChange)="masterToggle(dataSource.data)"></checkbox>
+                                </th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                    <checkbox [disabled]="row.disabled" [hasLabel]="false"
+                                        [value]="selection.isSelected(row)" 
+                                        (afterChange)="!row.disabled && selection.toggle(row)"
+                                        [title]="row.disabled ? 'Already selected in profile' : ''">
+                                    </checkbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="systemCode">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px"
+                                    class="text-center"> {{ 'label.SUMT04.SystemCode' | translate }} </th>
+                                <td mat-cell *matCellDef="let element" class="text-center"> {{element.systemCode}} </td>
+                            </ng-container>
+                            <!-- Position Column -->
+                            <ng-container matColumnDef="menuCode">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px"
+                                    class="text-center"> {{ 'label.SUMT04.MenuCode' | translate }} </th>
+                                <td mat-cell *matCellDef="let element" class="text-center"> {{element.menuCode}} </td>
+                            </ng-container>
+                            <!-- Custom column definition to be provided to the wrapper table. -->
+                            <ng-container matColumnDef="menuName">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="400px"> {{
+                                    'label.SUMT04.MenuName' | translate }} </th>
+                                <td mat-cell *matCellDef="let element"> {{element.menuName}} </td>
+                            </ng-container>
+                            <!-- Weight Column -->
+                            <tr mat-header-row *matHeaderRowDef="displayedSelectColumns"></tr>
+                        </ng-container>
+                    </app-table>
+                </div>
+            </div>
+            <div class="row pt-1">
+                <div class="col">
+                    <div class="text-center">
+                        <button class="btn btn-primary" (click)="select()">
+                            {{ 'label.ALL.Choose' | translate }} ({{ selection.selected.length}})
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </app-card>
+</app-modal>

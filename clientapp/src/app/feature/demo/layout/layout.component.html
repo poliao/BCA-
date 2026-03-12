@@ -1,0 +1,44 @@
+<h4>Layout</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="card">
+            <div class="card-menu">
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Add
+                </button>
+            </div>
+            <div class="card-content">
+                <mat-tab-group>
+                    <mat-tab label="First">
+                        <button class="btn btn-primary" (click)="show()">Show</button>
+                    </mat-tab>
+                    <mat-tab label="Second">
+                        <fieldset>
+                            <legend>Personalia</legend>
+                            <textbox value="textbox">Label</textbox>
+                        </fieldset>
+                    </mat-tab>
+                    <mat-tab label="Third">Content 3</mat-tab>
+                </mat-tab-group>
+            </div>
+        </app-card>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <mat-tab-group>
+            <mat-tab label="First">
+                <app-card header="card">
+                    <div class="card-menu">
+                        <button class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add</button>
+                    </div>
+                    <div class="card-content">
+
+                    </div>
+                </app-card>
+            </mat-tab>
+            <mat-tab label="Second">Content 2</mat-tab>
+            <mat-tab label="Third">Content 3</mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

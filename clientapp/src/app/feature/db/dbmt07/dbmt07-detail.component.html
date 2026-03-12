@@ -1,0 +1,37 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && country.rowVersion == null || country.rowVersion != null && actions.edit == true">
+        <i class="fas fa-save"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.DBMT07.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <form [formGroup]="countryDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="countryCode" class="text-center">
+                                {{ 'label.DBMT07.CountryCode' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="countryNameTha" class="text-center">
+                                {{ 'label.DBMT07.CountryNameTha' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="countryNameEng" class="text-center">
+                                {{ 'label.DBMT07.CountryNameEng' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

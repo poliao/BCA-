@@ -1,0 +1,51 @@
+<app-modal header="Modal" (onClose)="close()">
+  <app-card>
+    <div class="card-content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-6">
+            <app-search [value]="data.keyword" placeholder="{{ 'label.SUMT02.SearchPlaceholder' | translate }}"
+              (search)="onSearch($event)">
+            </app-search>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col">
+            <app-table server [dataSource]="items" [columns]="displayedColumns">
+              <ng-container matSort>
+                <ng-container matColumnDef="action">
+                  <th mat-header-cell *matHeaderCellDef columnWidth="100px"></th>
+                  <td mat-cell *matCellDef="let row">
+                    <button class="btn btn-primary btn-sm" (click)="select(row)">
+                      {{ 'label.ALL.Select' | translate}}
+                    </button>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="value">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="150px">Program Code</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.value }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="text">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px">Program Name</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.text }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="programPath">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px">Program Path</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.programPath }}
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              </ng-container>
+            </app-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-card>
+</app-modal>

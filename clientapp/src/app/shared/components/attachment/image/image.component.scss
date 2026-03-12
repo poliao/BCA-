@@ -1,0 +1,52 @@
+.container-wrapper {
+    position: relative;
+    margin-right: auto;
+
+    &.uploading {
+        opacity: 0.7;
+    }
+
+    display:flex;
+    justify-content: center;
+    align-items: center;
+
+    .upload-container {
+        width: 150px;
+        height: 150px;
+        background-color: #f2f9f7;
+        border: 2px dashed #2998ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all .2s ease-in-out;
+        cursor: pointer;
+
+        &.is-invalid {
+            border-color: #F57676;
+        }
+
+        &.disable {
+            border-color: #dad5d5;
+        }
+    }
+
+    .img-preview {
+        position: relative;
+        justify-content: center;
+        align-items: center;
+
+        .spin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+    }
+
+}

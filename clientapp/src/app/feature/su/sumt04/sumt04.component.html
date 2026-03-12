@@ -1,0 +1,113 @@
+<h4>{{ 'label.SUMT04.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-6">
+                        <app-search [value]="keyword" (search)="onSearch($event)"
+                            placeholder="{{ 'label.SUMT04.SearchPlaceholder' | translate }}">
+                        </app-search>
+                    </div>
+                    <div class="col-6 text-end" *ngIf="actions.create == true">
+                        <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus-circle"></i>
+                            {{ 'label.ALL.Add' | translate }}</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <app-table server [dataSource]="data" [columns]="actions.create === false && actions.delete === false ? displayedColumnsNoaction :
+                        actions.delete === false ? displayedColumnsNodelete : actions.create === false ? displayedColumnsNocopy : displayedColumns">
+                            <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <ng-container matColumnDef="profileCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px" class="text-center">{{ 'label.SUMT04.ProfileCode' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <a *ngIf="actions.readOnly == true" [routerLink]="['detail']" [state]="{ code: row.profileCode }">{{ row.profileCode }}</a>
+                                        <span  *ngIf="actions.readOnly == false">{{ row.profileCode }}</span>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="systemCode">
+                                  <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px" class="text-center">{{ 'label.SUMT04.System' | translate }}</th>
+                                  <td mat-cell *matCellDef="let row" class="text-center">{{row.systemCode}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="profileName">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="200px" class="text-center">{{ 'label.SUMT04.ProfileName' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.profileName}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="description">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="300px" class="text-center">{{ 'label.SUMT04.Description' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.description}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="active">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px" class="text-center">{{ 'label.ALL.Active' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center"> <i *ngIf="row.active" class="fas fa-check"></i></td>
+                                </ng-container>
+                                <ng-container matColumnDef="copy" >
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">{{ 'label.ALL.Copy' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-secondary btn-sm" (click)="openCopy(row,copyRef)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="50px" class="text-center">{{ 'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.create === false && actions.delete === false ? displayedColumnsNoaction :
+                                actions.delete === false ? displayedColumnsNodelete : actions.create === false ? displayedColumnsNocopy : displayedColumns">
+                                </tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>
+<ng-template #copyRef>
+    <app-modal header="{{ 'label.SUMT04.Copy' | translate}}" (onClose)="close()">
+        <app-card header="{{ 'label.SUMT04.CopyFrom' | translate }}">
+            <div class="card-content">
+              <form [formGroup]="copyForm">
+                <div class="row g-3">
+                  <div class="col-4">
+                    <textbox formControlName="profileCodeFrom" class="text-center">{{ 'label.SUMT04.ProfileCode' | translate }}</textbox>
+                  </div>
+                  <div class="col-8">
+                    <textbox formControlName="profileDescFrom">{{ 'label.SUMT04.Description' | translate }}</textbox>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </app-card>
+          <app-card header="{{ 'label.SUMT04.CopyTo' | translate }}">
+            <div class="card-content">
+              <form [formGroup]="copyForm" (ngSubmit)="copy()">
+                <div class="row g-3">
+                  <div class="col-4">
+                    <textbox formControlName="profileCodeTo" class="text-center">{{ 'label.SUMT04.ProfileCode' | translate }}
+                      <div class="invalid-pattern">
+                        {{ 'message.STD00029' | translate }}
+                      </div>
+                    </textbox>
+                  </div>
+                  <div class="col-8">
+                    <textbox formControlName="profileDescTo">{{ 'label.SUMT04.Description' | translate }}
+                    </textbox>
+                  </div>
+                  <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary">{{ 'label.ALL.Save' |
+                        translate}}</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </app-card>
+    </app-modal>
+</ng-template>

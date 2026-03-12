@@ -1,0 +1,90 @@
+/*
+ * Entry point of global application style.
+ * Component-specific style should not go here and be included directly as part of the components.
+ */
+
+/* prompt-300 - thai_latin */
+
+@font-face {
+    font-family: "Prompt";
+    font-style: normal;
+    font-weight: 300;
+    src:
+        local("Prompt Light"),
+        local("Prompt-Light"),
+        url("public/fonts/prompt-v4-thai_latin-300.woff2") format("woff2"),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */ url("public/fonts/prompt-v4-thai_latin-300.woff") format("woff");
+    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* prompt-regular - thai_latin */
+
+@font-face {
+    font-family: "Prompt";
+    font-style: normal;
+    font-weight: 400;
+    src:
+        local("Prompt"),
+        local("Prompt-Regular"),
+        url("public/fonts/prompt-v4-thai_latin-regular.woff2") format("woff2"),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */ url("public/fonts/prompt-v4-thai_latin-regular.woff") format("woff");
+    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* prompt-500 - thai_latin */
+
+@font-face {
+    font-family: "Prompt";
+    font-style: normal;
+    font-weight: 500;
+    src:
+        local("Prompt Medium"),
+        local("Prompt-Medium"),
+        url("public/fonts/prompt-v4-thai_latin-500.woff2") format("woff2"),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */ url("public/fonts/prompt-v4-thai_latin-500.woff") format("woff");
+    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* prompt-600 - thai_latin */
+
+@font-face {
+    font-family: "Prompt";
+    font-style: normal;
+    font-weight: 600;
+    src:
+        local("Prompt SemiBold"),
+        local("Prompt-SemiBold"),
+        url("public/fonts/prompt-v4-thai_latin-600.woff2") format("woff2"),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */ url("public/fonts/prompt-v4-thai_latin-600.woff") format("woff");
+    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* prompt-700 - thai_latin */
+
+@font-face {
+    font-family: "Prompt";
+    font-style: normal;
+    font-weight: 700;
+    src:
+        local("Prompt Bold"),
+        local("Prompt-Bold"),
+        url("public/fonts/prompt-v4-thai_latin-700.woff2") format("woff2"),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */ url("public/fonts/prompt-v4-thai_latin-700.woff") format("woff");
+    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+// Theme variables, must be included before the libraries to allow overriding defaults
+@import "theme/theme-variables";
+@import "theme/theme-mixin";
+
+@import "theme/bootstrap-theme";
+@import "theme/fortawesome-theme";
+
+// Theme customization
+@import "theme/m3-material";
+@import "theme/theme";
+@import "theme/custom-material";
+@import "theme/loading";
+
+@import "ngx-toastr/toastr";
+@import "@ng-select/ng-select/themes/default.theme.css";

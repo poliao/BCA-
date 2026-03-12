@@ -1,0 +1,33 @@
+@if (hasLabel) {
+    <label class="form-label" for="number">
+        <ng-content></ng-content>
+        @if (required) {
+            <span class="text-danger"> *</span>
+        }
+    </label>
+}
+<label #viewField class="field-hidden" for="displayText">{{displayText}}</label>
+<div #editField>
+    <input type="text" #textBox [placeholder]="placeholder" [disabled]="disabled" class="form-control text-end"
+        [ngClass]="class" [class.is-invalid]="hasErrors" [class.form-control-sm]="small" (blur)="onTouched()">
+    
+    @if (hasErrors) {
+        <div #editField class="invalid">
+            @if (control?.hasError('required')) {
+                {{'message.STD00000' | translate}}
+            }
+            @if (control?.hasError('min') && !control?.hasError('compareMin')) {
+                {{'message.STD00025' | translate: { '0' : control?.errors?.min?.min | number,'1':'' } }}
+            }
+            @if (control?.hasError('max') && !control?.hasError('compareMax')) {
+                {{'message.STD00026' | translate:{ '0' : control?.errors?.max?.max | number ,'1':'' } }}
+            }
+            @if (control?.hasError('compareMin')) {
+                {{'message.STD00025' | translate:{ '0' : control?.errors?.compareMin?.min | number ,'1':'' } }}
+            }
+            @if (control?.hasError('compareMax')) {
+                {{'message.STD00026' | translate:{ '0' : control?.errors?.compareMax?.max | number ,'1':'' } }}
+            }
+        </div>
+    }
+</div>

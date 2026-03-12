@@ -1,0 +1,9 @@
+@if (hasLabel) {
+  <label class="form-label invisible" for="readonly">Readonly</label>
+}
+<div class="form-check">
+  <input type="checkbox" #viewField [checked]="value" class="field-hidden form-check-input" [disabled]="true">
+  <input type="checkbox" #editField [checked]="value" class="form-check-input" [indeterminate]="indeterminate"
+    (change)="onSelect($event)" id="{{ id }}" [disabled]="disabled">
+  <label class="form-check-label" for="{{ id }}"><ng-content></ng-content>&nbsp;</label>
+</div>

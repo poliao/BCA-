@@ -1,0 +1,16 @@
+<div class="toolbar">
+  <div class="container-fluid">
+    <div class="row justify-content-between">
+      <div class="col-auto col-padding p-1">
+        @if (showBack) {
+          <button class="btn" (click)="back()">
+            <i class="fas fa-chevron-circle-left"></i> {{ 'label.ALL.Back' | translate }}
+          </button>
+        }
+      </div>
+      <div class="col-auto p-1">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<h4>{{ 'label.DBMT08.Province' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <form [formGroup]="searchForm" (ngSubmit)="search()">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <select-input formControlName="countryCode" placeholder="label.ALL.All"
+                                [items]="master.country">{{
+                                'label.DBMT08.Country' | translate }}</select-input>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="provinceName">{{ 'label.DBMT08.ProvinceName' | translate}}</textbox>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> {{
+                                'label.ALL.Search' | translate
+                                }}</button>
+                            <button type="button" class="btn btn-outline-primary" (click)="reset()"><i
+                                    class="fas fa-eraser"></i>
+                                {{ 'label.ALL.Clear' | translate }}</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </app-card>
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-12 text-end" *ngIf="actions.create == true">
+                        <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus-circle"></i>
+                            {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <app-table server [dataSource]="data" [columns]="actions.delete == false ? displayedColumnsNoDelete : displayedColumns">
+                            <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <ng-container matColumnDef="provinceTH">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="189px" class="text-center">{{ 'label.DBMT08.ProvinceNameTH' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <a *ngIf="actions.readOnly == true" [routerLink]="['detail']" [state]="{ provinceNameTHA: row.provinceTH }">{{row.provinceTH}}</a>
+                                        <span *ngIf="actions.readOnly == false">{{row.provinceTH}}</span>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="provinceEN">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px" class="text-center">{{ 'label.DBMT08.ProvinceNameEN' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.provinceEN}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="country">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="182px" class="text-center">{{ 'label.DBMT08.CountryName' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">{{row.country}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="active">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="175px" class="text-center">{{ 'label.DBMT02.Active' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center"> <i *ngIf="row.active" class="fas fa-check"></i></td>
+                                </ng-container>
+                                <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="goDistrict">
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.DBMT08.District' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-primary btn-sm" [disabled]="!actions.readOnly == true" (click)="goDistrict(row)">
+                                            <i class="far fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNoDelete : displayedColumns "></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

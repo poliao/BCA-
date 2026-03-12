@@ -1,0 +1,58 @@
+<h4>{{ 'label.DBMT05.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-6">
+                        <app-search [value]="keyword" (search)="onSearch($event)"
+                            placeholder="{{ 'label.DBMT05.SearchPlaceholder' | translate }}">
+                        </app-search>
+                    </div>
+                    <div class="col-6 text-end" *ngIf="actions.create == true">
+                        <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus-circle"></i>
+                            {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <br>
+            </div>
+        </app-card>
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col">
+                        <app-table server [dataSource]="data" [columns]="actions.delete == false ? displayedColumnsNoDelete : displayedColumns">
+                            <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <ng-container matColumnDef="BankAccountTypeCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="189px" class="text-center">{{ 'label.DBMT05.BankAccountTypeCode' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <a *ngIf="actions.readOnly == true" [routerLink]="['detail']"  [state]="{ BankAccountTypeCode: row.bankAccountTypeCode }">{{row.bankAccountTypeCode}}</a>
+                                        <span *ngIf="actions.readOnly == false">{{row.bankAccountTypeCode}}</span>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="BankAccountTypeDescription">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px" class="text-center">{{ 'label.DBMT05.BankAccountTypeDescription' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.bankAccountTypeDescription}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="active">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="175px" class="text-center">{{ 'label.ALL.Active' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center"> <i *ngIf="row.active" class="fas fa-check"></i></td>
+                                </ng-container>
+                                <ng-container matColumnDef="delete" *ngIf="actions.delete == true">
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNoDelete : displayedColumns"></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

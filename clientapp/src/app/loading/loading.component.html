@@ -1,0 +1,9 @@
+@if (isLoading | async) {
+<div class="loading-area" [@fadeAnimation]>
+  <div class="loading-container">
+    <svg viewBox="0 0 100 100">
+      <circle id="spinner" style="fill:transparent;stroke-width: 7px;stroke-linecap: round;" cx="50" cy="50" r="45" />
+    </svg>
+  </div>
+</div>
+}

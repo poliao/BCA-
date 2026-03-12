@@ -1,0 +1,52 @@
+<toolbar>
+    <button *ngIf="actions.create == true && posiation.rowVersion == null || actions.edit == true && posiation.rowVersion != null" class="btn btn-primary" (click)="save()">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+</toolbar>
+
+<h4>{{ 'label.DBMT02.ProgramNameDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <mat-tab-group>
+            <mat-tab label="{{ 'label.DBMT02.ProgramNameDetail' | translate }}">
+                <div class="card-content">
+                    <form #pro [formGroup]="posiationDataSource.form">
+                        <div class="row g-3">
+                            <div class="col-md-6 col-sm-6">
+                                <textbox formControlName="positionCode" class="text-center">
+                                    {{ 'label.DBMT02.PositionCode' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <textbox formControlName="positionNameTha">
+                                    {{ 'label.DBMT02.NamePositionTh' | translate }}
+                                    <div class="invalid-pattern">
+                                        {{ 'message.ID00019' | translate }}
+                                    </div>
+                                </textbox>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <textbox formControlName="positionNameEng">
+                                    {{ 'label.DBMT02.NamePositionEn' | translate }}
+                                    <div class="invalid-pattern">
+                                        {{ 'message.ID00005' | translate }}
+                                    </div>
+                                </textbox>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <number formControlName="priorityApprovalLevel">
+                                  {{ 'label.DBMT02.PriorityApprovalLevel' | translate }}
+                                </number>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <checkbox formControlName="active">
+                                    {{ 'label.ALL.Active' | translate }}
+                                </checkbox>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

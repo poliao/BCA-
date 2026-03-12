@@ -1,0 +1,104 @@
+/*
+ * Application global variables.
+ */
+
+// Set Font Awesome font path
+$fa-font-path: "@fortawesome/fontawesome-free/webfonts";
+
+// 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
+@import "bootstrap/scss/functions";
+// ---------------------------------------------------------------------------
+// Bootstrap variables
+//
+// Override Bootstrap variables here to suite your theme.
+// Copy variables you want to customize from node_modules/bootstrap/scss/_variables.scss
+
+//
+// Color system
+//
+
+$font-family-sans-serif: "Prompt", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-monospace: "Prompt", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+$main: #ffd800; //#982220
+$secondary: #ffd800; //#24CBC7
+$warn: #FFDAC6;
+$gray-800: #343a40;
+$cyan: rgb(0, 153, 230);
+$sunday: #ff3333;
+$monday: #ffe600;
+$tuesday: #ff1493;
+$wednesday: #28a745;
+$thursday: #fd7e14;
+$friday: #00bfff;
+$saturday: #6f42c1;
+$blue: #2094d8;
+
+// Create your own map
+$custom-colors: (
+    "main": $main,
+    "secondary": $secondary,
+    "sunday": $sunday,
+    "monday": $monday,
+    "tuesday": $tuesday,
+    "wednesday": $wednesday,
+    "thursday": $thursday,
+    "friday": $friday,
+    "saturday": $saturday,
+);
+
+$link-color: $cyan;
+$link-decoration: none;
+$link-hover-decoration: underline;
+$min-contrast-ratio: 2;
+$grid-gutter-width: 1.25rem;
+$custom-space: 0.75rem;
+$gutters: (
+    0: 0rem,
+    1: $custom-space * .25,
+    2: $custom-space * .5,
+    3: $custom-space,
+    4: $custom-space * 1.5,
+    5: $custom-space * 3,
+);
+$body-bg: #f4f7f6;
+$body-color: $gray-800;
+$card-bg: white;
+$btn-line-height: 1.28;
+$input-btn-font-size-sm: 0.84375rem;
+$input-btn-padding-y-sm: 0.22rem;
+$font-size-base: 0.875rem;
+$font-size-sm: 0.8125rem;
+$font-weight-bold: 600;
+$form-label-margin-bottom: 0px;
+$form-label-font-size: $font-size-sm;
+$form-label-font-weight: 400;
+$form-label-color: #777777;
+$h4-font-size: $font-size-base * 1.4;
+
+$modal-content-bg: #f4f7f6;
+$modal-content-border-width: 0px;
+$card-spacer-x: 1rem;
+$card-border-radius: 0.3rem;
+$card-border-width: 0px;
+$card-cap-bg: white;
+$nav-tabs-border-width: 0;
+$nav-tabs-link-active-color: black;
+$nav-tabs-link-active-bg: white;
+$focus-ring-color: rgba($blue, .25);
+$input-bg: white;
+$input-placeholder-color: #adb5bd;
+$input-btn-focus-color: rgba($blue, 0.25);
+$form-check-input-width: 1.1em;
+$form-check-input-disabled-opacity: .65;
+$component-active-bg: $blue;
+$input-focus-border-color: lighten($blue, 25%);
+
+// Use Bootstrap defaults for other variables, imported here so we can access all app variables in one place when used
+// in components.
+// 3. Include remainder of required Bootstrap stylesheets
+@import "bootstrap/scss/variables";
+// Merge the maps
+$theme-colors: map-merge($theme-colors, $custom-colors);
+// Plus imports for other components in your app.

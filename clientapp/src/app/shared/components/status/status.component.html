@@ -1,0 +1,6 @@
+@if (hasLabel) {
+  <label class="form-label" for="status"><ng-content></ng-content>&nbsp;</label>
+}
+<div class="{{ small ? 'small' : 'normal'}}">
+  <span class="badge custom w-100" [ngClass]="class" [ngStyle]="{'background-color': color}">{{status}}</span>
+</div>

@@ -1,0 +1,7 @@
+<app-modal header="{{ 'label.ALL.Img' | translate }}" (onClose)="close()">
+    <form [formGroup]="form">
+        <div>
+            <image formControlName="imgData"></image>
+        </div>
+    </form>
+</app-modal>

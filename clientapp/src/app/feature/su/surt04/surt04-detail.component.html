@@ -1,0 +1,35 @@
+<toolbar>
+    <button class="btn btn-secondary" (click)="save()">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+</toolbar>
+
+<h4>{{ 'label.SURT04.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SURT04.ConfigDetail' | translate }}">
+            <div class="card-content">
+                <form #param [formGroup]="configDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <textbox [value]="config.configGroupCode" [disabled]="true">{{ 'label.SURT04.ConfigGroup' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox [value]="config.configCode" [disabled]="true">{{ 'label.SURT04.ConfigCode' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <textbox formControlName="configValue">{{ 'label.SURT04.ConfigValue' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-8 col-sm-6">
+                            <textbox formControlName="remark">{{ 'label.SURT04.Remark' | translate }}
+                            </textbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

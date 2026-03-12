@@ -1,0 +1,27 @@
+@if (hasLabel) {
+    <label class="form-label" for="time">
+        <ng-content></ng-content>
+        @if (required) {
+            <span class="text-danger"> *</span>
+        }
+    </label>
+}
+<label #viewField class="field-hidden text-end" for="displayText">{{displayText}}</label>
+<div #editField>
+    <input type="text" #time (blur)="_onblur()" [placeholder]="placeholder" [disabled]="disabled"
+        class="form-control text-center" [class.is-invalid]="hasErrors" [class.form-control-sm]="small"
+        (blur)="onTouched()">
+    @if (hasErrors) {
+        <div class="invalid">
+            @if (control?.hasError('required')) {
+                {{'message.STD00000' | translate}}
+            }
+            @if (control?.hasError('compareMin')) {
+                {{'message.STD00025' | translate:{ '0' : control?.errors?.compareMin?.min ,'1':'' } }}
+            }
+            @if (control?.hasError('compareMax')) {
+                {{'message.STD00026' | translate:{ '0' : control?.errors?.compareMax?.max ,'1':'' } }}
+            }
+        </div>
+    }
+</div>

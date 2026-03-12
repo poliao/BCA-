@@ -1,0 +1,41 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="getreport()" *ngIf="actions.print == true">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Report' | translate }}
+    </button>
+</toolbar>
+<br>
+
+<h4 style="padding-top: 10px;">{{ 'label.SURP03.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <form [formGroup]="reportForm">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <select-input [items]="master.profileCode"  formControlName="profileCodeFrom"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SURP03.GroupActionFrom' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <select-input [items]="master.profileCode"  formControlName="profileCodeTo"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SURP03.GroupActionTo' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <select-input [items]="master.system"  formControlName="system"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}" >{{ 'label.SURP03.System' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <radio formControlName="exportType" [items]="radioItems">
+                                {{ 'label.SURF01.ExportType' | translate }}
+                            </radio>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

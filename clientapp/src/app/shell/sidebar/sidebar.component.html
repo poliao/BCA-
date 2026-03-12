@@ -1,0 +1,68 @@
+<nav id="sidebar" class="sidebar" [ngClass]="{'sidebar-bg' : hasBackgroundImage()}">
+    <div class="sidebar-content">
+        <ng-scrollbar>
+            <div class="sidebar-profile">
+                <div class="mt-2 user-pic text-muted">
+                    <i class="far fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">
+                        {{ personalName | async }}
+                    </span>
+                    <span class="badge bg-primary text-uppercase">{{ userName | async}}</span>
+                </div>
+            </div>
+            @if (menusList | async; as menus) {
+            <div class="sidebar-menu" [@fadeAnimation]>
+                <ul>
+                    <ng-template #recursiveList let-menus let-level="level">
+                        @for (menu of menus; track menu) {
+                        <li
+                            [ngClass]="{'active': menu.active,'sidebar-dropdown': haveChildren(menu), 'header-menu':menu.type === 'header'}">
+                            @if (menu.type === 'header') {
+                            <span>{{menu.title}}</span>
+                            }
+
+                            @if (haveChildren(menu)) {
+                            <a class="d-flex align-items-center" routerLinkActive="active" href="javascript:void(0)"
+                                (click)='toggle(menus,menu,level)' [style.padding-left.px]="level*10">
+                                <i class="{{menu.icon}}"></i>
+                                <span innerHTML="{{ menu.title | translate}}"></span>
+                            </a>
+                            }
+                            @else {
+                            <a class="d-flex align-items-center" routerLinkActive="active"
+                                routerLink="{{menu.url ? menu.url : '/notfound'}}" (click)="hide()"
+                                [style.padding-left.px]="level*10">
+                                <i class="{{menu.icon}}"></i>
+                                <span innerHTML="{{ menu.title | translate}}"></span>
+                            </a>
+                            }
+
+                            @if (menu.subMenus && menu.subMenus.length) {
+                            <div class="sidebar-submenu" [class.active]="menu.active">
+                                <ul>
+                                    <ng-container
+                                        *ngTemplateOutlet="recursiveList; context:{ $implicit: menu.subMenus,level:level+1 }">
+                                    </ng-container>
+                                </ul>
+                            </div>
+                            }
+
+                        </li>
+                        }
+                    </ng-template>
+                    <ng-container
+                        *ngTemplateOutlet="recursiveList; context:{ $implicit: menus,level:1 }"></ng-container>
+                </ul>
+            </div>
+            }
+            @else {
+            <div class="d-flex flex-column align-items-center justify-content-center mt-4">
+                <div class="fa-2x text-white-50"><i class="fas fa-circle-notch fa-spin"></i></div>
+                <small class="text-white">loading.....</small>
+            </div>
+            }
+        </ng-scrollbar>
+    </div>
+</nav>

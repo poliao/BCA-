@@ -1,0 +1,37 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="getreport()" *ngIf="actions.print == true">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Report' | translate }}
+    </button>
+</toolbar>
+<br>
+
+<h4 style="padding-top: 10px;">{{ 'label.SURP04.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <form [formGroup]="reportForm">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                          <select-input [items]="master.systemList" formControlName="systemList" placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                            {{ 'label.SURP04.SystemCode' | translate }}
+                          </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <select-input [items]="master.actions" formControlName="actionlist" placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                            {{ 'label.SURP04.MenuAccess' | translate }}
+                          </select-input>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6 col-6">
+                          <datepicker formControlName="startDate">{{ 'label.SURP04.DateFrom' | translate }}</datepicker>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6 col-6">
+                          <datepicker formControlName="endDate" [min]="minEndDate">{{ 'label.SURP04.DateTo' | translate }}</datepicker>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

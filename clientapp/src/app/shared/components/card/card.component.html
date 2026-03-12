@@ -1,0 +1,18 @@
+<div class="card" [ngStyle]="{'border': styleBorder}">
+    @if (header) {
+        <div class="card-header">
+            <span (click)="isCollapsed = !isCollapsed" class="card-header-label" onkeypress="">
+                {{ header }}
+                <span class="icon-btn ml-3">
+                    <i class="fas fa-chevron-circle-up" [class.down]="isCollapsed"></i>
+                </span>
+            </span>
+            <ng-content select=".card-menu"></ng-content>
+        </div>
+    }
+    <div class="collapsible" [@collapse]="isCollapsed">
+        <div class="card-body">
+            <ng-content select=".card-content"></ng-content>
+        </div>
+    </div>
+</div>

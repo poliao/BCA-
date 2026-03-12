@@ -1,0 +1,52 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && program.rowVersion == null || program.rowVersion != null && actions.edit == true">
+        <i class="fas fa-save"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.DBMT06.ProgramDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.DBMT06.ProgramDetail' | translate }}">
+            <div class="card-content">
+                <form [formGroup]="programDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="prefixNameTha" class="text-center">
+                                {{ 'label.DBMT06.PrefixNameTha' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="prefixNameEng" class="text-center">
+                                {{ 'label.DBMT06.PrefixNameEng' | translate }}
+                            </textbox>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="suffixNameTha" class="text-center">
+                                {{ 'label.DBMT06.SuffixNameTha' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="suffixNameEng" class="text-center">
+                                {{ 'label.DBMT06.SuffixNameEng' | translate }}
+                            </textbox>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <select-input [items]="master.personalityTypeList" formControlName="personalityType"
+                              placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                                {{ 'label.DBMT06.PersonalityType' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

@@ -1,0 +1,392 @@
+@each $color, $value in $theme-colors {
+    .btn-outline-dark-#{$color} {
+        @include button-outline-dark($value);
+    }
+
+    .color-#{$color} {
+        color: $value;
+    }
+}
+
+router-outlet~*>*:not(._toolbar) {
+    animation-duration: 1s;
+    animation-name: fadeIn;
+}
+
+.container-fluid {
+    padding-right: var(--bs-gutter-x, .625rem);
+    padding-left: var(--bs-gutter-x, .625rem);
+}
+
+.btn {
+    border-radius: var(--bs-border-radius-sm);
+}
+
+.btn+.btn {
+    margin-left: 5px;
+}
+
+.page-wrapper.toggled .sidebar {
+    left: -260px;
+}
+
+.card-header+.card-body {
+    padding-top: 0;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.form-group {
+    margin-bottom: 0.3rem;
+
+    label {
+        margin-bottom: 0;
+        font-size: $font-size-sm;
+    }
+
+    label:not(.custom-control-label) {
+        color: #777777;
+    }
+}
+
+.form-control.is-invalid {
+    padding-right: 8px;
+}
+
+.form-check-label {
+    font-size: $font-size-sm;
+}
+
+.invalid {
+    text-align: left;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: $red;
+}
+
+.is-invalid {
+
+    &,
+    &.ng-select.custom>.ng-select-container {
+        background-image: none !important;
+        border-color: $danger;
+    }
+
+    &:focus,
+    &.ng-select.custom.ng-select-opened>.ng-select-container,
+    &.ng-select.custom.ng-select-focused:not(.ng-select-opened)>.ng-select-container {
+        border-color: $danger;
+        box-shadow: 0 0 0 $input-focus-width rgba($danger, 0.25);
+    }
+}
+
+.ng-select.custom {
+
+    &.ng-select-opened,
+    &.ng-select-focused:not(.ng-select-opened) {
+        >.ng-select-container {
+            border: $input-border-width solid $input-border-color;
+            color: $input-focus-color;
+            background-color: $input-focus-bg;
+            border-color: $input-focus-border-color;
+            outline: 0; // Avoid using mixin so we can pass custom focus shadow properly
+
+            @if $enable-shadows {
+                box-shadow: $input-box-shadow, $input-focus-box-shadow;
+            }
+
+            @else {
+                box-shadow: $input-focus-box-shadow;
+            }
+        }
+    }
+
+    &.ng-select-disabled>.ng-select-container {
+        background-color: $input-disabled-bg;
+    }
+
+    .ng-select-container {
+        min-height: $input-height-sm;
+        height: auto;
+        border: $input-border-width solid $input-border-color;
+    }
+
+    .ng-arrow-wrapper {
+        color: rgba(0, 0, 0, 0.25);
+
+        .ng-arrow {
+            display: none;
+        }
+
+        &:before {
+            display: block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            font-family: "Font Awesome 5 Free", sans-serif;
+            font-weight: 900;
+            content: "\f107";
+        }
+    }
+
+    &.ng-select-opened {
+        span.ng-arrow-wrapper:before {
+            font-family: "Font Awesome 5 Free", sans-serif;
+            font-weight: 900;
+            content: "\f106";
+        }
+    }
+
+    .ng-clear-wrapper {
+        color: rgba(0, 0, 0, 0.25);
+        position: relative;
+
+        &:hover .ng-clear {
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        .ng-clear {
+            visibility: hidden;
+            font-size: 0.65rem;
+            transition: color 0.2s ease-in-out;
+            line-height: $input-height-sm;
+
+            &:before {
+                position: absolute;
+                visibility: visible;
+                display: inline-block;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                -webkit-font-smoothing: antialiased;
+                font-family: "Font Awesome 5 Free", sans-serif;
+                font-weight: 900;
+                content: "\f00d";
+            }
+        }
+    }
+}
+
+.ng-select.custom.sm {
+    .ng-select-container {
+        font-size: $input-font-size-sm;
+        border-radius: 0.2rem;
+
+        .ng-value-container {
+            .ng-input {
+                top: 4px;
+            }
+        }
+    }
+}
+
+.ng-select.custom.ng-select-multiple .ng-select-container .ng-value-container {
+    padding-top: 3px;
+
+    .ng-value {
+        margin-bottom: 3px;
+
+        .ng-value-icon {
+            color: $blue;
+
+            &.left {
+                border-right: 0px;
+                border-top-left-radius: 0.2rem;
+                border-bottom-left-radius: 0.2rem;
+            }
+
+            transition: all 0.25s;
+
+            &:hover {
+                background-color: lighten($main, 70%);
+            }
+        }
+    }
+}
+
+@keyframes growDown {
+    0% {
+        transform: scaleY(0);
+    }
+
+    80% {
+        transform: scaleY(1.1);
+    }
+
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+.custom .ng-dropdown-panel,
+.ng-dropdown-panel.custom {
+    animation: growDown 100ms ease-in-out forwards;
+    transform-origin: top center;
+    z-index: 1007;
+
+    body>&,
+    &.sm {
+        font-size: calc($input-font-size-sm / 1.038);
+    }
+
+    border: $border-width solid $border-color;
+
+    .ng-dropdown-panel-items {
+
+        .ng-option {
+            transition: background-color 0.2s ease-in-out;
+
+            &.ng-option-marked {
+                background-color: lighten($main, 60%);
+            }
+
+            &.ng-option-selected {
+                background-color: lighten($main, 60%);
+            }
+
+            &.ng-option-selected.ng-option-marked {
+                .ng-option-label {
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+}
+
+$large-screen: 0px;
+$sidebar-distance: 259px;
+
+.page-wrapper {
+    .page-content {
+        @media screen and (min-width: $large-screen) {
+            padding-left: $sidebar-distance;
+        }
+    }
+
+    &:not(.toggled) .toolbar .col-padding {
+        @media screen and (min-width: $large-screen) {
+            margin-left: $sidebar-distance;
+        }
+    }
+}
+
+._toolbar+*>h4,
+._toolbar+h4 {
+    margin-top: 40px;
+}
+
+label.require:after {
+    content: " *";
+    color: $danger;
+    font-weight: bold;
+}
+
+fieldset,
+legend {
+    all: revert;
+}
+
+fieldset {
+    border-style: solid;
+    border-color: #c8ced3;
+    border-radius: 0.3rem;
+    border-width: 1px;
+    min-width: 0;
+
+    legend {
+        font-weight: 500;
+        padding: 0.5rem;
+    }
+}
+
+.hiddenCanvasElement,
+.field-hidden {
+    display: none;
+}
+
+.field-show {
+    display: block;
+}
+
+.btn-secondary {
+    color: #fff;
+    background: $secondary;
+    background: linear-gradient(60deg, rgba($secondary, 1) 0%, rgba($secondary, 0.65) 100%);
+}
+
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.5;
+}
+
+.btn-success {
+    color: #fff;
+    background: $success;
+    background: linear-gradient(60deg, rgba($success, 1) 0%, rgba($success, 0.65) 100%);
+}
+
+.btn-info {
+    color: #fff;
+    background: $info;
+    background: linear-gradient(60deg, rgba($info, 1) 0%, rgba($info, 0.65) 100%);
+}
+
+.btn-danger {
+    color: #fff;
+    background: $danger;
+    background: linear-gradient(60deg, rgba($danger, 1) 0%, rgba($danger, 0.65) 100%);
+}
+
+.btn-close-modal {
+    color: #fff;
+    background: $gray-800;
+    background: linear-gradient(60deg, rgba($gray-800, 1) 0%, rgba($gray-800, 0.65) 100%);
+
+    &:hover {
+        color: #fff;
+        background-color: $gray-800;
+        border-color: $gray-800;
+    }
+}
+
+.full-radio-button {
+    display: flex !important;
+
+    button {
+        flex: 2 !important;
+        font-size: 0.875rem;
+        line-height: 1.1;
+        padding: 0.375rem 0.75rem !important;
+    }
+}
+
+.btn-Reject {
+    color: #fff;
+    background: $gray-800;
+    background: linear-gradient(60deg, rgba($gray-800, 1) 0%, rgba($gray-800, 0.65) 100%);
+
+    &:hover {
+        color: #fff;
+        background-color: $gray-800;
+        border-color: $gray-800;
+    }
+}
+
+.btn-SendBack {
+    color: black;
+    background: $monday;
+    background: linear-gradient(60deg, rgba($monday, 1) 0%, rgba($monday, 0.65) 100%);
+}
+
+.badge-status-container {
+    >span:last-child {
+        font-size: 12px;
+        font-weight: 500;
+        color: $gray-800;
+    }
+}

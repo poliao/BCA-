@@ -1,0 +1,64 @@
+@if (hasLabel) {
+  <label class="form-label" for="select">
+    <ng-content></ng-content>
+    @if (required) {
+      <span class="text-danger"> *</span>
+    }
+  </label>
+}
+<label #viewField class="field-hidden" for="selectedText">{{ selectedText }}</label>
+<div #editField>
+  <ng-select #ngSelect class="custom" [class.is-invalid]="hasErrors" [items]="items" [bindLabel]="bindLabel"
+    [bindValue]="bindValue" [ngModel]="value" (ngModelChange)="onSelected($event)" [disabled]="disabled"
+    [multiple]="multiple" [addTag]="tag" (add)="onAdded($event)" (remove)="onRemoved($event)" [appendTo]="appendTo"
+    dropdownPosition="bottom" [class.sm]="small" [searchFn]="customSearch" [virtualScroll]="true"
+    notFoundText="{{ 'label.ALL.NotFound' | translate }}" placeholder="{{ placeholder | translate }}"
+    [ngModelOptions]="{ standalone: true }">
+
+    @if (labelTemp) {
+      <ng-template ng-label-tmp let-item="item" let-clear="clear">
+        <ng-template *ngTemplateOutlet="labelTemp; context: { item: item, clear: clear }"></ng-template>
+      </ng-template>
+    }
+    @if (showDescription) {
+      <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+        <div [ngOptionHighlight]="search" class="ng-option-label" matTooltip="{{ item[bindLabel] }}">
+          {{ item[bindLabel] }}
+        </div>
+        <small class="text-muted" [ngOptionHighlight]="search" matTooltip="{{ item[bindDesc] }}">
+          {{ item[bindDesc] }}</small>
+      </ng-template>
+    }
+    @if (!optionTemp && !showDescription) {
+      <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+        <div class="ng-option-label" [ngOptionHighlight]="search" [matTooltip]="item[bindLabel]">
+          {{ item[bindLabel] }}
+        </div>
+      </ng-template>
+    }
+    @if (optionTemp && !showDescription) {
+      <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+        <ng-container *ngTemplateOutlet="optionTemp; context: { item: item, search: search }"></ng-container>
+      </ng-template>
+    }
+    @if (!labelTemp && multiple) {
+      <ng-template ng-label-tmp let-item="item" let-clear="clear">
+        <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true" onkeypress="">
+          <i class="fas fa-times-circle fa-sm"></i>
+        </span>
+        <span class="ng-value-label">{{ item[bindLabel] }}</span>
+      </ng-template>
+    }
+  </ng-select>
+  @if (hasErrors) {
+    <div class="invalid">
+      @if (control?.hasError('required')) {
+        {{ 'message.STD00001' | translate }}
+      }
+      @if (control?.hasError('maxlength')) {
+        {{ 'message.STD00026' | translate:
+        { '0': control?.errors?.maxlength?.requiredLength, '1': 'label.ALL.Characters' | translate } }}
+      }
+    </div>
+  }
+</div>

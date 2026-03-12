@@ -1,0 +1,40 @@
+@if (hasLabel) {
+  <label class="form-label" for="radio-checkbox">
+    <ng-content></ng-content>
+    @if (required) {
+      <span class="text-danger"> *</span>
+    }
+  </label>
+}
+<div #viewField class="field-hidden">
+  @for (item of items; let i = $index; track item.value) {
+    <div class="form-check" [class.form-check-inline]="inline">
+      <input type="checkbox" [disabled]="disabled || item.disabled" [checked]="value == item.value"
+        (change)="onSelect(item)" class="form-check-input">
+      <label class="form-check-label" for="{{item.value+id}}">{{item.text}}</label>
+    </div>
+  }
+</div>
+@if (hasErrors) {
+  <div class="invalid">
+    @if (control.hasError('required')) {
+      {{ 'message.STD00001' | translate }}
+    }
+  </div>
+}
+<div #editField>
+  @for (item of items; let i = $index; track item.value) {
+    <div class="form-check" [class.form-check-inline]="inline">
+      <input type="checkbox" [disabled]="disabled || item.disabled" [checked]="value == item.value"
+        (change)="onSelect(item)" class="form-check-input" id="{{item.value+id}}">
+      <label class="form-check-label" for="{{item.value+id}}">{{item.text}}</label>
+    </div>
+  }
+</div>
+@if (hasErrors) {
+  <div class="invalid">
+    @if (control.hasError('required')) {
+      {{ 'message.STD00001' | translate }}
+    }
+  </div>
+}

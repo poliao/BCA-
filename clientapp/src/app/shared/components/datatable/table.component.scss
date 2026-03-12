@@ -1,0 +1,134 @@
+@import "theme/theme-variables";
+
+
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  min-height: 50px;
+}
+
+::ng-deep .mat-mdc-table {
+  width: 100%;
+  background: #ffffff !important;
+
+  .mat-mdc-cell,
+  .mat-mdc-header-cell {
+    border-bottom-color: rgba(0, 0, 0, 0.12);
+  }
+
+  tr.mat-mdc-header-row {
+    height: 40px;
+    min-height: 40px;
+
+    th.mat-mdc-header-cell {
+      color: $body-color;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      padding: 0.35rem;
+
+      &.text-center .mat-sort-header-container {
+        justify-content: center;
+      }
+
+      &.text-end .mat-sort-header-container {
+        justify-content: end;
+      }
+
+      &.text-center .mat-sort-header-content {
+        margin-left: 18px;
+      }
+
+      &.require .mat-sort-header-content,
+      &.require.mat-mdc-header-cell:not(.mat-sort-header) {
+        &::after {
+          content: " *";
+          padding-left: 2px;
+          color: $danger;
+        }
+      }
+    }
+  }
+
+  tr.mat-mdc-row {
+    height: auto;
+
+    &:not(.example-detail-row) {
+      td.mat-mdc-cell {
+        padding: 0.28rem 0.35rem;
+      }
+    }
+
+    // &.highlight {
+    //   background-color: lighten($secondary, 50%) !important;
+    //   transition: all 0.3s;
+    // }
+
+    &.odd {
+      background-color: rgba(0, 0, 0, 0.028);
+    }
+
+    &.example-detail-row {
+      min-height: 0;
+
+      &.collapsed td.mat-mdc-cell {
+        border-bottom-width: 0;
+      }
+
+      &.detail-odd {
+        .alert {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+      }
+
+      &.detail-highlight {
+        .alert {
+          background-color: lighten($secondary, 50%) !important;
+          transition: all 0.3s;
+        }
+      }
+    }
+
+    td.mat-mdc-cell,
+    td.mat-mdc-footer-cell {
+      font-size: 13px;
+      vertical-align: top;
+
+      i.fa-check:not(.in-btn) {
+        color: $blue;
+      }
+
+      .example-element-detail {
+        overflow: hidden;
+        display: flex;
+      }
+
+      .btn i {
+        transition: all 0.3s;
+      }
+
+      .alert {
+        margin: 0.35rem;
+      }
+    }
+  }
+
+  tr.mat-mdc-footer-row {
+    height: 40px;
+
+    td.mat-mdc-footer-cell {
+      font-size: 13px;
+      padding: 0.35rem;
+      font-weight: 500;
+    }
+  }
+}
+
+::ng-deep .mat-mdc-paginator-range-actions {
+  flex-wrap: wrap;
+}
+
+::ng-deep .mat-mdc-paginator {
+  background: #ffffff !important;
+}

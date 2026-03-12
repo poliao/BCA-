@@ -1,0 +1,41 @@
+@if (hasLabel) {
+  <label class="form-label" for="radioButton">
+    <ng-content></ng-content>
+  </label>
+}
+<div #viewField class="field-hidden">
+  <div class="btn-group d-block">
+    @for (item of items; let i = $index; track item.value) {
+      <button type="button" [disabled]="disabled || item.disabled" (click)="onSelect(item.value)" class="btn"
+        [class.btn-sm]="small" [ngStyle]="{'min-width.px': 45}"
+        [ngClass]="[ value === item.value ? item.btnActiveClass : item.btnClass ]">
+        {{ item.text }}
+      </button>
+    }
+  </div>
+  @if (hasErrors) {
+    <div class="invalid">
+      @if (control.hasError('required')) {
+        {{'message.STD00001' | translate}}
+      }
+    </div>
+  }
+</div>
+<div #editField>
+  <div class="btn-group d-block">
+    @for (item of items; let i = $index; track item.value) {
+      <button type="button" [disabled]="disabled || item.disabled" (click)="onSelect(item.value)" class="btn"
+        [class.btn-sm]="small" [ngStyle]="{'min-width.px': 45}"
+        [ngClass]="[ value === item.value ? item.btnActiveClass : item.btnClass ]">
+        {{ item.text }}
+      </button>
+    }
+  </div>
+  @if (hasErrors) {
+    <div class="invalid">
+      @if (control.hasError('required')) {
+        {{'message.STD00001' | translate}}
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,37 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && Province.rowVersion == null || actions.edit == true && Province.rowVersion != null">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.DBMT08.ProvinceDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.DBMT08.ProvinceDetail' | translate }}">
+            <div class="card-content">
+                <form #pro [formGroup]="ProvinceDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="provinceNameTHA" class="text-left">{{ 'label.DBMT08.ProvinceNameTH' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="provinceNameENG">{{ 'label.DBMT08.ProvinceNameEN' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input formControlName="countryCode" placeholder="{{ 'label.ALL.PleaseSelect' | translate }}"
+                                [items]="master.country">{{
+                                'label.DBMT08.Country' | translate }}</select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}
+                            </checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

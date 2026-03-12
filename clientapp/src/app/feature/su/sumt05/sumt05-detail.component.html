@@ -1,0 +1,56 @@
+<toolbar [showBack]="false">
+    <button class="btn btn-primary" (click)="save()" *ngIf="policy.rowVersion !== null && actions.edit == true">
+      <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+      <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.SUMT05.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT05.PolicyDetail' | translate }}">
+            <div class="card-content">
+                <form #policy [formGroup]="policyDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="passwordPolicyCode" class="text-center">{{ 'label.SUMT05.PolicyCode' | translate }}</textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="passwordPolicyName">{{ 'label.SUMT05.PolicyName' | translate }}</textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="passwordPolicyDescription">{{ 'label.SUMT05.Description' | translate }}</textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="failTime">{{ 'label.SUMT05.FailTime' | translate }}</number>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="passwordAge">{{ 'label.SUMT05.PasswordAge' | translate }}</number>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="passwordHistory">{{ 'label.SUMT05.PasswordHistory' | translate }}</number>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="passwordMinimumLength">{{ 'label.SUMT05.PasswordMinimumLength' | translate }}</number>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="passwordMaximumLength">{{ 'label.SUMT05.PasswordMaximumLength' | translate }}</number>
+                        </div>
+                        <div class="col-md-2 col-sm-3">
+                            <checkbox formControlName="usingUppercase">{{ 'label.SUMT05.UsingUppercase' | translate }}</checkbox>
+                        </div>
+                        <div class="col-md-2 col-sm-3">
+                            <checkbox formControlName="usingLowercase">{{ 'label.SUMT05.UsingLowercase' | translate }}</checkbox>
+                        </div>
+                        <div class="col-md-2 col-sm-3">
+                            <checkbox formControlName="usingNumericChar">{{ 'label.SUMT05.UsingNumericChar' | translate }}</checkbox>
+                        </div>
+                        <div class="col-md-2 col-sm-3">
+                            <checkbox formControlName="usingSpecialChar">{{ 'label.SUMT05.UsingSpecialChar' | translate }}</checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

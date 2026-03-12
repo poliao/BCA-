@@ -1,0 +1,12 @@
+<app-modal header="Multiple File" (onClose)="close()">
+    <app-card>
+        <div class="card-content">
+            <div class="row">
+                <div class="col">
+                    <multiple-file [accept]="accept" [height]="'350px'"
+                        (outputFiles)="getOutputFiles($event)"></multiple-file>
+                </div>
+            </div>
+        </div>
+    </app-card>
+</app-modal>

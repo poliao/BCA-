@@ -1,0 +1,29 @@
+@import "theme/theme-variables";
+
+.date-group .form-control {
+  border-right: 0;
+}
+
+.date-group {
+
+  .btn-link,
+  .btn-sm {
+    color: gray;
+    background: white;
+    border: 1px solid #ced4da;
+    border-left: 0;
+
+    &.is-invalid {
+      border-color: $danger;
+    }
+  }
+}
+
+.mat-calendar {
+
+  .mat-calendar-body-cell-content,
+  th,
+  td {
+    font-family: 'Prompt', sans-serif !important;
+  }
+}

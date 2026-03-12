@@ -1,0 +1,54 @@
+@if (hasLabel) {
+  <label class="form-label" for="hasLabel">
+    <ng-content></ng-content>
+    @if (required) {
+      <span class="text-danger"> *</span>
+    }
+  </label>
+}
+<input #input type="file" [accept]="accept" [disabled]="disabled" hidden (change)="add($event)">
+@if (content | async; as file) {
+  <div class="input-group" [class.input-group-sm]="small" [class.disable]="disabled">
+    <input type="text" value="{{ file.name || '' }}" [readonly]="!disabled" class="form-control"
+      [class.is-invalid]="hasErrors" [placeholder]="placeholder" [disabled]="disabled">
+    @if (file.path) {
+      <button (click)="open(file.path)" type="button" class="btn btn-link rounded-0">
+        <i class="fas fa-paperclip"></i>
+      </button>
+    }
+    @if (!disabled && file.id) {
+      <button (click)="remove()" type="button" class="btn btn-link rounded-0 text-danger">
+        <i class="fas fa-times"></i>
+      </button>
+    }
+    <span class="input-group-text" id="{{ id }}" (click)="choose(input)" onkeypress="">
+      {{ 'label.ALL.Choose' | translate }}
+    </span>
+  </div>
+}
+@for (error of errorMessages; track $index) {
+  <div class="invalid">
+    @if (error.param && error.param.type) {
+      <span>
+        {{ error.message | translate: { '0': error.param.type } }}
+      </span>
+    }
+    @if (error.param && error.param.max) {
+      <span>
+        {{ error.message | translate: { '0': error.param.max } }}
+      </span>
+    }
+    @if (!error.param) {
+      <span>
+        {{ error.message | translate }}
+      </span>
+    }
+  </div>
+}
+@if (control && hasErrors) {
+  <div class="invalid">
+    @if (control.hasError('required')) {
+      {{'message.STD00000' | translate }}
+    }
+  </div>
+}

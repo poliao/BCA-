@@ -1,0 +1,37 @@
+@if (hasLabel) {
+    <label class="form-label" for="hasLabel">
+        <ng-content></ng-content>
+        @if (required) {
+            <span class="text-danger"> *</span>
+        }
+    </label>
+}
+<label #viewField class="field-hidden" for="displayText">{{displayText}}</label>
+<input type="text" #editField [placeholder]="placeholder" [readonly]="readonly" [disabled]="disabled"
+    class="form-control" [class.is-invalid]="hasErrors" (input)="onTextChange($event)" [class.form-control-sm]="small"
+    [ngClass]="class" [value]="value" (blur)="onTextBlur()">
+@if (hasErrors) {
+    <div class="invalid">
+        @if (control?.hasError('required') || control?.hasError('empty')) {
+            {{'message.STD00000' | translate}}
+        }
+        @if (control?.hasError('space')) {
+            {{'message.STD00024' | translate}}
+        }
+        @if (control?.hasError('minlength')) {
+            {{'message.STD00025' | translate:{ '0' : control?.errors?.minlength?.requiredLength,'1':'label.ALL.Characters' | translate } }}
+        }
+        @if (control?.hasError('maxlength')) {
+            {{'message.STD00026' | translate:{ '0' : control?.errors?.maxlength?.requiredLength,'1':'label.ALL.Characters' | translate } }}
+        }
+        @if (control?.hasError('email')) {
+            {{'message.STD00015' | translate}}
+        }
+        @if (control?.hasError('exact')) {
+            {{'message.STD00023' | translate:{ '0': control.errors.exact.requiredLength,'1': 'label.ALL.Characters' | translate } }}
+        }
+        @if (control?.hasError('pattern')) {
+            <ng-content select=".invalid-pattern"></ng-content>
+        }
+    </div>
+}

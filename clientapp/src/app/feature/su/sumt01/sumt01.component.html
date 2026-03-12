@@ -1,0 +1,57 @@
+<h4>{{ 'label.SUMT01.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-6">
+                        <app-search [value]="keyword" (search)="onSearch($event)"
+                            placeholder="{{ 'label.SUMT01.SearchPlaceholder' | translate }}">
+                        </app-search>
+                    </div>
+                    <div class="col-6 text-end" *ngIf="actions.create == true">
+                        <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus-circle"></i>
+                            {{ 'label.ALL.Add' | translate }}</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <app-table server [dataSource]="data" [columns]="actions.delete == false ? displayedColumnsNodelete : displayedColumns">
+                            <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <ng-container matColumnDef="systemCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="189px" class="text-center">{{ 'label.SUMT01.SystemCode' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <a *ngIf="actions.readOnly == true" [routerLink]="['detail']" [state]="{ systemCode: row.systemCode }">{{row.systemCode}}</a>
+                                        <span *ngIf="actions.readOnly == false">{{row.systemCode}}</span>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="systemNameTH">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="182px" class="text-center">{{ 'label.SUMT01.SystemNameTH' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.systemNameTH}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="systemNameEN">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="175px" class="text-center">{{ 'label.SUMT01.SystemNameEN' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.systemNameEN}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="active">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px" class="text-center">{{ 'label.ALL.Active' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center"> <i *ngIf="row.active" class="fas fa-check"></i></td>
+                                </ng-container>
+                                <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button *ngIf="actions.delete == true" class="btn btn-outline-danger btn-sm " (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNodelete : displayedColumns"></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

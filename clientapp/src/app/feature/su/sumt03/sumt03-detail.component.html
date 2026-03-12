@@ -1,0 +1,77 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && suMenu.rowVersion == null || suMenu.rowVersion != null && actions.edit == true ">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+</toolbar>
+
+<h4>{{ 'label.SUMT03.ProgramNameDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT03.MenuDetail' | translate }}">
+            <div class="card-content">
+                <form #menu [formGroup]="suMenuDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="master.systemCodes" formControlName="systemCode"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT03.Website' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="menuCode" class="text-center">{{ 'label.SUMT03.MenuCode' |
+                                translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00029' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <select-input [items]="master.mainMenus" formControlName="mainMenu"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                                {{ 'label.SUMT03.MainMenu' | translate }}</select-input>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <select-input [items]="master.programCodes" formControlName="programCode"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                                {{ 'label.SUMT03.ProgramCode' | translate }}</select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="icon">{{ 'label.SUMT03.Icon' | translate }}</textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT03.MenuName' | translate }}">
+
+            <div class="card-content">
+                <div class="row">
+                    <div class="col">
+                        <mat-tab-group>
+                            <mat-tab *ngFor="let label of suMenuLabelDataSources; let index = index"
+                                [label]="label.model.langName">
+                                <form [formGroup]="label.form">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <textbox formControlName="menuName">{{ 'label.SUMT03.MenuName' | translate
+                                                }}</textbox>
+                                        </div>
+                                    </div>
+                                </form>
+                            </mat-tab>
+                        </mat-tab-group>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+
+    </div>
+</div>

@@ -1,0 +1,148 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()"
+        *ngIf="actions.create == true && profile.rowVersion == null || profile.rowVersion != null && actions.edit == true ">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+</toolbar>
+
+<h4>{{ 'label.SUMT04.ProgramNameDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT04.ProfileDetail' | translate }}">
+            <div class="card-content">
+                <form #menu [formGroup]="profileDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="profileCode" class="text-center">{{ 'label.SUMT04.ProfileCode' |
+                                translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00029' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="description">{{ 'label.SUMT04.Description' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT04.ProfileName' | translate }}">
+            <div class="card-content">
+                <div class="row">
+                    <div class="col">
+                        <mat-tab-group>
+                            <mat-tab *ngFor="let lang of profileLangDataSources; let index = index"
+                                [label]="lang.model.langName">
+                                <form [formGroup]="lang.form">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <textbox formControlName="profileName">{{ 'label.SUMT04.ProfileName' |
+                                                translate }}</textbox>
+                                        </div>
+                                    </div>
+                                </form>
+                            </mat-tab>
+                        </mat-tab-group>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT04.Menu' | translate }}">
+            <div class="card-menu">
+                <button type="button" class="btn btn-primary" (click)="add()"
+                    *ngIf="actions.create == true && profile.rowVersion == null || profile.rowVersion != null && actions.edit == true">
+                    <i class="fas fa-plus-circle"></i> {{'label.ALL.Add' | translate }}</button>
+            </div>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-8">
+                        <app-search (search)="onSearch($event,'profileMenu')"
+                            placeholder="{{ 'label.SUMT04.SearchProfileMenu' | translate }}"></app-search>
+                    </div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col">
+                        <app-table [defaultPageSize]="10" [dataSource]="profileMenus" [columns]="actions.delete == false ? displayedColumnsNodelete : displayedColumns" > 
+                            <ng-container matSort matSortActive="model.systemCode" matSortDirection="asc">
+                                <ng-container matColumnDef="systemCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header="model.systemCode" columnWidth="100px"
+                                        class="text-center require">
+                                        {{ 'label.SUMT04.SystemCode' | translate }}
+                                    </th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        {{ row.model.systemCode }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="menuCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header="model.menuCode" columnWidth="100px"
+                                        class="text-center require">
+                                        {{ 'label.SUMT04.MenuCode' | translate }}
+                                    </th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        {{ row.model.menuCode }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="menuName">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header="model.menuName" columnWidth="200px"
+                                        class="require">
+                                        {{ 'label.SUMT04.MenuName' | translate }}
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        {{ row.model.menuName }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="authorize">
+                                    <th mat-header-cell *matHeaderCellDef class="text-center">
+                                        {{ 'label.SUMT04.Authorize' | translate }}
+                                      <div class="d-flex justify-content-center flex-wrap">
+                                        <div class="form-check mx-1 text-nowrap" *ngFor="let auth of master.authorize">
+                                          <input type="checkbox" class="form-check-input" [checked]="isAllChecked(auth.authorizeActionCode)" (change)="toggleAll(auth.authorizeActionCode, $event)"/>
+                                          <label class="form-check-label small">{{ auth.description }}</label>
+                                        </div>
+                                      </div>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                      <form [formGroup]="row.form">
+                                        <div formArrayName="authorize" class="d-flex flex-wrap justify-content-center">
+                                          <div class="form-check mx-1 text-nowrap" *ngFor="let auth of getAuthorizeFormArray(row.form).controls; let i = index" [formGroupName]="i">
+                                            <input type="checkbox" class="form-check-input" formControlName="flag"(click)="checkReadOnly(auth, row.form)"/>
+                                            <label class="form-check-label small">
+                                              {{ row.model.authorize[i]?.description }}
+                                            </label>
+                                          </div>
+                                        </div>
+                                      </form>
+                                    </td>
+                                  </ng-container>
+                                <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="70px">{{ 'label.ALL.Delete' |
+                                        translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNodelete : displayedColumns"></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

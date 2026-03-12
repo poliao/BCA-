@@ -1,0 +1,17 @@
+@if (hasLabel) {
+  <label class="form-label" for="checkButton">
+    <ng-content></ng-content>&nbsp;
+  </label>
+}
+<button type="button" #viewField [disabled]="true" (click)="onSelect()" class="btn field-hidden" [class.btn-sm]="small"
+  [ngClass]="[ value === true ? btnActiveClass : btnClass ]">
+  <i class="fas fa-check in-btn" [hidden]="value !== true"></i>
+  <i class="far fa-square" [hidden]="value === true"></i>
+  {{ text }}
+</button>
+<button type="button" #editField [disabled]="disabled" (click)="onSelect()" class="btn" [class.btn-sm]="small"
+  [ngClass]="[ value === true ? btnActiveClass : btnClass ]">
+  <i class="fas fa-check in-btn" [hidden]="value !== true"></i>
+  <i class="far fa-square" [hidden]="value === true"></i>
+  {{ text }}
+</button>

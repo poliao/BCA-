@@ -1,0 +1,20 @@
+::ng-deep .form-check {
+
+  .form-check-input[disabled]~.form-check-label,
+  .form-check-input:disabled~.form-check-label {
+    opacity: 1;
+  }
+
+  .form-check-input[disabled]+.form-check-label,
+  .form-check-input:disabled+.form-check-label {
+    opacity: 0.65;
+  }
+
+  .form-check-label {
+    cursor: pointer;
+
+    &.disable {
+      cursor: unset;
+    }
+  }
+}

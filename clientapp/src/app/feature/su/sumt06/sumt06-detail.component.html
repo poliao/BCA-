@@ -1,0 +1,203 @@
+<toolbar>
+    <button *ngIf="user.lockoutEnabled == false" class="btn btn-warning" (click)="ublockBruteForceUser()">
+        <i class="fas fa-lock-open"></i> {{ 'label.SUMT06.Unlock' | translate }}
+    </button>
+    <button class="btn btn-primary" (click)="save()"
+        *ngIf="actions.create == true  && user.rowVersion == null || user.rowVersion != null && actions.edit == true">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.SUMT06.ProgramNameDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <mat-tab-group>
+            <mat-tab label="{{ 'label.SUMT06.UserDetail' | translate }}">
+                <form #policy [formGroup]="userDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-3 col-sm-6">
+                            <textbox formControlName="userName" class="text-center">{{ 'label.SUMT06.UserName' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.SU00001' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                          <select-input formControlName="employeeCode" [items]="filterEmployee">{{
+                            'label.SUMT06.EmployeeSU' | translate }}</select-input>
+                    </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6">
+                            <textbox formControlName="email">{{ 'label.SUMT06.Email' | translate }}</textbox>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6">
+                            <textbox formControlName="phoneNumber" class="text-center">{{ 'label.SUMT06.Phone' |
+                                translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00016' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <select-input formControlName="defaultLang" [items]="master.languages">{{
+                                'label.SUMT06.DefaultLang' | translate }}</select-input>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <select-input formControlName="userType" [items]="master.userTypes">{{
+                                'label.SUMT06.UserType' | translate }}</select-input>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <label class="invisible d-block">ResetPassword </label>
+                            <div class="d-grid"> <button  class="btn btn-warning" type="button" [disabled]="actions.edit == false"
+                                    (click)="resetPassword()"><i class="fas fa-redo-alt"></i>
+                                    {{'label.SUMT06.ResetPassword' | translate}}</button></div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <label class="invisible d-block">ForgetPassword </label>
+                            <div class="d-grid"><button class="btn btn-info" type="button" (click)="forgetPassword()" [disabled]="actions.edit == false"><i
+                                        class="fas fa-envelope"></i>
+                                    {{'label.SUMT06.ForgetPassword' | translate}}</button></div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <checkbox formControlName="forceChangePassword">{{ 'label.SUMT06.ForceChangePassword' |
+                                translate}}</checkbox>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <checkbox formControlName="active">{{ 'label.SUMT06.Active' | translate }}</checkbox>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <textbox class="text-center" [value]="user.lockoutEnd | localeDate : 'dd/MM/yyyy HH:mm:ss'"
+                                [disabled]="true">{{ 'label.SUMT06.LockoutEnd' | translate }}</textbox>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-6">
+                            <datepicker formControlName="startEffectiveDate"
+                                [max]="userDataSource.form.controls.endEffectiveDate.value">{{
+                                'label.SUMT06.StartEffectiveDate' |
+                                translate }}</datepicker>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <datepicker formControlName="endEffectiveDate"
+                                [min]="userDataSource.form.controls.startEffectiveDate.value">{{
+                                'label.SUMT06.EndEffectiveDate' |
+                                translate }}</datepicker>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <textbox [value]="user.updatedBy" [disabled]="true">{{ 'label.SUMT06.UpdatedBy' |
+                                translate }}</textbox>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <datepicker [value]="user.updatedDate" [disabled]="true">{{ 'label.SUMT06.UpdatedDate' |
+                                translate }}</datepicker>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <datepicker [value]="user.lastChangePassword" [disabled]="true">{{
+                                'label.SUMT06.LastChangePassword' |
+                                translate }}</datepicker>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <datepicker [value]="user.passwordExpireDate" [disabled]="true">{{
+                                'label.SUMT06.PasswordExpireDate' |
+                                translate }}</datepicker>
+                        </div>
+                    </div>
+                </form>
+            </mat-tab>
+            <mat-tab label="{{ 'label.SUMT06.UserProfile' | translate }}">
+                <div class="row">
+                    <div class="col text-end">
+                        <button type="button" class="btn btn-primary" (click)="add()" *ngIf="actions.create == true  && user.rowVersion == null || user.rowVersion != null && actions.edit == true">
+                          <i class="fas fa-plus-circle"></i> {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <app-table [dataSource]="userProfiles" [columns]="actions.delete == true ? ['profileCode','action'] : ['profileCode']">
+                            <ng-container matColumnDef="profileCode">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="400px" class="require"> {{
+                                    'label.SUMT06.ProfileCode' |
+                                    translate }} </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div [formGroup]="row.form">
+                                        <select-input formControlName="profileCode"
+                                            [items]="master.profileActives[row.model.guid]" [hasLabel]="false"
+                                            [small]="true">
+                                        </select-input>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="100px">{{ 'label.ALL.Delete' |
+                                    translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                    <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="actions.delete == true ? ['profileCode','action'] : ['profileCode']"></tr>
+                        </app-table>
+                    </div>
+                </div>
+            </mat-tab>
+            <mat-tab label="{{ 'label.SUMT06.Permission' | translate }}">
+                <div class="row">
+                    <div class="col text-end">
+                        <button type="button" class="btn btn-primary" (click)="addComp()"
+                            *ngIf="actions.create == true && user.rowVersion == null || user.rowVersion != null && actions.edit == true">
+                            <i class="fas fa-plus-circle"></i> {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <app-table [dataSource]="userCompany" [columns]="actions.delete == true ? ['mainCompany','companyCode','default','action'] : ['mainCompany','companyCode','default']">
+                            <ng-container matColumnDef="mainCompany">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                                  {{ 'label.SUMT06.CompanyName' | translate}}
+                                </th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                  <a *ngIf="actions.readOnly == true" [routerLink]="['organization']" [state]="{mainCompany:row.model.mainCompany , id:row.model.userId }">{{ row.model.mainCompany }}</a>
+                                  <span *ngIf="actions.readOnly == false">{{ row.model.mainCompany }}</span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="companyCode">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="400px" class="require"> {{
+                                    'label.SUMT06.Permission' |
+                                    translate }} 
+                                </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div [formGroup]="row.form">
+                                        <select-input formControlName="companyCode" [items]="master.company"
+                                            [hasLabel]="false" [small]="true">
+                                        </select-input>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="default">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="100px">{{ 'label.SUMT06.Default' |
+                                    translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                    <div [formGroup]="row.form">
+                                        <input type="checkbox" formControlName="isDefault">
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="100px">{{ 'label.ALL.Delete' |
+                                    translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                    <button class="btn btn-outline-danger btn-sm" (click)="removeComp(row)">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="actions.delete == true ? ['mainCompany','companyCode','default','action'] : ['mainCompany','companyCode','default']"></tr>
+                        </app-table>
+                    </div>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

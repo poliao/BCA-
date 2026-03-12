@@ -1,0 +1,283 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()"
+        *ngIf="actions.create == true && dbEmployee.rowVersion == null || dbEmployee.rowVersion != null && actions.edit == true ">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.DBMT01.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <mat-tab-group>
+            <mat-tab label="{{ 'label.DBMT01.ProgramDetail' | translate }}">
+                <app-card header="{{ 'label.DBMT01.ProgramDetail' | translate }}">
+                    <div class="card-content">
+                        <form #pro [formGroup]="EmployeeDataSource.form">
+                            <div class="row g-3">
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="employeeCode" class="text-center">
+                                        {{ 'label.DBMT01.EmpCode' | translate }}
+                                        <div class="invalid-pattern">
+                                            {{ 'message.ID00005' | translate }}
+                                        </div>
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-6 col-md-8">
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <select-input formControlName="prefixId" [items]="master.prefix">
+                                        {{ 'label.DBMT01.Prefix' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="firstName">
+                                        {{ 'label.DBMT01.FirstName' | translate }}
+                                    </textbox>
+                                </div>
+
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="lastName">
+                                        {{ 'label.DBMT01.LastName' | translate }}
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="firstNameEn">
+                                        {{ 'label.DBMT01.FirstNameEng' | translate }}
+                                        <div class="invalid-pattern">
+                                            {{ 'message.ID00005' | translate }}
+                                        </div>
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="lastNameEn">
+                                        {{ 'label.DBMT01.LastNameEng' | translate }}
+                                        <div class="invalid-pattern">
+                                            {{ 'message.ID00005' | translate }}
+                                        </div>
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <select-input formControlName="companyCode" [items]="master.company">
+                                        {{ 'label.DBMT01.CompanyCode' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-6 col-md-8">
+                                    <select-input formControlName="subCompany" [items]="subCompanyObserv | async">
+                                        {{ 'label.DBMT01.SubCompany' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-6 col-md-8">
+                                    <select-input formControlName="positionCode" [items]="master.position">
+                                        {{ 'label.DBMT01.Position' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                  <textbox formControlName="lineOfBusinessCode">
+                                    {{ 'label.DBMT01.LineOfBusinessCode' | translate }}
+                                  </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                  <textbox formControlName="divisionSubCode">
+                                    {{ 'label.DBMT01.DivisionSubCode' | translate }}
+                                  </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                  <textbox formControlName="departmentSubCode">
+                                    {{ 'label.DBMT01.DepartmentCode' | translate }}
+                                  </textbox>
+                                </div>
+                                <div class="col-lg-12 col-md-8">
+                                    <select-input formControlName="departmentCode" [items]="departmentObserv | async">
+                                        {{ 'label.DBMT01.DivisionCode' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="idCard">
+                                        {{ 'label.DBMT01.IdCardNumber' | translate }}
+                                        <div class="invalid-pattern">
+                                            {{ 'message.STD00017' | translate }}
+                                        </div>
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="passportNo">
+                                        {{ 'label.DBMT01.PassportNumber' | translate }}
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="mobileNo">
+                                        {{ 'label.DBMT01.PhoneNumber' | translate }}
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <select-input formControlName="nationalityCode" [items]="master.nationality">
+                                        {{ 'label.DBMT01.Nationality' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <select-input formControlName="raceCode" [items]="master.nationality">
+                                        {{ 'label.DBMT01.RaceCode' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <select-input formControlName="countryCode" [items]="master.country">
+                                        {{ 'label.DBMT01.Country' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <select-input formControlName="provinceId" [items]="provinceObserv | async">
+                                        {{ 'label.DBMT01.Province' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <select-input formControlName="districtId" [items]="districtObserv | async"
+                                        placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                                        {{ 'label.DBMT01.District' | translate }}
+                                    </select-input>
+                                </div>
+
+                                <div class="col-lg-4 col-sm-6">
+                                    <select-input formControlName="subDistrictId" [items]="subDistrictObserv | async"
+                                        placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                                        {{ 'label.DBMT01.SubDistrict' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-8 col-md-8">
+                                    <textbox formControlName="address">
+                                        {{ 'label.DBMT01.Address' | translate }}
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <select-input formControlName="postalCode" [items]="PostalSubDisObserv | async"
+                                        placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                                        {{ 'label.DBMT01.PostalCode' | translate }}
+                                    </select-input>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="email">
+                                        {{ 'label.DBMT01.Email' | translate }}
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <checkbox formControlName="isMobile">
+                                        {{ 'label.DBMT01.IsMobile' | translate }}
+                                    </checkbox>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <label>{{'label.DBMT01.Signature'| translate}}</label>
+                                    <image-upload formControlName="signature" (fileUpdated)="onFileUpdated($event)" (remove)="onRemoveImgWeb($event)"></image-upload>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-12" *ngIf="signatureImg">
+                                        <label>
+                                            {{ 'label.DBMT01.SignatureDigitale' | translate }}
+                                        </label>
+                                        <div class="upload-container">
+                                            <div class="img-container">
+                                                <div class="img-wrapper">
+                                                    <img class="img-preview" [src]="signatureImg"
+                                                        style="max-width: 350px; max-height: 180px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-lg-4 col-md-8">
+                                    <p>{{ 'label.DBMT01.Signature' | translate }}</p>
+                                </div> -->
+                            </div>
+                        </form>
+                    </div>
+                </app-card><br>
+                <app-card header="{{ 'label.DBMT01.InsuranceSystemInformation' | translate }}">
+                    <div class="card-content">
+                        <form #pro [formGroup]="EmployeeDataSource.form">
+                            <div class="row g-3">
+                                <div class="col-lg-2 col-sm-2">
+                                    <textbox formControlName="insuranceEntityCode">
+                                        {{ 'label.DBMT01.InsuranceEntityCode' | translate }}
+                                    </textbox>
+                                </div>
+                                <div class="col-lg-4 col-md-8">
+                                    <textbox formControlName="insuranceLicenseNo">
+                                        {{ 'label.DBMT01.InsuranceLicenseNo' | translate }}
+                                    </textbox>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </app-card>
+            </mat-tab>
+            <mat-tab label="MGM">
+                <app-card header="{{ 'label.DBMT01.MultipleTarget' | translate }}">
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="col text-end">
+                                <button type="button" class="btn btn-primary" (click)="add()"
+                                    *ngIf="actions.create == true && dbEmployee.rowVersion == null || dbEmployee.rowVersion != null && actions.edit == true">
+                                    <i class="fas fa-plus-circle"></i> {{ 'label.ALL.Add' | translate }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <app-table [dataSource]="MgmEmployee"
+                                    [columns]="actions.delete == true ? ['Year','Month','Target','action'] : ['Year','Month','Target']">
+                                    <ng-container matColumnDef="Year">
+                                        <th mat-header-cell *matHeaderCellDef columnWidth="20px">
+                                            {{'label.DBMT01.Year' | translate }} </th>
+                                        <td mat-cell *matCellDef="let row">
+                                            <div [formGroup]="row.form">
+                                                <textbox formControlName="year" [hasLabel]="false" [small]="true">
+                                                </textbox>
+                                            </div>
+                                        </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="Month">
+                                        <th mat-header-cell *matHeaderCellDef columnWidth="400px">
+                                            {{'label.DBMT01.Month' |translate }}
+                                        </th>
+                                        <td mat-cell *matCellDef="let row">
+                                            <div [formGroup]="row.form">
+                                                <select-input formControlName="monthCode" [items]="master.month"
+                                                    [hasLabel]="false" [small]="true">
+                                                </select-input>
+                                            </div>
+                                        </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="Target">
+                                        <th mat-header-cell *matHeaderCellDef columnWidth="400px">
+                                            {{'label.DBMT01.Target' | translate }}
+                                        </th>
+                                        <td mat-cell *matCellDef="let row">
+                                            <div [formGroup]="row.form">
+                                                <number formControlName="target" [hasLabel]="false" [small]="true">
+                                                </number>
+                                            </div>
+                                        </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="action" *ngIf="actions.delete == true">
+                                        <th mat-header-cell *matHeaderCellDef columnWidth="100px">
+                                            {{ 'label.ALL.Delete' | translate }}
+                                        </th>
+                                        <td mat-cell *matCellDef="let row" class="text-center">
+                                            <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                                <i class="far fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </ng-container>
+                                    <tr mat-header-row
+                                        *matHeaderRowDef="actions.delete == true ? ['Year','Month','Target','action'] : ['Year','Month','Target']">
+                                    </tr>
+                                </app-table>
+                            </div>
+                        </div>
+                    </div>
+                </app-card>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

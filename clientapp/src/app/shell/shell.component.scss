@@ -1,0 +1,55 @@
+@import "theme/theme-variables";
+
+.page-wrapper {
+    .page-content {
+        display: inline-block;
+        width: 100%;
+        margin-top: 59px;
+        padding-top: 20px;
+        transition: padding-left 0.3s ease;
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1002;
+            background: #000;
+            opacity: 0.5;
+        }
+    }
+
+    .sidebar {
+        left: 0px;
+    }
+
+    &.toggled {
+        .page-content {
+            padding-left: 0;
+        }
+    }
+
+    .attribution {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        padding: 5px;
+        margin: 5px;
+        letter-spacing: 1px;
+    }
+}
+
+.banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: auto;
+    background-color: #ffd800;
+    background: -webkit-linear-gradient(70deg,#2094d8 66%,#ffd800 35%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+}

@@ -1,0 +1,10 @@
+<button type="button" class="close" (click)="close()">
+    <i class="fas fa-times fa-xs"></i>
+</button>
+<h5 class="mb-3">{{ header }}</h5>
+<div>
+    <ng-content></ng-content>
+</div>
+<mat-dialog-actions align="end">
+    <ng-content select=".modal-action"></ng-content>
+</mat-dialog-actions>

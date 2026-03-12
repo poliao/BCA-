@@ -1,0 +1,215 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && program.rowVersion == null || program.rowVersion != null && actions.edit == true ">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+</toolbar>
+
+<h4>{{ 'label.SUMT02.ProgramNameDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.SUMT02.CompanyDetail' | translate }}">
+            <div class="card-content">
+                <form #pro [formGroup]="programDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="companyCode" class="text-center">{{ 'label.SUMT02.CompanyCode' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="master.mainCompany" formControlName="mainCompany"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.MainCompany' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-1 col-sm-6">
+                            <checkbox formControlName="isBranch">{{ 'label.SUMT02.IsBranch' | translate }}
+                            </checkbox>
+                        </div>
+                        <div class="col-md-1 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}
+                            </checkbox>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <checkbox formControlName="isMobile">{{ 'label.SUMT02.IsMobile' | translate }}
+                            </checkbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="taxId">{{ 'label.SUMT02.TaxId' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="master.personalTaxTypeCode" formControlName="personalTaxTypeCode"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.PersonalTaxTypeCode' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="receiptBranchCode">{{ 'label.SUMT02.ReceiptBranchCode' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="receiptBranchName">{{ 'label.SUMT02.ReceiptBranchName' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="companyNameTha">{{ 'label.SUMT02.CompanyNameTH' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="companyNameEng">{{ 'label.SUMT02.CompanyNameEN' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="socailSecurityBranch">{{ 'label.SUMT02.SocialSecurityBranch' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="socailSecurityNo">{{ 'label.SUMT02.SocialSecurityNo' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="website">{{ 'label.SUMT02.Website' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="email">{{ 'label.SUMT02.Email' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="revenueStampBranchNo">{{ 'label.SUMT02.RevenueStampBranchNo' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="billPaymentFlag">{{ 'label.SUMT02.BillPaymentFlag' | translate }}
+                            </checkbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="comCode">{{ 'label.SUMT02.ComCode' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00022' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="suffixCode">{{ 'label.SUMT02.SuffixCode' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00022' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="departmentForBg" formControlName="departmentCode"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.DepartmentBG' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="isCompanyTracking">{{ 'label.SUMT02.IsCompanyTracking' | translate }}
+                            </checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+        <app-card header="{{ 'label.SUMT02.Address' | translate }}">
+            <div class="card-content">
+                <form #pro [formGroup]="programDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="master.provinceId" formControlName="provinceId"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.ProvinceId' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="districtObserv | async" formControlName="districtId"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.DistrictId' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="subDistrictObserv | async" formControlName="tambol"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.Tambol' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="PostalSubDisObserv | async" formControlName="postalCode"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.PostalCode' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="addressTha" class="text-left">{{ 'label.SUMT02.AddressTha' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="addressEng">{{ 'label.SUMT02.AddressEng' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="moo">{{ 'label.SUMT02.Moo' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="soi">{{ 'label.SUMT02.Soi' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="road">{{ 'label.SUMT02.Road' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="master.regionId" formControlName="regionId"
+                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.RegionId' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="telephoneNo">{{ 'label.SUMT02.TelephoneNo' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00016' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="faxNo">{{ 'label.SUMT02.FaxNo' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00016' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="originCode">{{ 'label.SUMT02.OriginCode' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00016' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-9 col-sm-6">
+                            <textbox formControlName="googleMap">{{ 'label.SUMT02.GoogleMap' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.ID00005' | translate }}
+                                </div>
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label>{{'label.SUMT02.Map'| translate}}</label>
+                            <image-upload formControlName="mapName" (fileUpdated)="onFileUpdated($event)" (remove)="onRemoveImgWeb($event)"></image-upload>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

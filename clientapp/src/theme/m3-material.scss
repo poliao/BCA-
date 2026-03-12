@@ -1,0 +1,16 @@
+@use "@angular/material" as mat;
+@use "./m3-theme";
+
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
+@include mat.core();
+
+// Light Theme created by ng generate @angular-material:m3-theme
+$theme: m3-theme.$light-theme;
+
+:root {
+  @include mat.all-component-themes($theme);
+
+  // Add backwards compatibility styles for color variants
+  @include mat.color-variants-backwards-compatibility($theme);
+}

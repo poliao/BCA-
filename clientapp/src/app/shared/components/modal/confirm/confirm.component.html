@@ -1,0 +1,16 @@
+<app-modal header="{{ 'label.ALL.Confirm' | translate }}" (onClose)="close()">
+    @if (data.initialState?.renderHtml) {
+        <p [innerHtml]="data.message | translate"></p>
+    }
+    @else {
+        <p>{{ data.message | translate }}</p>
+    }
+    <div class="modal-action">
+        <button type="button" class="btn btn-outline-primary" (click)="close()">
+            {{ 'label.ALL.Cancel' | translate }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="accept()">
+            {{ 'label.ALL.Accept' | translate }}
+        </button>
+    </div>
+</app-modal>

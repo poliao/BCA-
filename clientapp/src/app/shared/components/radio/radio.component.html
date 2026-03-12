@@ -1,0 +1,23 @@
+@if (hasLabel) {
+  <label class="form-label" for="radio">
+    <ng-content></ng-content>&nbsp;
+  </label>
+}
+<div #viewField class="field-hidden">
+  @for (item of items; let i = $index; track item.value) {
+    <div class="form-check" [class.form-check-inline]="inline" [class.mb-2]="!inline">
+      <input type="radio" [disabled]="disabled || item.disabled" [value]="value" [name]="name"
+        [checked]="value==item.value" class="form-check-input" (change)="onSelect(item.value)">
+      <label class="form-check-label" for="{{i+name}}">{{item.text}}</label>
+    </div>
+  }
+</div>
+<div #editField>
+  @for (item of items; let i = $index; track item.value) {
+    <div class="form-check" [class.form-check-inline]="inline" [class.mb-2]="!inline">
+      <input type="radio" [disabled]="disabled || item.disabled" [value]="value" id="{{i+name}}" [name]="name"
+        [checked]="value==item.value" class="form-check-input" (change)="onSelect(item.value)">
+      <label class="form-check-label" for="{{i+name}}">{{item.text}}</label>
+    </div>
+  }
+</div>

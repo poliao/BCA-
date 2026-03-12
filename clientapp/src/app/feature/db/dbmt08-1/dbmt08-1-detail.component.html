@@ -1,0 +1,31 @@
+<toolbar>
+    <button class="btn btn-secondary" (click)="save()" *ngIf="actions.create == true && District.rowVersion == null || actions.edit == true && District.rowVersion != null">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+</toolbar>
+
+<h4>{{ 'label.DBMT08.DistrictDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.DBMT08.DistrictDetail' | translate }}">
+            <div class="card-content">
+                <form #pro [formGroup]="DistrictDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="districtNameTHA" class="text-left">{{ 'label.DBMT08.DistrictNameTH' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="districtNameENG">{{ 'label.DBMT08.DistrictNameEN' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}
+                            </checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

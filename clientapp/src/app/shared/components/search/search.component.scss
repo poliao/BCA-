@@ -1,0 +1,19 @@
+@import "theme/theme-variables";
+
+.input-group {
+  background-color: $gray-200;
+}
+
+.input-group-text {
+  border: none;
+  background: none;
+}
+
+.form-control {
+  margin-right: 10px;
+  background: none;
+
+  &:focus {
+    box-shadow: none;
+  }
+}

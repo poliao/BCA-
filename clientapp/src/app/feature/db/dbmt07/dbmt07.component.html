@@ -1,0 +1,63 @@
+<h4>{{ 'label.DBMT07.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-6">
+                        <app-search [value]="keyword" (search)="onSearch($event)"
+                            placeholder="{{ 'label.DBMT07.SearchPlaceholder' | translate }}">
+                        </app-search>
+                    </div>
+                    <div class="col-6 text-end" *ngIf="actions.create == true">
+                        <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus-circle"></i>
+                            {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <br>
+
+            </div>
+        </app-card>
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col">
+                        <app-table server [dataSource]="data" [columns]="actions.delete == false ? displayedColumnsNoDelete : displayedColumns">
+                            <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <ng-container matColumnDef="CountryCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="189px" class="text-center">{{ 'label.DBMT07.CountryCode' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <a *ngIf="actions.readOnly == true" [routerLink]="['detail']"  [state]="{ countryCode: row.countryCode }">{{row.countryCode}}</a>
+                                        <span *ngIf="actions.readOnly == false">{{row.countryCode}}</span>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="CountryNameTha">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px" class="text-center">{{ 'label.DBMT07.CountryNameTha' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.countryNameTha}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="CountryNameEng">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px" class="text-center">{{ 'label.DBMT07.CountryNameEng' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.countryNameEng}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="Active">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="175px" class="text-center">{{ 'label.ALL.Active' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center"> <i *ngIf="row.active" class="fas fa-check"></i></td>
+                                </ng-container>
+                                <ng-container matColumnDef="Delete" >
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNoDelete : displayedColumns"></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

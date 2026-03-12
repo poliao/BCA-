@@ -1,0 +1,36 @@
+<div class="row portal-container">
+  <div class="col">
+    <app-card>
+      <div class="card-content">
+        <div class="row">
+          @for (item of systemCodes; track $index) {
+          <div
+            class="card-item"
+            [class.disabled]="!item.active || item.url === null"
+            (click)="item.active && redirectPortal(item.url, item.systemCode)"
+          >
+            <div class="card">
+              <div class="card-tooltip">
+                <mat-icon
+                  matTooltip="{{ item.description }}"
+                  matTooltipPosition="above"
+                  aria-label="Info"
+                  class="info-icon"
+                  >info</mat-icon
+                >
+              </div>
+              <div class="card-icon">
+                <img src="{{ item.image || defaultImage }}" alt="{{ item.name }}" />
+              </div>
+              <div class="card-name">{{ item.name }}</div>
+              <div *ngIf="!item.active || item.url === null" class="unavailable-overlay">
+                <span>Unavailable</span>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>

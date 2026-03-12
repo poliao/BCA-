@@ -1,0 +1,20 @@
+<label class="form-label" for="hasLabel">
+  <ng-content></ng-content>
+  @if (required) {
+    <span class="text-danger"> *</span>
+  }
+</label>
+<div #editField>
+  <div class="container-wrapper">
+    <div class="upload-container rounded" [style]="{ 'height':height }" appDragDrop [class.disable]="disabled"
+      [class.uploading]="uploading" (click)="input.click()" [disableDrag]="disabled" (onFileDropped)="add($event)"
+      onkeydown="">
+      <i class="fas fa-cloud-upload-alt fa-lg text-primary" style="font-size: 30px;"></i>
+      <span>{{ 'label.ALL.DragDropFile' | translate }}</span>
+    </div>
+    <input #input type="file" multiple [accept]="accept" hidden (change)="add($event)">
+  </div>
+  <small class="text-danger">
+    {{ 'label.ALL.SupportFileType' | translate }} {{ convertText() }} {{ 'label.ALL.SupportFileOnly' | translate }}
+  </small>
+</div>

@@ -1,0 +1,117 @@
+.card-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 2rem;
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .card-item {
+        flex: 1 1 calc(25% - 1.5rem);
+        max-width: calc(25% - 1.5rem);
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        @media (max-width: 992px) {
+            flex: 1 1 calc(33.33% - 1.5rem);
+            max-width: calc(33.33% - 1.5rem);
+        }
+
+        @media (max-width: 1024px) {
+            flex: 1 1 calc(50% - 1.5rem);
+            max-width: calc(50% - 1.5rem);
+        }
+
+        @media (max-width: 576px) {
+            flex: 1 1 100%;
+            max-width: 100%;
+        }
+
+        &.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .card {
+            position: relative;
+            background: linear-gradient(145deg, #ffffff, #e6e6f3);
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: 
+                transform 0.3s ease, 
+                box-shadow 0.3s ease, 
+                background 0.3s ease, 
+                border-color 0.3s ease, 
+                border-width 0.3s ease;
+        
+            &:hover {
+                border: 1px solid;
+                transform: translateY(-5px);
+                border-color: #1d1367;
+            }
+            .card-tooltip {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+
+                .info-icon {
+                    font-size: 20px;
+                    // color: #1d1367;
+                    cursor: pointer;
+                    transition: color 0.2s;
+                    opacity: 0.5;
+
+                    &:hover {
+                        color: #1d1367;
+                        opacity: 1;
+                        /* Slightly lighter blue */
+                    }
+                }
+            }
+
+            .card-icon {
+                width: 90px;
+                height: 90px;
+                margin: 0 auto 1rem;
+                border-radius: 12px;
+                overflow: hidden;
+                background-color: #f4f4ff;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+            }
+
+            .card-name {
+                font-size: 1.1rem;
+                font-weight: 600;
+                // color: #1d1367;
+                margin-top: 0.5rem;
+            }
+
+            .unavailable-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.8);
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                font-weight: bold;
+                // color: #1d1367;
+            }
+        }
+    }
+}

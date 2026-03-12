@@ -1,0 +1,38 @@
+<nav class="navbar navbar-fixed-top navbar-light">
+    <div class="d-flex">
+        <a class="menu" href="javascript:void(0)" (click)="toggleSidebar()">
+            <span></span>
+        </a>
+        <a class="navbar-brand d-flex" href="#">
+            <img src="images/Bca_logo.png" alt="logo">
+        </a>
+    </div>
+    <ul class="nav ms-auto">
+        <!-- Company and Organization dropdowns removed -->
+    </ul>
+    <ul class="nav nav-pills ms-auto">
+        <li dropdown class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" [matMenuTriggerFor]="langMenu" href="javascript:void(0)">
+                <span class="d-inline">
+                    <i class="fas fa-globe-africa"></i>
+                    <i class="d-md-none fas fa-chevron-down fa-xs"></i>
+                </span>
+                <span class="d-none d-md-inline"> {{ lang }} <i class="fas fa-chevron-down fa-xs"></i></span>
+            </a>
+            <mat-menu #langMenu="matMenu" class="menu-panel">
+                @for (lang of langs; track lang.value) {
+                <button [disabled]="i18n.language === lang.value" (click)="changeLanguage(lang.value)"
+                    [class.menu-active]="i18n.language === lang.value" mat-menu-item>
+                    {{ lang.text }}
+                </button>
+                }
+            </mat-menu>
+        </li>
+    </ul>
+    <ul class="nav">
+        <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)" (click)="logout()"><i class="fas fa-sign-out-alt"></i><span
+                    class="d-none d-md-inline"> Logout</span></a>
+        </li>
+    </ul>
+</nav>

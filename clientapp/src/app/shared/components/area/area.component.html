@@ -1,0 +1,28 @@
+@if (hasLabel) {
+    <label class="form-label" for="hasLabel">
+        <ng-content></ng-content>
+        @if (required) {
+            <span class="text-danger"> *</span>
+        }
+    </label>
+}
+<label #viewField class="field-hidden" for="displayText">{{displayText}}</label>
+
+<textarea #editField [value]="value" [disabled]="disabled" rows="{{rows}}" (input)="onTextChange($event)"
+    (blur)="onTouched()" class="form-control" [class.is-invalid]="hasErrors" [class.form-control-sm]="small">
+</textarea>
+@if (hasErrors) {
+    <div #editField class="invalid">
+        @if (control?.hasError('required')) {
+            {{'message.STD00000' | translate}}
+        }
+        @if (control?.hasError('minlength')) {
+            {{'message.STD00025' | translate:
+            { '0' : control?.errors?.minlength?.requiredLength,'1':'label.ALL.Characters' | translate } }}
+        }
+        @if (control?.hasError('maxlength')) {
+            {{'message.STD00026' | translate:
+            { '0': control?.errors?.maxlength?.requiredLength, '1': 'label.ALL.Characters' | translate } }}
+        }
+    </div>
+}

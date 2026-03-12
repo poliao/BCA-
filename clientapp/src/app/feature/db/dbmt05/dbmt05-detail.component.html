@@ -1,0 +1,39 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && program.rowVersion == null || program.rowVersion != null && actions.edit == true">
+        <i class="fas fa-save"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.DBMT05.ProgramDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.DBMT05.ProgramDetail' | translate }}">
+            <div class="card-content">
+                <form [formGroup]="programDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="bankAccountTypeCode" class="text-center">
+                                {{ 'label.DBMT05.BankAccountTypeCode' | translate }}
+                                <div class="invalid-pattern">
+                                    {{ 'message.STD00026' | translate }}
+                                </div>
+                            </textbox>
+
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>
+                        </div>
+
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-6">
+                            <textbox formControlName="bankAccountTypeDescription" class="text-center">
+                                {{ 'label.DBMT05.BankAccountTypeDescription' | translate }}
+                            </textbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

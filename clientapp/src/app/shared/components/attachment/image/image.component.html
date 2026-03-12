@@ -1,0 +1,78 @@
+<label class="form-label" for="hasLabel">
+    <ng-content></ng-content>
+    @if (required) {
+      <span class="text-danger"> *</span>
+    }
+</label>
+<div #viewField class="field-hidden">
+  @if (contentView | async; as image) {
+    <div class="container-wrapper">
+      @if (image.path) {
+        <div class="img-preview" [class.uploading]="uploading" [ngStyle]="{ 'width.px': width }">
+          @if (image.loading) {
+            <div class="spin text-primary">
+              <span class="spinner-border" aria-hidden="true"></span>
+            </div>
+          }
+          <img [src]="image.path" class="img-fluid img-thumbnail" alt="View">
+        </div>
+      }
+    </div>
+  }
+</div>
+<div #editField>
+  @if (content | async; as image) {
+    <div class="container-wrapper">
+      @if (!image.path) {
+        <div class="upload-container rounded" appDragDrop [class.disable]="disabled"
+          [class.uploading]="uploading" (click)="input.click()" [disableDrag]="disabled" (onFileDropped)="add($event)" onkeydown="">
+          @if (!uploading) {
+            <i class="fas fa-cloud-upload-alt fa-lg text-primary"></i>
+          }
+          @else {
+            <div class="spin text-primary">
+              <span class="spinner-border" aria-hidden="true"></span>
+            </div>
+          }
+        </div>
+      }
+      <input #input hidden type="file" (change)="add($event)" [disabled]="disabled" accept="image/*">
+      @if (image.path) {
+        <div class="img-preview" [class.uploading]="uploading" [ngStyle]="{ 'width.px': width }">
+          @if (image.loading) {
+            <div class="spin text-primary">
+              <span class="spinner-border" aria-hidden="true"></span>
+            </div>
+          }
+          @if (!disabled && control && image.id) {
+            <button type="button" class="btn btn-danger btn-sm" (click)="remove()">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          }
+          <img [src]="image.path" class="img-fluid img-thumbnail" alt="Upload">
+        </div>
+      }
+    </div>
+  }
+  @for (error of errorMessages; track $index) {
+    <div class="invalid">
+      @if (error.param && error.param.max) {
+        <span>
+          {{ error.message | translate :{ '0': error.param.max } }}
+        </span>
+      }
+      @else {
+        <span>
+          {{ error.message | translate }}
+        </span>
+      }
+    </div>
+  }
+  @if (control && hasErrors) {
+    <div class="invalid">
+      @if (control.hasError('required')) {
+        {{'message.STD00000' | translate}}
+      }
+    </div>
+  }
+</div>

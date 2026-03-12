@@ -1,0 +1,58 @@
+<h4>{{ 'label.DBMT03.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-6">
+                        <app-search [value]="keyword" (search)="onSearch($event)"
+                            placeholder="{{ 'label.DBMT03.SearchPlaceholder' | translate }}">
+                        </app-search>
+                    </div>
+                    <div class="col-6 text-end" *ngIf="actions.create == true" >
+                        <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus-circle"></i>
+                            {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <br>
+            </div>
+        </app-card>
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col">
+                        <app-table server [dataSource]="data" [columns]="actions.delete == false ? displayedColumnsNodelete : displayedColumns">
+                            <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <ng-container matColumnDef="DepartmentCode">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="189px" class="text-center">{{ 'label.DBMT03.DivisionCode' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <a  *ngIf="actions.readOnly == true" [routerLink]="['detail']"  [state]="{ departmentCode: row.departmentCode }">{{row.departmentCode}}</a>
+                                        <span *ngIf="actions.readOnly == false">{{row.departmentCode}}</span>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="DepartmentName">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px" class="text-center">{{ 'label.DBMT03.DivisionName' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-left">{{row.departmentName}}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="Active">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="175px" class="text-center">{{ 'label.DBMT02.Active' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center"> <i *ngIf="row.active" class="fas fa-check"></i></td>
+                                </ng-container>
+                                <ng-container matColumnDef="Delete" >
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNodelete : displayedColumns"></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

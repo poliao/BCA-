@@ -1,0 +1,243 @@
+<toolbar></toolbar>
+<h4>Input</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="card">
+            <div class="card-content">
+                <form [formGroup]="inputForm">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-12">
+                            <app-search (search)="search($event)" placeholder="placeholder">Text
+                            </app-search>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="text" placeholder="placeholder">Text
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="email" placeholder="placeholder">Email
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="number" placeholder="placeholder">
+                                Number
+                            </number>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number currency formControlName="currency" placeholder="placeholder">
+                                Currency
+                            </number>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <datepicker formControlName="date">
+                                Date
+                            </datepicker>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <time formControlName="time">
+                                Time
+                            </time>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input formControlName="select" [items]="items">
+                                Select
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [addTag]="addTagPromise" formControlName="selectTag" [items]="itemInserts">
+                                Select Add Tag
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input formControlName="selectObserv" [items]="itemsObserv | async">
+                                Select observable
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input formControlName="selectMultiple" [multiple]="true" [items]="items">
+                                Select multiple
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input formControlName="selectDesc" [showDescription]="true" [items]="items">
+                                Select description
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input formControlName="selectCustom" [items]="items">
+                                Select template
+                                <ng-template #labelTemp let-item="item">
+                                    <span>Name : {{ item.text }}</span>
+                                </ng-template>
+                                <ng-template #optionTemp let-item="item" let-search="search">
+                                    <div [ngOptionHighlight]="search" class="ng-option-label">
+                                        Name : {{ item.text }}
+                                    </div>
+                                    <small [ngOptionHighlight]="search" class="text-muted">
+                                        {{ item.description }}
+                                    </small>
+                                </ng-template>
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <typeahead formControlName="typeahead" [source]="typeaheadSource">
+                                Typeahead
+                            </typeahead>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <radio formControlName="radio" [items]="radioItems">
+                                Radio
+                            </radio>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <radio-checkbox formControlName="radioCheck" [items]="radioItems">
+                                Radio check
+                            </radio-checkbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <radio-button formControlName="radioButton"
+                                [items]="[{ value: 1, text: 'Mon', color: 'monday' }, { value: 2, text: 'Tue', color: 'tuesday' }]">
+                                Radio button
+                            </radio-button>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <checkbox formControlName="check">
+                                Checkbox
+                            </checkbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label">
+                                Checkbox Button
+                            </label>
+                            <div>
+                                <check-button formControlName="mon" color="monday" text="Mon">
+                                </check-button>
+                                <check-button formControlName="tues" color="tuesday" text="Tue">
+                                </check-button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <lookup formControlName="lookup" [source]="lookupSource" [onOpen]="onOpenLookup">
+                                Lookup
+                            </lookup>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox [value]="lookupText" [disabled]="true">
+                                Description
+                            </textbox>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <areabox formControlName="area">
+                                Text area
+                            </areabox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <image formControlName="image">
+                                Image
+                            </image>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <file formControlName="file" placeholder="placeholder">
+                                File
+                            </file>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <import formControlName="import" placeholder="placeholder">
+                                Import
+                            </import>
+                        </div>
+                        <div class="col-md-2">
+                            <status status="Normal" [color]="color['NORMAL']">
+                                Status
+                            </status>
+                        </div>
+                        <div class="col-md-2">
+                            <status status="Reject" [color]="color['REJECT']">
+                                Status
+                            </status>
+                        </div>
+                        <div class="col-md-2">
+                            <status status="Approve" [color]="color['APPROVE']">
+                                Status
+                            </status>
+                        </div>
+                        <div class="col-md-2">
+                            <status status="Process" [color]="color['PROCESS']">
+                                Status
+                            </status>
+                        </div>
+                        <div class="col-md-2">
+                            <status status="Cancel" [color]="color['CANCEL']">
+                                Status
+                            </status>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <app-card header="upload multiple file Drag-Drop">
+            <div class="card-content">
+                <div class="row">
+                    <div class="col text-end">
+                        <button type="button" class="btn btn-primary" (click)="openModal()"><i
+                                class="fas fa-plus-circle"></i>
+                            Open modal </button>
+                        <button type="button" class="btn btn-primary" (click)="addFile()"><i
+                                class="fas fa-plus-circle"></i> {{
+                            'label.ALL.Add' | translate
+                            }}</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col pt-1">
+                        <app-table [dataSource]="fileDataSource" [columns]="['file','remark','action']">
+                            <ng-container matColumnDef="file">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="400px" class="require"> File </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div [formGroup]="row.form">
+                                        <file formControlName="attachId" placeholder="placeholder" [hasLabel]="false" [accept]="'.mp3'" [max]="10000">
+                                        </file>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="remark">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="400px" class="require"> Remark </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div [formGroup]="row.form">
+                                        <textbox formControlName="remark" placeholder="placeholder" [hasLabel]="false">
+                                        </textbox>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="50px">{{ 'label.ALL.Delete' |
+                                    translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                    <button class="btn btn-outline-danger btn-sm" (click)="removeFile(row)">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="['file','remark','action']"></tr>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <app-card header="output">
+            <div class="card-content">
+                <pre>{{ getValue() }}</pre>
+            </div>
+        </app-card>
+    </div>
+</div>

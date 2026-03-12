@@ -1,0 +1,25 @@
+@if (hasLabel) {
+    <label class="form-label" for="hasLabel">
+        <ng-content></ng-content>
+        @if (required) {
+            <span class="text-danger"> *</span>
+        }
+    </label>
+}
+<label #viewField class="field-hidden" for="term">{{term || '-'}}</label>
+<div class="input-group" #editField>
+    <input [value]="term" [disabled]="disabled || searching" type="text" (change)="onTextChange($event)"
+        (blur)="onTouched()" class="form-control" [class.is-invalid]="hasErrors" [class.form-control-sm]="small"
+        placeholder="{{placeholder}}">
+
+    <button type="button" class="btn btn-primary" [class.btn-sm]="small" [disabled]="disabled || searching"
+        (click)="open()">
+        <i class="fas fas fa-sync-alt fa-spin" [hidden]="!searching"></i>
+        <i class="fas fa-glasses" [hidden]="searching"></i>
+    </button>
+</div>
+<div class="invalid" *ngIf="hasErrors">
+    @if (control.hasError('required')) {
+        {{'message.STD00000' | translate}}
+    }
+</div>

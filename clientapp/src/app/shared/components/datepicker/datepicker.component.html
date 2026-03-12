@@ -1,0 +1,28 @@
+@if (hasLabel) {
+    <label *ngIf="hasLabel" class="form-label" for="inputDate">
+        <ng-content></ng-content>
+        @if (required) {
+            <span class="text-danger"> *</span>
+        }
+    </label>
+}
+<label #viewField class="field-hidden" for="displayText">{{displayText}}</label>
+<div #editField>
+    <div class="input-group date-group">
+        <input #inputDate (blur)="onblur()" [disabled]="disabled" class="form-control text-center"
+            [class.is-invalid]="hasErrors" [class.form-control-sm]="small" placeholder="{{placeholder}}">
+        <input [matDatepicker]="picker" [matDatepickerFilter]="filter" [disabled]="disabled" [value]="value" [min]="min"
+            [max]="max" (dateChange)="pickerChange($event.value)" class="form-control position-absolute invisible">
+        <button type="button" class="btn btn-link" [class.is-invalid]="hasErrors" (click)="picker.open()"
+            [disabled]="disabled" [class.btn-sm]="small" type="button"><i
+                class="far fa-calendar-minus fa-lg"></i></button>
+    </div>
+    <mat-datepicker #picker></mat-datepicker>
+    @if (hasErrors) {
+        <div class="invalid">
+            @if (control?.hasError('required')) {
+                {{'message.STD00000' | translate}}
+            }
+        </div>
+    }
+</div>
