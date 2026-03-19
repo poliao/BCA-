@@ -13,8 +13,6 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorProvider() {
-        // ในระบบจริง จะดึงข้อมูล User จาก SecurityContext
-        // ตัวอย่างนี้คืนค่าคงที่ไปก่อน
         return () -> Optional.of("SYSTEM");
     }
 }
