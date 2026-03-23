@@ -5,7 +5,7 @@ import { version } from 'src/version';
 
 export const environment = {
     production: false,
-    apiUrl: 'https://localhost:5001',
+    apiUrl: 'https://localhost:8080',
     reportUrl: 'http://localhost:8082/report/',
     timeStamp: version.timeStamp
 };
