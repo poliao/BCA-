@@ -31,7 +31,6 @@ import { Surf01Resolver } from './surf01/surf01.resolver';
 import { Surp02Component } from './surp02/surp02.component';
 import { Surp02Resolver } from './surp02/surp02.resolver';
 import { Sumt06OrganizationComponent } from './sumt06/sumt06-organization-component';
-import { Rppm01Component } from './problem/rppm01.component';
 const routes: Routes = [
   {
     path: '',
@@ -153,15 +152,7 @@ const routes: Routes = [
         data: { code: 'surp02' }
       },
     ]
-  },
-  {
-    path: 'rppm01',
-    component: Rppm01Component,
-    data: {
-      code: 'rppm01',
-      bg: true,
-    },
-  },
+  }
 ];
 
 @NgModule({

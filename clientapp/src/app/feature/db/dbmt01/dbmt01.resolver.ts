@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, ResolveFn, Router } from '@angular/router';
+import { ResolveFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, forkJoin, map, of } from 'rxjs';
-import { DbEmployee } from './dbmt01.model';
+import { DbLanguage } from './dbmt01.model';
 import { Dbmt01Service } from './dbmt01.service';
 import { AuthorizeActionService } from '@app/shared/service/authorize-action.service';
 import { ActionType } from '@app/core/model/action-type';
@@ -10,25 +10,18 @@ export const Dbmt01Resolver: ResolveFn<Observable<any>> = (route: ActivatedRoute
   const router: Router = inject(Router);
   const db: Dbmt01Service = inject(Dbmt01Service);
   const authorizeService: AuthorizeActionService = inject(AuthorizeActionService);
-
-  const code = router.getCurrentNavigation()?.extras.state;
+  const state = router.getCurrentNavigation()?.extras.state;
   const routeDataCode = route.data['code'];
-  // const detail = code?.empCode ? db.getEmployee(code.empCode) : of({} as Partial<DbEmployee>);
 
-  const auditLog = code?.employeeCode == null
-  ? authorizeService.saveaudit(routeDataCode.toUpperCase(), ActionType.Access, null, null)
-  : of(null);
-  const detail = code?.employeeCode
-    ? forkJoin([
-      db.getEmployee(code.employeeCode),
-      authorizeService.saveaudit(routeDataCode.toUpperCase(), ActionType.Read, code.employeeCode, new Date()),
-    ]).pipe(map(([emp]) => emp))
-    : of({} as Partial<DbEmployee>);
-    
-  const master = db.getMaster('master',null);
+  const auditLog = authorizeService.saveaudit(routeDataCode.toUpperCase(), ActionType.Access, null, null);
+  
+  const detail = state?.language
+    ? of(state.language as DbLanguage)
+    : of({ isActive: true } as Partial<DbLanguage>);
+
   const actions = authorizeService.getActions(routeDataCode);
 
-  return forkJoin([auditLog, master, detail, actions]).pipe(
-    map(([_,  master, detail, actions]) => ({  master, detail, actions }))
+  return forkJoin([auditLog, detail, actions]).pipe(
+    map(([_, detail, actions]) => ({ detail, actions }))
   );
 };

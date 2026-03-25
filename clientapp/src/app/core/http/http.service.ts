@@ -108,17 +108,6 @@ export class HttpService extends HttpClient {
   }
   // Override the original method to wire interceptors when triggering the request.
   override request(method?: any, url?: any, options?: any): any {
-    // Global API removal stub: Return empty or mock based on method/url if needed
-    // For now, let's just log and return an empty observable to "remove" API calls
-    console.log(`Intercepted API call: ${method} ${url}`);
-    
-    // If you want to keep some external APIs (like the GitHub demo one) or local assets
-    if (url.includes('github.com') || url.includes('assets/')) {
-       // Proceed with actual request
-    } else {
-       return of([]); // Return empty array for all local API calls
-    }
-
     const handler = this.interceptors.reduceRight(
       (next, interceptor) => new HttpInterceptorHandler(next, interceptor),
       this.httpHandler

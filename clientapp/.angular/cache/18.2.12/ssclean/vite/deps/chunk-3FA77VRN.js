@@ -5,15 +5,15 @@ import {
   MatCommonModule
 } from "./chunk-VCT3EQ5I.js";
 import {
-  ObserversModule
-} from "./chunk-Z6SPAH3D.js";
-import {
   animate,
   state,
   style,
   transition,
   trigger
 } from "./chunk-7YCMRHOV.js";
+import {
+  ObserversModule
+} from "./chunk-Z6SPAH3D.js";
 import {
   Directionality
 } from "./chunk-2VD5MQ46.js";
@@ -1527,4 +1527,4 @@ export {
   MatFormField,
   MatFormFieldModule
 };
-//# sourceMappingURL=chunk-Z5HALLOY.js.map
+//# sourceMappingURL=chunk-3FA77VRN.js.map

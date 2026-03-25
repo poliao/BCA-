@@ -126,11 +126,39 @@ export class SidebarService {
   // }
 
   getMenuList(lang): Observable<Menu[]> {
-    return this.http.disableHeader().get<Menu[]>('menu?LanguageCode=' + (lang ?? '')).pipe(
-      map(menus => {    
-        let allMenus = (!isDevMode() ? [] : demos).concat(menus);
+    return this.http.disableHeader().get<any[]>('v1/menus').pipe(
+      map(menus => {
+        // Map backend fields to frontend fields
+        let mappedMenus: Menu[] = menus.map(m => ({
+          ...m,
+          title: m.menuName, // Map menuName to title
+          active: false,
+          subMenus: []
+        }));
+
+        // Build hierarchy
+        const menuMap = new Map<number | string, Menu>();
+        const roots: Menu[] = [];
+
+        mappedMenus.forEach(menu => {
+          menuMap.set(menu['id'] || menu.menuCode, menu);
+        });
+
+        mappedMenus.forEach(menu => {
+          const parentId = menu['parentId'];
+          if (parentId && menuMap.has(parentId)) {
+            const parent = menuMap.get(parentId);
+            parent.subMenus = parent.subMenus || [];
+            parent.subMenus.push(menu);
+          } else {
+            roots.push(menu);
+          }
+        });
+
+        let allMenus = (!isDevMode() ? [] : demos).concat(roots);
         problemMenu.title = this.translate.instant('message.STD00052');
         allMenus = allMenus.concat(problemMenu);
+        
         const clearActive = (items: Menu[]): Menu[] => {
           return items.map(menu => ({
             ...menu,
@@ -139,6 +167,7 @@ export class SidebarService {
           }));
         };
         allMenus = clearActive(allMenus);
+
         let result: Menu[] = [];
         for (const menu of allMenus) {
           this.flatten(menu, result);

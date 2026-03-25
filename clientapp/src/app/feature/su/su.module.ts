@@ -40,8 +40,7 @@ import { Surf01UserLookupComponent } from './surf01/surf01-user-lookup.component
 import { Sumt06CompanySelectComponet } from './sumt06/sumt06-company-select.component';
 import { Sumt06OrganizationComponent } from './sumt06/sumt06-organization-component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Rppm01Service } from './problem/rppm01.service';
-import { Rppm01Component, SafeUrlPipe } from './problem/rppm01.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -51,19 +50,18 @@ import { Rppm01Component, SafeUrlPipe } from './problem/rppm01.component';
     Sumt03Component, Sumt03DetailComponent,
     Sumt04Component, Sumt04DetailComponent, Sumt04MenuComponent,
     Surt04Component, Surt04DetailComponent,
-    Sumt06Component, Sumt06DetailComponent, Sumt06CompanySelectComponet,Sumt06OrganizationComponent,
+    Sumt06Component, Sumt06DetailComponent, Sumt06CompanySelectComponet, Sumt06OrganizationComponent,
     Sumt05DetailComponent,
     Surp04Component,
     Surp03Component,
     Surf01Component, Surf01UserLookupComponent,
-    Surp02Component, Surp02UserLookupComponent,
-    Rppm01Component,SafeUrlPipe
+    Surp02Component, Surp02UserLookupComponent
   ],
   imports: [
+    SharedModule,
     CommonModule,
     SuRoutingModule,
-    ReactiveFormsModule,
-    SharedModule
+    ReactiveFormsModule
   ],
   providers: [
     Sumt01Service,
@@ -76,8 +74,7 @@ import { Rppm01Component, SafeUrlPipe } from './problem/rppm01.component';
     Surp04Service,
     Surp03Service,
     Surf01Service,
-    Surp02Service,
-    Rppm01Service
+    Surp02Service
   ]
 })
 export class SuModule {

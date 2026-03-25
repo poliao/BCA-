@@ -16,18 +16,7 @@ export class DashboardComponent {
   defaultImage = 'https://i.imgur.com/JnJREXD.png';
 
   ngOnInit(): void {
-    this.su.getSystemCode().subscribe((systemCodes) => {
-      this.systemCodes = systemCodes;
-      console.log(this.systemCodes);
-      const referrer = this.getCookie('referrer');
-      const to = this.getCookie('to');
-      if (referrer === 'WT' && to) {
-        const targetSystem = this.systemCodes.find((x: SystemCodes) => x.systemCode === to);
-        if (targetSystem) {
-          window.location.href = targetSystem.url;
-        }
-      }
-    });
+    // getSystemCode and redirect logic removed per user request
   }
 
   redirectPortal(url: string, systemCode: string): void {

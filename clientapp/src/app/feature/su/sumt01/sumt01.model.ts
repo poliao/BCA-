@@ -1,10 +1,11 @@
-import { EntityBase } from "@app/shared/service/base.service"
+import { EntityBase } from "@app/shared/service/base.service";
 
-export class SuSystem extends EntityBase {
-    systemId: number
-    systemNameTH: string
-    systemNameENG: string
-    systemCode: string
-    active: boolean
+export class SuMenu extends EntityBase {
+    id!: number;
+    menuCode!: string;
+    menuName!: string;
+    url!: string;
+    icon!: string;
+    parentId!: number;
+    sequence!: number;
 }
-

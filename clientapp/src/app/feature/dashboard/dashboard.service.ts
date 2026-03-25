@@ -8,9 +8,6 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
-  getSystemCode() {
-    return this.http.get<SystemCodes[]>('systemCode');
-  }
 
   getCompany() {
     return this.http.get('company')

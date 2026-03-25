@@ -1,5 +1,5 @@
 <toolbar>
-    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && program.rowVersion == null || program.rowVersion != null && actions.edit == true ">
+    <button class="btn btn-primary" (click)="save()">
         <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
         <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
 </toolbar>
@@ -9,42 +9,31 @@
     <div class="col">
         <app-card header="{{ 'label.SUMT01.ProgramDetail' | translate }}">
             <div class="card-content">
-                <form #pro [formGroup]="programDataSource.form">
+                <form [formGroup]="menuDataSource.form">
                     <div class="row g-3">
                         <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="systemCode" class="text-center"  placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT01.SystemCode' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
-                                </div>
+                            <textbox formControlName="menuCode">{{ 'label.SUMT01.MenuCode' | translate }}
                             </textbox>
                         </div>
                         <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="systemNameTH"  placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT01.SystemNameTH' | translate }}
+                            <textbox formControlName="menuName">{{ 'label.SUMT01.MenuName' | translate }}
                             </textbox>
                         </div>
                         <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="systemNameENG"  placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT01.SystemNameEN' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
-                                </div>
+                            <textbox formControlName="url">{{ 'label.SUMT01.Url' | translate }}
                             </textbox>
                         </div>
                         <div class="col-md-3 col-sm-6">
-                            <checkbox formControlName="active">
-                                {{ 'label.ALL.Active' | translate }}
-                            </checkbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="systemUrl"  placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT01.SystemUrl' | translate }}
+                            <textbox formControlName="icon">{{ 'label.SUMT01.Icon' | translate }}
                             </textbox>
                         </div>
                         <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="systemImage"  placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT01.SystemImage' | translate }}
-                            </textbox>
+                            <number formControlName="parentId">{{ 'label.SUMT01.ParentId' | translate }}
+                            </number>
                         </div>
-                        <div class="col-md-6 col-sm-6">
-                            <areabox formControlName="systemDescription"  placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT01.ProgramNameDetail' | translate }}
-                            </areabox>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="sequence">{{ 'label.SUMT01.Sequence' | translate }}
+                            </number>
                         </div>
                     </div>
                 </form>
