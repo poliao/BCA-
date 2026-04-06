@@ -6,3 +6,11 @@ export class DbLanguage extends EntityBase {
     languageName: string;
     isActive: boolean;
 }
+
+export class DbLocalization extends EntityBase {
+    id: number;
+    languageCode: string;
+    moduleName: string;
+    key: string;
+    value: string;
+}

@@ -4,6 +4,7 @@ import { LoadingService } from '@app/core/services/loading.service';
 import { Observable, Subscription, of } from 'rxjs';
 import { Menu, SidebarService } from './sidebar.service';
 import { ActivatedRoute } from '@angular/router';
+import { I18nService } from '@app/core/services/i18n.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -32,18 +33,19 @@ export class SidebarComponent implements OnInit {
     public sidebarservice: SidebarService,
     private readonly loading: LoadingService,
     private route: ActivatedRoute,
+    private i18n: I18nService
   ) { }
 
   ngOnInit(): void {
     window.addEventListener('refresh-menu', this.handleMenuRefresh);
     this.userName = of("Guest");
     this.personalName = of("Administrator");
-    this.menusList = this.sidebarservice.getMenuList(localStorage.getItem('language'));
+    this.menusList = this.sidebarservice.getMenuList(this.i18n.language);
     this.isMediumScreenSub = this.sidebarservice.isMediumScreenObserv.subscribe(medium => this.isMediumScreen = medium);
   }
 
   handleMenuRefresh = (event: Event) => {
-    this.menusList = this.sidebarservice.getMenuList(localStorage.getItem('language'));
+    this.menusList = this.sidebarservice.getMenuList(this.i18n.language);
   };
 
   ngOnDestroy(): void {

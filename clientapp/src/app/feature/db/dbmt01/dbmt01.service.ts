@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { DbLanguage } from './dbmt01.model';
+import { DbLanguage, DbLocalization } from './dbmt01.model';
 
 @Injectable()
 export class Dbmt01Service {
@@ -19,5 +19,13 @@ export class Dbmt01Service {
   // but I'll add a placeholder if they want delete.
   delete(id: number) {
     return this.http.delete(`languages/${id}`);
+  }
+
+  getLocalizations(lang: string) {
+    return this.http.get<DbLocalization[]>(`v1/localizations/${lang}`);
+  }
+
+  saveLocalizations(lang: string, localizations: DbLocalization[]) {
+    return this.http.post<DbLocalization[]>(`v1/localizations/${lang}`, localizations);
   }
 }

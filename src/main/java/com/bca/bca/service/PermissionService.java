@@ -53,7 +53,8 @@ public class PermissionService {
     private MenuPermissionDto mapToDto(RolePermission rp) {
         return MenuPermissionDto.builder()
                 .menuCode(rp.getMenu().getMenuCode())
-                .menuName(rp.getMenu().getMenuName())
+                .menuNameEn(rp.getMenu().getMenuNameEn())
+                .menuNameTh(rp.getMenu().getMenuNameTh())
                 .url(rp.getMenu().getUrl())
                 .icon(rp.getMenu().getIcon())
                 .isVisible(rp.getIsVisible())

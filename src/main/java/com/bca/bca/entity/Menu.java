@@ -19,8 +19,11 @@ public class Menu extends EntityBase {
     @Column(name = "menu_code", length = 50, unique = true, nullable = false)
     private String menuCode;
 
-    @Column(name = "menu_name", length = 100)
-    private String menuName;
+    @Column(name = "menu_name_en", length = 100)
+    private String menuNameEn;
+
+    @Column(name = "menu_name_th", length = 100)
+    private String menuNameTh;
 
     @Column(name = "url", length = 255)
     private String url;

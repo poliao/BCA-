@@ -15,4 +15,12 @@ public class LanguageService {
     public List<Language> getAllLanguages() {
         return languageRepository.findByIsActiveTrue();
     }
+
+    public Language save(Language language) {
+        return languageRepository.save(language);
+    }
+
+    public void delete(Long id) {
+        languageRepository.deleteById(id);
+    }
 }

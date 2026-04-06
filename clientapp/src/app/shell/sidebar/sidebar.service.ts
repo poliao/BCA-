@@ -131,7 +131,7 @@ export class SidebarService {
         // Map backend fields to frontend fields
         let mappedMenus: Menu[] = menus.map(m => ({
           ...m,
-          title: m.menuName, // Map menuName to title
+          title: (lang?.toLowerCase() === 'th') ? m.menuNameTh : m.menuNameEn, // Map based on lang
           active: false,
           subMenus: []
         }));

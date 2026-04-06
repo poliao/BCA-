@@ -13,7 +13,7 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class Sumt01Component implements OnInit {
 
-  displayedColumns: string[] = ['menuCode', 'menuName', 'url', 'sequence', 'action'];
+  displayedColumns: string[] = ['menuCode', 'menuNameEn', 'menuNameTh', 'url', 'sequence', 'action'];
   dataSource = new MatTableDataSource<SuMenu>([]);
   actions: any;
 

@@ -43,7 +43,8 @@ export class Sumt01DetailComponent extends SubscriptionDisposer implements OnIni
     const fg = this.fb.group({
       id: [null],
       menuCode: [null, [Validators.required, Validators.maxLength(50)]],
-      menuName: [null, [Validators.required, Validators.maxLength(100)]],
+      menuNameEn: [null, [Validators.required, Validators.maxLength(100)]],
+      menuNameTh: [null, [Validators.required, Validators.maxLength(100)]],
       url: [null, [Validators.maxLength(255)]],
       icon: [null, [Validators.maxLength(100)]],
       parentId: [null],

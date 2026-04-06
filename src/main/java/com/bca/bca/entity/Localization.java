@@ -27,4 +27,7 @@ public class Localization extends EntityBase {
 
     @Column(name = "value_text", length = 2000)
     private String value;
+
+    @Transient
+    private Integer rowState;
 }
