@@ -7,7 +7,7 @@
     </label>
 }
 <label #viewField class="field-hidden" for="displayText">{{displayText}}</label>
-<input type="text" #editField [placeholder]="placeholder" [readonly]="readonly" [disabled]="disabled"
+<input [type]="type" #editField [placeholder]="placeholder" [readonly]="readonly" [disabled]="disabled"
     class="form-control" [class.is-invalid]="hasErrors" (input)="onTextChange($event)" [class.form-control-sm]="small"
     [ngClass]="class" [value]="value" (blur)="onTextBlur()">
 @if (hasErrors) {

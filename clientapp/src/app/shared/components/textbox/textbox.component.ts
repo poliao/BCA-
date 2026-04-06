@@ -7,6 +7,7 @@ import { BaseFormField } from '../base-form';
 })
 export class TextboxComponent extends BaseFormField {
 
+  @Input() type = 'text';
   @Input() readonly = false;
   @Output() onBlur = new EventEmitter();
   @Input() preventSpace = true;

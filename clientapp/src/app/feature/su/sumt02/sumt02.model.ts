@@ -1,54 +1,42 @@
 import { EntityBase } from "@app/shared/service/base.service"
 
-export class SuCompany extends EntityBase {
-    companyCode: string;
+export class SuUser extends EntityBase {
+    id: number;
+    username: string;
+    password?: string;
+    firstName: string;
+    lastName: string;
+    isActive: boolean;
+    roles: SuRole[] = [];
+}
+
+export class SuRole extends EntityBase {
+    id: number;
+    roleCode: string;
+    roleName: string;
     description: string;
-    active: boolean;
-    personalityType: string;
-    taxNumber: string;
-    branchCode: string;
-    socialSecurityNumber: string;
-    socialSecurityBranch: string;
-    companyLogo: number;
-    companyNameTha: string;
-    companyNameEng: string;
-    countryCode: string;
-    provinceId: number;
-    districtId: number;
-    addressTha: string;
-    addressEng: string;
-    moo: string;
-    soi: string;
-    road: string;
-    tambol: number;
-    postalCode: string;
-    telephoneNo: string;
-    faxNo: string;
-    email: string;
-    personalTaxTypeCode: string;
-    taxId: string;
-    socailSecurityNo: string;
-    socailSecurityBranch: string;
-    receiptBranchCode: string;
-    receiptBranchName: string;
-    website: string;
-    googleMap: string;
-    logoName: string;
-    mapName: string;
-    bannerName: string;
-    mainCompany: string;
-    isBranch: boolean;
-    revenueStampBranchNo: string;
-    billPaymentFlag: boolean;
-    comCode: string;
-    suffixCode: string;
-    isMobile: boolean;
-    mapLatitude: number;
-    mapLongitude: number;
-    mapLocation: string;
-    regionId: number;
-    isCompanyTracking: boolean;
-    corpIdKkp: string;
-    originCode: string;
+    isActive: boolean;
+    permissions: SuRolePermission[] = [];
+}
+
+export class SuRolePermission extends EntityBase {
+    id: number;
+    roleId: number;
+    menuId: number;
+    menuCode: string;
+    menuName: string;
+    systemCode: string;
+    isVisible: boolean;
+    canRead: boolean;
+    canCreate: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
+    canPrint: boolean;
+    canApprove: boolean;
+    canVerify: boolean;
+    
+    // For Tree Hierarchy
+    parentId: number;
+    children: SuRolePermission[] = [];
 }
 

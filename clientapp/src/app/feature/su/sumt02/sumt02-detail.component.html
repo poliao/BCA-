@@ -1,215 +1,197 @@
 <toolbar>
-    <button class="btn btn-primary" (click)="save()" *ngIf="actions.create == true && program.rowVersion == null || program.rowVersion != null && actions.edit == true ">
+    <button class="btn btn-primary" (click)="save()">
         <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
-        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}</button>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
 </toolbar>
 
 <h4>{{ 'label.SUMT02.ProgramNameDetail' | translate }}</h4>
+
 <div class="row">
     <div class="col">
-        <app-card header="{{ 'label.SUMT02.CompanyDetail' | translate }}">
-            <div class="card-content">
-                <form #pro [formGroup]="programDataSource.form">
-                    <div class="row g-3">
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="companyCode" class="text-center">{{ 'label.SUMT02.CompanyCode' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
+        <mat-tab-group>
+            <!-- TAB 1: User Profile -->
+            <mat-tab label="{{ 'label.SUMT02.UserProfile' | translate }}">
+                <app-card>
+                    <div class="card-content">
+                        <form [formGroup]="userDataSource.form">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <textbox formControlName="username" class="text-center">{{ 'label.SUMT02.Username' |
+                                        translate }}</textbox>
                                 </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="master.mainCompany" formControlName="mainCompany"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.MainCompany' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-1 col-sm-6">
-                            <checkbox formControlName="isBranch">{{ 'label.SUMT02.IsBranch' | translate }}
-                            </checkbox>
-                        </div>
-                        <div class="col-md-1 col-sm-6">
-                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}
-                            </checkbox>
-                        </div>
-                        <div class="col-md-4 col-sm-6">
-                            <checkbox formControlName="isMobile">{{ 'label.SUMT02.IsMobile' | translate }}
-                            </checkbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="taxId">{{ 'label.SUMT02.TaxId' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="master.personalTaxTypeCode" formControlName="personalTaxTypeCode"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.PersonalTaxTypeCode' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="receiptBranchCode">{{ 'label.SUMT02.ReceiptBranchCode' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="receiptBranchName">{{ 'label.SUMT02.ReceiptBranchName' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <textbox formControlName="companyNameTha">{{ 'label.SUMT02.CompanyNameTH' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
+
+                                <div class="col-md-3">
+                                    <textbox formControlName="firstName">{{ 'label.SUMT02.FirstName' | translate }}
+                                    </textbox>
                                 </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <textbox formControlName="companyNameEng">{{ 'label.SUMT02.CompanyNameEN' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
+                                <div class="col-md-3">
+                                    <textbox formControlName="lastName">{{ 'label.SUMT02.LastName' | translate }}
+                                    </textbox>
                                 </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="socailSecurityBranch">{{ 'label.SUMT02.SocialSecurityBranch' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="socailSecurityNo">{{ 'label.SUMT02.SocialSecurityNo' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="website">{{ 'label.SUMT02.Website' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="email">{{ 'label.SUMT02.Email' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="revenueStampBranchNo">{{ 'label.SUMT02.RevenueStampBranchNo' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
+                                <div class="col-md-2">
+                                    <checkbox formControlName="isActive">{{ 'label.ALL.Active' | translate }}</checkbox>
                                 </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <checkbox formControlName="billPaymentFlag">{{ 'label.SUMT02.BillPaymentFlag' | translate }}
-                            </checkbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="comCode">{{ 'label.SUMT02.ComCode' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.STD00022' | translate }}
+                                <div class="col-md-3">
+                                    <button type="button" (click)="showPassword = !showPassword"
+                                        class="btn btn-link btn-sm"><i class="fas"
+                                            [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                    <textbox formControlName="password" [type]="showPassword ? 'text' : 'password'">{{
+                                        'label.SUMT02.Password' | translate }}
+                                    </textbox>
                                 </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="suffixCode">{{ 'label.SUMT02.SuffixCode' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.STD00022' | translate }}
+                            </div>
+                        </form>
+                    </div>
+                </app-card>
+            </mat-tab>
+
+            <!-- TAB 2: User Groups (Assignments) -->
+            <mat-tab label="{{ 'label.SUMT02.UserRoles' | translate }}">
+                <app-card header="{{ 'label.SUMT02.AssignRoles' | translate }}">
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="col-md-4" *ngFor="let role of roles">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" [id]="'role-' + role.id"
+                                        [checked]="isRoleSelected(role.id)" (change)="toggleUserRole(role, $event)">
+                                    <label class="form-check-label" [for]="'role-' + role.id">
+                                        <strong>{{ role.roleCode }}</strong> - {{ role.roleName }}
+                                    </label>
                                 </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="departmentForBg" formControlName="departmentCode"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.DepartmentBG' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <checkbox formControlName="isCompanyTracking">{{ 'label.SUMT02.IsCompanyTracking' | translate }}
-                            </checkbox>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
-        </app-card>
-        <app-card header="{{ 'label.SUMT02.Address' | translate }}">
-            <div class="card-content">
-                <form #pro [formGroup]="programDataSource.form">
-                    <div class="row g-3">
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="master.provinceId" formControlName="provinceId"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.ProvinceId' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="districtObserv | async" formControlName="districtId"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.DistrictId' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="subDistrictObserv | async" formControlName="tambol"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.Tambol' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="PostalSubDisObserv | async" formControlName="postalCode"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.PostalCode' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <textbox formControlName="addressTha" class="text-left">{{ 'label.SUMT02.AddressTha' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
-                                </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <textbox formControlName="addressEng">{{ 'label.SUMT02.AddressEng' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
-                                </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="moo">{{ 'label.SUMT02.Moo' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="soi">{{ 'label.SUMT02.Soi' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <textbox formControlName="road">{{ 'label.SUMT02.Road' | translate }}
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <select-input [items]="master.regionId" formControlName="regionId"
-                                placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">{{ 'label.SUMT02.RegionId' | translate }}
-                            </select-input>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="telephoneNo">{{ 'label.SUMT02.TelephoneNo' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.STD00016' | translate }}
-                                </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="faxNo">{{ 'label.SUMT02.FaxNo' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.STD00016' | translate }}
-                                </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <textbox formControlName="originCode">{{ 'label.SUMT02.OriginCode' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.STD00016' | translate }}
-                                </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-9 col-sm-6">
-                            <textbox formControlName="googleMap">{{ 'label.SUMT02.GoogleMap' | translate }}
-                                <div class="invalid-pattern">
-                                    {{ 'message.ID00005' | translate }}
-                                </div>
-                            </textbox>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <label>{{'label.SUMT02.Map'| translate}}</label>
-                            <image-upload formControlName="mapName" (fileUpdated)="onFileUpdated($event)" (remove)="onRemoveImgWeb($event)"></image-upload>
-                        </div>
+                </app-card>
+            </mat-tab>
+
+            <!-- TAB 3: Groups & Permission Tree -->
+            <mat-tab label="{{ 'label.SUMT02.SecurityManagement' | translate }}">
+                <div class="row g-3 mt-1">
+                    <!-- Left: Role List -->
+                    <div class="col-md-4">
+                        <app-card header="{{ 'label.SUMT02.Roles' | translate }}">
+                            <div class="card-menu">
+                                <button type="button" class="btn btn-primary btn-sm" (click)="addNewRole()">
+                                    <i class="fas fa-plus-circle"></i> {{'label.ALL.Add' | translate }}
+                                </button>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                <button type="button" class="list-group-item list-group-item-action"
+                                    *ngFor="let r of roles" [class.active]="selectedRole?.id === r.id"
+                                    (click)="selectRole(r)">
+                                    {{ r.roleCode }} - {{ r.roleName }}
+                                </button>
+                            </div>
+                        </app-card>
                     </div>
-                </form>
-            </div>
-        </app-card>
+
+                    <!-- Right: Role Detail & Permission Tree -->
+                    <div class="col-md-8" *ngIf="selectedRole">
+                        <app-card
+                            [header]="selectedRole.id ? selectedRole.roleName : ('label.ALL.NewRecord' | translate)">
+                            <div class="card-content">
+                                <form [formGroup]="roleDataSource.form" *ngIf="roleDataSource">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-4">
+                                            <textbox formControlName="roleCode">{{ 'label.SUMT04.ProfileCode' |
+                                                translate }}</textbox>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <textbox formControlName="roleName">{{ 'label.SUMT04.ProfileName' |
+                                                translate }}</textbox>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <checkbox formControlName="isActive">{{ 'label.ALL.Active' | translate }}
+                                            </checkbox>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <hr>
+                                <h5>{{ 'label.SUMT04.Menu' | translate }}</h5>
+
+                                <!-- MAT-TREE FOR PERMISSIONS -->
+                                <mat-tree [dataSource]="permissionDataSource" [treeControl]="treeControl"
+                                    class="permission-tree">
+                                    <!-- Leaf Node -->
+                                    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+                                        <div class="tree-node-content">
+                                            <span class="node-name">{{ node.menuName }}</span>
+                                            <div class="node-actions d-flex gap-2">
+                                                <div class="form-check small"><input type="checkbox"
+                                                        class="form-check-input"
+                                                        [(ngModel)]="node.isVisible"><label>View</label></div>
+                                                <div class="form-check small"><input type="checkbox"
+                                                        class="form-check-input"
+                                                        [(ngModel)]="node.canRead"><label>Read</label></div>
+                                                <div class="form-check small"><input type="checkbox"
+                                                        class="form-check-input"
+                                                        [(ngModel)]="node.canCreate"><label>Add</label></div>
+                                                <div class="form-check small"><input type="checkbox"
+                                                        class="form-check-input"
+                                                        [(ngModel)]="node.canEdit"><label>Edit</label></div>
+                                                <div class="form-check small"><input type="checkbox"
+                                                        class="form-check-input"
+                                                        [(ngModel)]="node.canDelete"><label>Delete</label></div>
+                                            </div>
+                                        </div>
+                                    </mat-tree-node>
+
+                                    <!-- Parent Node (Category/Sub-category) -->
+                                    <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+                                        <div class="mat-tree-node">
+                                            <button mat-icon-button matTreeNodeToggle>
+                                                <mat-icon>{{treeControl.isExpanded(node) ? 'expand_more' :
+                                                    'chevron_right'}}</mat-icon>
+                                            </button>
+                                            <span class="node-parent-name">{{ node.menuName }}</span>
+                                        </div>
+                                        <div [class.tree-invisible]="!treeControl.isExpanded(node)" role="group">
+                                            <ng-container matTreeNodeOutlet></ng-container>
+                                        </div>
+                                    </mat-nested-tree-node>
+                                </mat-tree>
+
+                            </div>
+                        </app-card>
+                    </div>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
     </div>
 </div>
+
+<style>
+    .permission-tree {
+        margin-top: 10px;
+    }
+
+    .tree-node-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .node-name {
+        font-size: 0.9em;
+    }
+
+    .node-actions label {
+        margin-left: 3px;
+        font-size: 0.8em;
+    }
+
+    .tree-invisible {
+        display: none;
+    }
+
+    .node-parent-name {
+        font-weight: bold;
+        color: #333;
+    }
+</style>

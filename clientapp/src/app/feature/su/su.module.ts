@@ -41,6 +41,9 @@ import { Sumt06CompanySelectComponet } from './sumt06/sumt06-company-select.comp
 import { Sumt06OrganizationComponent } from './sumt06/sumt06-organization-component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatTreeModule } from '@angular/material/tree';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSortModule } from '@angular/material/sort';
 
 
 @NgModule({
@@ -61,7 +64,10 @@ import { TranslateModule } from '@ngx-translate/core';
     SharedModule,
     CommonModule,
     SuRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatTreeModule,
+    MatIconModule,
+    MatSortModule
   ],
   providers: [
     Sumt01Service,

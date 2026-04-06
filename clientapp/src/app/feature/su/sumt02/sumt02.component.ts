@@ -15,12 +15,12 @@ import { Sumt02Service } from './sumt02.service';
 })
 export class Sumt02Component implements OnInit {
 
-  displayedColumns: string[] = ['companyCode', 'companyNameTha', 'companyNameEng', 'mainCompany','isBranch', 'active', 'action'];
-  displayedColumnsNodelete: string[] = ['companyCode', 'companyNameTha', 'companyNameEng', 'mainCompany','isBranch', 'active'];
+  displayedColumns: string[] = ['username', 'firstName', 'lastName', 'isActive', 'action'];
   keyword = '';
-  initialPageSort = new PageCriteria('companyCode,companyNameTha,companyNameEng,mainCompany,isBranch,active');
+  initialPageSort = new PageCriteria('username');
   data!: PaginatedDataSource<any, any>;
   actions: any;
+
   constructor(
     private router: Router,
     private modal: ModalService,
@@ -36,7 +36,7 @@ export class Sumt02Component implements OnInit {
     this.initialPageSort = this.save.retrive('sumt02page') ?? this.initialPageSort;
     this.keyword = this.save.retrive('sumt02') ?? '';
     this.data = new PaginatedDataSource<any, any>(
-      (request, query) => this.su.getCompanies(request, query),
+      (request, query) => this.su.getUsers(Object.assign(query, request)),
       this.initialPageSort)
 
     this.data.queryBy({ keyword: this.keyword });
@@ -52,16 +52,18 @@ export class Sumt02Component implements OnInit {
     this.data.queryBy({ keyword: this.keyword }, true);
   }
 
-
   add() {
     this.router.navigate(['/su/sumt02/detail']);
   }
 
+  edit(row: any) {
+    this.router.navigate(['/su/sumt02/detail'], { state: { id: row.id } });
+  }
 
   remove(row: any) {
     this.modal.confirm('message.STD00003').pipe(
       filter(confirm => confirm),
-      switchMap(() => this.su.delete(row.companyCode, row.rowVersion))
+      switchMap(() => this.su.deleteUser(row.id, row.rowVersion))
     ).subscribe(() => {
       this.ms.success('message.STD00014');
       const page = this.data.calculatePageAfterDelete();
