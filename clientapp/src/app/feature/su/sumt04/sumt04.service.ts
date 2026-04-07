@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { SuProfile } from './sumt04.model';
 
 @Injectable()
@@ -7,9 +8,9 @@ export class Sumt04Service {
 
   constructor(private http: HttpClient) { }
 
-  getProfiles(page: any, query: string) {
-    const filter = Object.assign(query, page);
-    return this.http.get<any>('sumt04', { params: filter });
+  getProfiles(page: any, query: any): Observable<{ rows: SuProfile[], count: number }> {
+    const filter = Object.assign({}, query, page);
+    return this.http.get<{ rows: SuProfile[], count: number }>('sumt04', { params: filter });
   }
 
   getProfile(code: string) {

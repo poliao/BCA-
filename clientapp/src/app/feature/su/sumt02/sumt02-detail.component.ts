@@ -91,6 +91,13 @@ export class Sumt02DetailComponent extends SubscriptionDisposer implements OnIni
     this.loadPermissionTree(role.id);
   }
 
+  onRoleChange(roleId: number) {
+    const role = this.roles.find(r => r.id === roleId);
+    if (role) {
+      this.selectRole(role);
+    }
+  }
+
   addNewRole() {
     const newRole = new SuRole();
     newRole.rowState = RowState.Add;
@@ -157,7 +164,7 @@ export class Sumt02DetailComponent extends SubscriptionDisposer implements OnIni
         this.user = res.user;
         this.rebuildForm();
         if (res.role) {
-           this.su.getRoles().subscribe(roles => this.roles = roles);
+           this.su.getRoles().subscribe(res => this.roles = res.rows);
         }
         this.ms.success('message.STD00006');
         this.saving = false;

@@ -4,6 +4,8 @@ import com.bca.bca.core.EntityBase;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "su_roles")
@@ -24,4 +26,7 @@ public class Role extends EntityBase {
 
     @Column(name = "description", length = 255)
     private String description;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RolePermission> permissions = new ArrayList<>();
 }

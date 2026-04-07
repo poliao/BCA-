@@ -7,8 +7,8 @@ export class Sumt01Service {
 
   constructor(private http: HttpClient) { }
 
-  getMenus() {
-    return this.http.get<SuMenu[]>('v1/menus');
+  getMenus(params?: any) {
+    return this.http.get<{ rows: SuMenu[], count: number }>('v1/menus', { params });
   }
 
   getMenu(id: number) {

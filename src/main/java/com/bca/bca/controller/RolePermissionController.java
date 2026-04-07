@@ -1,9 +1,12 @@
 package com.bca.bca.controller;
 
+import com.bca.bca.dto.PageResponse;
 import com.bca.bca.dto.RolePermissionTreeDto;
 import com.bca.bca.entity.RolePermission;
 import com.bca.bca.service.RolePermissionService;
+import com.bca.bca.util.QueryUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +24,12 @@ public class RolePermissionController {
     }
 
     @GetMapping
-    public List<RolePermission> findAll() {
-        return rolePermissionService.findAll();
+    public PageResponse<RolePermission> findAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sort) {
+        Page<RolePermission> permissionPage = rolePermissionService.findAll(QueryUtil.createPageable(page, size, sort));
+        return new PageResponse<>(permissionPage.getContent(), permissionPage.getTotalElements());
     }
 
     @GetMapping("/{id}")

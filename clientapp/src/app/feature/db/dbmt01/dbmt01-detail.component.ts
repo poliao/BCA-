@@ -7,11 +7,12 @@ import { SubscriptionDisposer } from '@app/shared/components/subscription-dispos
 import { FormDatasource } from '@app/shared/service/base.service';
 import { FormUtilService } from '@app/shared/service/form-util.service';
 import { Observable, of, switchMap } from 'rxjs';
-import { MatTableDataSource } from '@angular/material/table';
 import { DbLanguage, DbLocalization } from './dbmt01.model';
 import { Dbmt01Service } from './dbmt01.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 import { RowState } from '@app/shared/constants';
+import { PaginatedDataSource } from '@app/shared/components/datatable/server-datasource';
+import { PageCriteria } from '@app/shared/components/datatable/page';
 
 @Component({
     selector: 'app-dbmt01-detail',
@@ -20,8 +21,8 @@ import { RowState } from '@app/shared/constants';
 export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnInit {
     language: DbLanguage = {} as DbLanguage;
     languageDataSource!: FormDatasource<DbLanguage>;
-    localizations = new MatTableDataSource<FormDatasource<DbLocalization>>([]);
-    localizationDataSources: FormDatasource<DbLocalization>[] = [];
+    localizations!: PaginatedDataSource<FormDatasource<DbLocalization>, any>;
+    localizationDataSources: FormDatasource<DbLocalization>[] = []; // We use this to track current and locally added/deleted items
     saving = false;
     actions: any;
     displayedColumns: string[] = ['moduleName', 'key', 'value', 'action'];
@@ -49,18 +50,36 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
     }
 
     loadLocalizations() {
-        this.db.getLocalizations(this.language.languageCode).subscribe(data => {
-            this.localizationDataSources = data.map(item => {
-                const source = new FormDatasource<DbLocalization>(item, this.createLocalizationForm());
-                source.markToNormal();
-                return source;
-            });
-            this.reload();
-        });
+        this.localizations = new PaginatedDataSource<FormDatasource<DbLocalization>, any>(
+            (request, query) => this.db.getLocalizations(this.language.languageCode, request).pipe(
+                map(res => {
+                    const localAdds = this.localizationDataSources.filter(l => l.isAdd);
+                    const rows = res.rows.map(item => {
+                        const tracked = this.localizationDataSources.find(l => l.model.id === item.id);
+                        if (tracked) return tracked;
+                        const source = new FormDatasource<DbLocalization>(item, this.createLocalizationForm());
+                        source.markToNormal();
+                        return source;
+                    });
+
+                    let combinedRows = rows;
+                    if (request.page === 0) {
+                        combinedRows = [...localAdds, ...rows];
+                    }
+
+                    return {
+                        rows: combinedRows,
+                        count: res.count + localAdds.length
+                    };
+                })
+            ),
+            new PageCriteria('key')
+        );
+        this.localizations.queryBy({});
     }
 
     reload() {
-        this.localizations.data = this.localizationDataSources.filter(o => !o.isDelete);
+        // With PaginatedDataSource, the table reloads automatically
     }
 
     createLanguageForm() {
@@ -96,16 +115,19 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
         item.rowState = RowState.Add;
         const dataSource = new FormDatasource<DbLocalization>(item, this.createLocalizationForm());
         this.localizationDataSources.unshift(dataSource);
-        this.reload();
+        this.localizations.queryBy({}); // Trigger reload
     }
 
     removeRow(source: FormDatasource<DbLocalization>) {
         if (source.isAdd) {
-            this.localizationDataSources = this.localizationDataSources.filter(o => o.id !== source.id);
+            this.localizationDataSources = this.localizationDataSources.filter(o => o !== source);
         } else {
             source.markForDelete();
+            if (!this.localizationDataSources.includes(source)) {
+                this.localizationDataSources.push(source);
+            }
         }
-        this.reload();
+        this.localizations.queryBy({});
     }
 
     save() {
@@ -119,10 +141,17 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
 
         this.languageDataSource.updateValue();
         this.localizationDataSources.forEach(l => l.updateValue());
+        
+        // Also capture any changes from the current page that aren't in localizationDataSources yet
+        this.localizations.data.forEach(l => {
+            if (l.form.dirty && !this.localizationDataSources.includes(l)) {
+                l.updateValue();
+                this.localizationDataSources.push(l);
+            }
+        });
 
         this.saving = true;
         const langCode = this.language.languageCode;
-        // Send items that are not Normal OR are Delete
         const localizationData = this.localizationDataSources
             .filter(l => !l.isNormal || l.isDelete)
             .map(l => l.model);

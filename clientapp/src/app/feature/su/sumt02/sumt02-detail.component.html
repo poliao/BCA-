@@ -68,26 +68,22 @@
 
             <!-- TAB 3: Groups & Permission Tree -->
             <mat-tab label="{{ 'label.SUMT02.SecurityManagement' | translate }}">
-                <div class="row g-3 mt-1">
-                    <!-- Left: Role List -->
+                <div class="row mt-2">
                     <div class="col-md-4">
-                        <app-card header="{{ 'label.SUMT02.Roles' | translate }}">
-                            <div class="card-menu">
-                                <button type="button" class="btn btn-primary btn-sm" (click)="addNewRole()">
-                                    <i class="fas fa-plus-circle"></i> {{'label.ALL.Add' | translate }}
-                                </button>
-                            </div>
-                            <div class="list-group list-group-flush">
-                                <button type="button" class="list-group-item list-group-item-action"
-                                    *ngFor="let r of roles" [class.active]="selectedRole?.id === r.id"
-                                    (click)="selectRole(r)">
-                                    {{ r.roleCode }} - {{ r.roleName }}
-                                </button>
-                            </div>
-                        </app-card>
-                    </div>
+                        <select-input [items]="roles" bindLabel="roleName" bindValue="id"
+                            (ngModelChange)="onRoleChange($event)" [ngModel]="selectedRole?.id">
+                            {{ 'label.SUMT02.PermissionGroup' | translate }}
+                        </select-input>
 
-                    <!-- Right: Role Detail & Permission Tree -->
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary btn-sm" (click)="addNewRole()">
+                            <i class="fas fa-plus-circle"></i> {{'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
                     <div class="col-md-8" *ngIf="selectedRole">
                         <app-card
                             [header]="selectedRole.id ? selectedRole.roleName : ('label.ALL.NewRecord' | translate)">

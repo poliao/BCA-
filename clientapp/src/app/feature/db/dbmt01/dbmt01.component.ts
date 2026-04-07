@@ -5,7 +5,8 @@ import { ModalService } from '@app/shared/components/modal/modal.service';
 import { filter, switchMap } from 'rxjs';
 import { Dbmt01Service } from './dbmt01.service';
 import { DbLanguage } from './dbmt01.model';
-import { MatTableDataSource } from '@angular/material/table';
+import { PaginatedDataSource } from '@app/shared/components/datatable/server-datasource';
+import { PageCriteria } from '@app/shared/components/datatable/page';
 
 @Component({
   selector: 'app-dbmt01',
@@ -13,7 +14,7 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class Dbmt01Component implements OnInit {
   displayedColumns: string[] = ['languageCode', 'languageName', 'isActive', 'action'];
-  dataSource = new MatTableDataSource<DbLanguage>([]);
+  dataSource!: PaginatedDataSource<DbLanguage, any>;
   actions: any;
 
   constructor(
@@ -27,13 +28,15 @@ export class Dbmt01Component implements OnInit {
     this.route.data.subscribe((data) => {
       this.actions = data.dbmt01.actions;
     });
-    this.loadData();
+    this.dataSource = new PaginatedDataSource<DbLanguage, any>(
+      (request, query) => this.db.getLanguages(Object.assign(query, request)),
+      new PageCriteria('languageCode')
+    );
+    this.dataSource.queryBy({});
   }
 
   loadData() {
-    this.db.getLanguages().subscribe(languages => {
-      this.dataSource.data = languages;
-    });
+    this.dataSource.queryBy({});
   }
 
   add() {
@@ -46,7 +49,8 @@ export class Dbmt01Component implements OnInit {
       switchMap(() => this.db.delete(row.id))
     ).subscribe(() => {
       this.ms.success('message.STD00014');
-      this.loadData();
+      const page = this.dataSource.calculatePageAfterDelete();
+      this.dataSource.fetch(page);
     })
   }
 

@@ -1,5 +1,7 @@
 package com.bca.bca.util;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,5 +36,11 @@ public class QueryUtil {
         }
 
         return orders.isEmpty() ? Sort.unsorted() : Sort.by(orders);
+    }
+
+    public static Pageable createPageable(Integer page, Integer size, String sortStr) {
+        if (page == null) page = 0;
+        if (size == null) size = 10;
+        return PageRequest.of(page, size, parseSort(sortStr));
     }
 }

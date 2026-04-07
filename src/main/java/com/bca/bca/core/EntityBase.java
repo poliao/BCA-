@@ -3,6 +3,7 @@ package com.bca.bca.core;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,4 +40,7 @@ public abstract class EntityBase {
     @Version
     @Column(name = "row_version")
     private Integer rowVersion;
+
+    @Transient
+    private Integer rowState;
 }

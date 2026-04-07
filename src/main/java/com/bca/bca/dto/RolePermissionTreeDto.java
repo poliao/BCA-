@@ -40,4 +40,7 @@ public class RolePermissionTreeDto {
     private Long parentId;
     @Builder.Default
     private List<RolePermissionTreeDto> children = new ArrayList<>();
+    
+    @Builder.Default
+    private Integer rowState = 0; // 0 = Normal, 1 = Add, 2 = Edit, 3 = Delete
 }

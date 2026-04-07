@@ -9,12 +9,7 @@ export class Sumt02Service {
   constructor(private http: HttpClient) { }
 
   getUsers(params: any): Observable<{ rows: any[], count: number }> {
-    return this.http.get<any[]>('su/users', { params }).pipe(
-      map(res => ({
-        rows: res,
-        count: res.length
-      }))
-    );
+    return this.http.get<{ rows: any[], count: number }>('su/users', { params });
   }
 
   getUser(id: any) {
@@ -29,8 +24,8 @@ export class Sumt02Service {
     return this.http.delete(`su/users/${id}`, { params: { rowVersion: version } });
   }
 
-  getRoles() {
-    return this.http.get<SuRole[]>('su/roles');
+  getRoles(params?: any) {
+    return this.http.get<{ rows: SuRole[], count: number }>('su/roles', { params });
   }
 
   getRoleDetail(id: any) {

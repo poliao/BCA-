@@ -3,6 +3,8 @@ package com.bca.bca.service;
 import com.bca.bca.entity.Localization;
 import com.bca.bca.repository.LocalizationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,11 @@ public class LocalizationService {
 
     public List<Localization> getAllLocalizations(String lang) {
         return localizationRepository.findByLanguageCode(lang);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Localization> findAllByLanguageCode(String lang, Pageable pageable) {
+        return localizationRepository.findByLanguageCode(lang, pageable);
     }
 
     @Transactional

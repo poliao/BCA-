@@ -6,6 +6,8 @@ import com.bca.bca.entity.RolePermission;
 import com.bca.bca.repository.MenuRepository;
 import com.bca.bca.repository.RolePermissionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,7 @@ public class RolePermissionService {
                 .canDelete(p != null ? p.getCanDelete() : false)
                 .canApprove(p != null ? p.getCanApprove() : false)
                 .canVerify(p != null ? p.getCanVerify() : false)
+                .rowState(p != null ? 0 : 1) // 0 = Normal, 1 = Add
                 .build();
         }).collect(Collectors.toList());
 
@@ -74,6 +77,11 @@ public class RolePermissionService {
     @Transactional(readOnly = true)
     public List<RolePermission> findAll() {
         return rolePermissionRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RolePermission> findAll(Pageable pageable) {
+        return rolePermissionRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)

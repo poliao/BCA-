@@ -5,7 +5,9 @@ import { ModalService } from '@app/shared/components/modal/modal.service';
 import { filter, switchMap } from 'rxjs';
 import { Sumt01Service } from './sumt01.service';
 import { SuMenu } from './sumt01.model';
-import { MatTableDataSource } from '@angular/material/table';
+import { PaginatedDataSource } from '@app/shared/components/datatable/server-datasource';
+import { PageCriteria } from '@app/shared/components/datatable/page';
+import { SaveDataService } from '@app/core/services/save-data.service';
 
 @Component({
   selector: 'app-sumt01',
@@ -14,7 +16,7 @@ import { MatTableDataSource } from '@angular/material/table';
 export class Sumt01Component implements OnInit {
 
   displayedColumns: string[] = ['menuCode', 'menuNameEn', 'menuNameTh', 'url', 'sequence', 'action'];
-  dataSource = new MatTableDataSource<SuMenu>([]);
+  dataSource!: PaginatedDataSource<SuMenu, any>;
   actions: any;
 
   constructor(
@@ -22,19 +24,22 @@ export class Sumt01Component implements OnInit {
     private readonly route: ActivatedRoute,
     private modal: ModalService,
     private su: Sumt01Service,
-    private ms: MessageService) { }
+    private ms: MessageService,
+    private save: SaveDataService) { }
 
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
       this.actions = data.sumt01.actions;
     });
-    this.loadData();
+    this.dataSource = new PaginatedDataSource<SuMenu, any>(
+      (request, query) => this.su.getMenus(Object.assign(query, request)),
+      new PageCriteria('sequence')
+    );
+    this.dataSource.queryBy({});
   }
 
   loadData() {
-    this.su.getMenus().subscribe(menus => {
-      this.dataSource.data = menus;
-    });
+    this.dataSource.queryBy({});
   }
 
   add() {
@@ -47,7 +52,8 @@ export class Sumt01Component implements OnInit {
       switchMap(() => this.su.delete(row.id))
     ).subscribe(() => {
       this.ms.success('message.STD00014');
-      this.loadData();
+      const page = this.dataSource.calculatePageAfterDelete();
+      this.dataSource.fetch(page);
     })
   }
 }

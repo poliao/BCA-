@@ -7,8 +7,8 @@ export class Dbmt01Service {
 
   constructor(private http: HttpClient) { }
 
-  getLanguages() {
-    return this.http.get<DbLanguage[]>('languages');
+  getLanguages(params?: any) {
+    return this.http.get<{ rows: DbLanguage[], count: number }>('languages', { params });
   }
 
   save(language: DbLanguage) {
@@ -21,8 +21,8 @@ export class Dbmt01Service {
     return this.http.delete(`languages/${id}`);
   }
 
-  getLocalizations(lang: string) {
-    return this.http.get<DbLocalization[]>(`v1/localizations/${lang}`);
+  getLocalizations(lang: string, params?: any) {
+    return this.http.get<{ rows: DbLocalization[], count: number }>(`v1/localizations/${lang}`, { params });
   }
 
   saveLocalizations(lang: string, localizations: DbLocalization[]) {

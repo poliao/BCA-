@@ -1,12 +1,13 @@
 package com.bca.bca.controller;
 
 import com.bca.bca.dto.AuditLogRequest;
+import com.bca.bca.dto.PageResponse;
 import com.bca.bca.entity.AuditDetailLog;
-import com.bca.bca.repository.AuditDetailLogRepository;
 import com.bca.bca.service.AuditDetailLogService;
+import com.bca.bca.util.QueryUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/audit-logs")
@@ -14,7 +15,6 @@ import java.util.List;
 public class AuditDetailLogController {
 
     private final AuditDetailLogService auditDetailLogService;
-    private final AuditDetailLogRepository auditDetailLogRepository;
 
     @PostMapping
     public void saveLog(@RequestBody AuditLogRequest request) {
@@ -27,7 +27,11 @@ public class AuditDetailLogController {
     }
 
     @GetMapping
-    public List<AuditDetailLog> getAllLogs() {
-        return auditDetailLogRepository.findAll();
+    public PageResponse<AuditDetailLog> getAllLogs(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sort) {
+        Page<AuditDetailLog> logPage = auditDetailLogService.findAll(QueryUtil.createPageable(page, size, sort));
+        return new PageResponse<>(logPage.getContent(), logPage.getTotalElements());
     }
 }

@@ -15,8 +15,8 @@
         <br>
         <div class="row">
           <div class="col">
-            <app-table [dataSource]="dataSource" [columns]="displayedColumns">
-              <ng-container matSort>
+            <app-table server [dataSource]="dataSource" [columns]="displayedColumns">
+              <ng-container matSort [matSortActive]="dataSource.sortInfo.property" [matSortDirection]="dataSource.sortInfo.direction">
                 <ng-container matColumnDef="languageCode">
                   <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="150px" class="text-center">
                     {{ 'label.DBMT01.LanguageCode' | translate }}

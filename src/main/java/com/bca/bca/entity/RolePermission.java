@@ -18,6 +18,7 @@ public class RolePermission extends EntityBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,4 +48,10 @@ public class RolePermission extends EntityBase {
 
     @Column(name = "can_verify", nullable = false)
     private Boolean canVerify = false;
+
+    @Column(name = "can_print", nullable = false)
+    private Boolean canPrint = false;
+
+    @Transient
+    private Long menuId;
 }

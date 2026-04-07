@@ -23,7 +23,7 @@ export interface SimpleDataSource<T> extends DataSource<T> {
 }
 
 export class PaginatedDataSource<T, Q> implements SimpleDataSource<T> {
-  private readonly reload: BehaviorSubject<boolean>;
+  public readonly reload: BehaviorSubject<boolean>;
   private readonly defaultSort: Sort<any>[];
   private readonly pageSort: BehaviorSubject<PageRequest<T>>;
   private readonly loading = new Subject<boolean>();
