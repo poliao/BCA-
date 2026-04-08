@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppConfigurationService } from '@app/core/services/app-configuration.service';
 import { I18nService } from '@app/core/services/i18n.service';
+import { AuthenticationService } from '@app/core/services/authentication.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class HeaderComponent {
     public i18n: I18nService,
     private router: Router,
     public sidebarservice: SidebarService,
+    private authService: AuthenticationService,
   ) {
     this.langs = this.config.config.languages;
   }
@@ -50,7 +52,6 @@ export class HeaderComponent {
   }
 
   logout() {
-    console.log('Logout clicked');
-    this.router.navigate(['/dashboard']);
+    this.authService.logout();
   }
 }

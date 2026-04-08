@@ -50,6 +50,7 @@ public class RolePermissionService {
                 .canApprove(p != null ? p.getCanApprove() : false)
                 .canVerify(p != null ? p.getCanVerify() : false)
                 .rowState(p != null ? 0 : 1) // 0 = Normal, 1 = Add
+                .rowVersion(p != null ? p.getRowVersion() : null)
                 .build();
         }).collect(Collectors.toList());
 

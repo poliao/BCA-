@@ -126,7 +126,7 @@ export class SidebarService {
   // }
 
   getMenuList(lang): Observable<Menu[]> {
-    return this.http.disableHeader().get<any[]>('v1/menus/all').pipe(
+    return this.http.get<any[]>('v1/menus/authorized').pipe(
       map(menus => {
         // Map backend fields to frontend fields
         let mappedMenus: Menu[] = menus.map(m => ({

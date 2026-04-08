@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,22 +39,56 @@ public class RoleService {
 
     @Transactional
     public Role save(Role role) {
-        if (role.getPermissions() != null) {
-            // Handle rowState for permissions
-            List<RolePermission> toDelete = role.getPermissions().stream()
-                    .filter(p -> Integer.valueOf(3).equals(p.getRowState())) // 3 = Delete
-                    .collect(Collectors.toList());
-            
-            role.getPermissions().removeAll(toDelete);
-
-            role.getPermissions().forEach(permission -> {
-                permission.setRole(role);
-                if (permission.getMenu() == null && permission.getMenuId() != null) {
-                    permission.setMenu(menuRepository.getReferenceById(permission.getMenuId()));
-                }
-            });
+        Role persistentRole;
+        if (role.getId() != null) {
+            persistentRole = roleRepository.findById(role.getId())
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
+            persistentRole.setRoleCode(role.getRoleCode());
+            persistentRole.setRoleName(role.getRoleName());
+            persistentRole.setDescription(role.getDescription());
+            persistentRole.setRowVersion(role.getRowVersion());
+        } else {
+            persistentRole = role;
         }
-        return roleRepository.save(role);
+
+        if (role.getPermissions() != null) {
+            Map<Long, RolePermission> existingPermMap = persistentRole.getPermissions().stream()
+                    .filter(p -> p.getId() != null)
+                    .collect(Collectors.toMap(RolePermission::getId, p -> p));
+
+            List<RolePermission> incomingPerms = role.getPermissions();
+            List<Long> incomingIds = incomingPerms.stream()
+                    .map(RolePermission::getId)
+                    .filter(id -> id != null)
+                    .collect(Collectors.toList());
+
+            // 1. Remove missing permissions
+            persistentRole.getPermissions().removeIf(p -> p.getId() != null && !incomingIds.contains(p.getId()));
+
+            // 2. Update existing or Add new
+            for (RolePermission incoming : incomingPerms) {
+                if (incoming.getId() == null) {
+                    incoming.setRole(persistentRole);
+                    if (incoming.getMenuId() != null) {
+                        incoming.setMenu(menuRepository.getReferenceById(incoming.getMenuId()));
+                    }
+                    persistentRole.getPermissions().add(incoming);
+                } else if (existingPermMap.containsKey(incoming.getId())) {
+                    RolePermission existing = existingPermMap.get(incoming.getId());
+                    existing.setIsVisible(incoming.getIsVisible());
+                    existing.setCanRead(incoming.getCanRead());
+                    existing.setCanCreate(incoming.getCanCreate());
+                    existing.setCanEdit(incoming.getCanEdit());
+                    existing.setCanDelete(incoming.getCanDelete());
+                    existing.setCanCancel(incoming.getCanCancel());
+                    existing.setCanApprove(incoming.getCanApprove());
+                    existing.setCanVerify(incoming.getCanVerify());
+                    existing.setCanPrint(incoming.getCanPrint());
+                    existing.setRowVersion(incoming.getRowVersion());
+                }
+            }
+        }
+        return roleRepository.save(persistentRole);
     }
 
     @Transactional

@@ -8,7 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/menus")
@@ -16,6 +21,19 @@ import java.util.List;
 public class MenuController {
 
     private final MenuService menuService;
+
+    @GetMapping("/authorized")
+    public List<Menu> getAuthorizedMenus() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+        
+        List<String> roleCodes = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(role -> role.replace("ROLE_", "")) // Remove the ROLE_ prefix we added in the filter
+                .collect(Collectors.toList());
+        
+        return menuService.findAuthorizedMenus(roleCodes);
+    }
 
     @GetMapping
     public PageResponse<Menu> findAll(

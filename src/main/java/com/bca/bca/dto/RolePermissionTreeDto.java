@@ -43,4 +43,6 @@ public class RolePermissionTreeDto {
     
     @Builder.Default
     private Integer rowState = 0; // 0 = Normal, 1 = Add, 2 = Edit, 3 = Delete
+    
+    private Integer rowVersion;
 }

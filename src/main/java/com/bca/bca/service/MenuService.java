@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,11 @@ public class MenuService {
     @Transactional(readOnly = true)
     public List<Menu> findAll() {
         return menuRepository.findAllByOrderBySequenceAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Menu> findAuthorizedMenus(Collection<String> roleCodes) {
+        return menuRepository.findAuthorizedMenus(roleCodes);
     }
 
     @Transactional(readOnly = true)
