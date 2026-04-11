@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
+import { AuthenticationService } from '@app/core/services/authentication.service';
 import { LoadingService } from '@app/core/services/loading.service';
 import { MessageService } from '@app/core/services/message.service';
 import { Observable, forkJoin, throwError } from 'rxjs';
@@ -17,13 +18,18 @@ export type ErrorModel = {
 
 /**
  * Adds a default error handler to all requests.
- */
+*/
 @Injectable({
   providedIn: 'root'
 })
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 
-  constructor(private message: MessageService, private loading: LoadingService, @Inject('BASE_URL') private baseUrl: string) { }
+  constructor(
+    private message: MessageService,
+    private loading: LoadingService,
+    private injector: Injector,
+    @Inject('BASE_URL') private baseUrl: string
+  ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const reg = new RegExp(this.baseUrl);
@@ -40,8 +46,6 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
       this.message.error(errorResponse.message);
     }
     else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong.
       this.handleBackendError(errorResponse);
     }
 
@@ -56,7 +60,9 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
         break;
       case 403: this.message.warning(`You don't have access to the url : ${errorResponse.url}`);
         break;
-      case 401: this.message.warning(`You don't have access to the content`);
+      case 401:
+        this.message.warning(`You don't have access to the content`);
+        this.injector.get(AuthenticationService).logout();
         break;
       case 500: this.message.error(errorResponse.error.code);
         break;

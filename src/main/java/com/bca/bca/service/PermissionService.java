@@ -70,6 +70,38 @@ public class PermissionService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public PermissionDto getActionsForUser(String username, String menuCode) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        PermissionDto merged = PermissionDto.builder()
+                .canRead(false)
+                .canCreate(false)
+                .canEdit(false)
+                .canDelete(false)
+                .canCancel(false)
+                .canApprove(false)
+                .canVerify(false)
+                .build();
+
+        for (Role role : user.getRoles()) {
+            List<RolePermission> rolePermissions = rolePermissionRepository.findByRole(role);
+            for (RolePermission rp : rolePermissions) {
+                if (menuCode.equalsIgnoreCase(rp.getMenu().getMenuCode())) {
+                    merged.setCanRead(merged.isCanRead() || rp.getCanRead());
+                    merged.setCanCreate(merged.isCanCreate() || rp.getCanCreate());
+                    merged.setCanEdit(merged.isCanEdit() || rp.getCanEdit());
+                    merged.setCanDelete(merged.isCanDelete() || rp.getCanDelete());
+                    merged.setCanCancel(merged.isCanCancel() || rp.getCanCancel());
+                    merged.setCanApprove(merged.isCanApprove() || rp.getCanApprove());
+                    merged.setCanVerify(merged.isCanVerify() || rp.getCanVerify());
+                }
+            }
+        }
+        return merged;
+    }
+
     private void mergePermissions(MenuPermissionDto existing, RolePermission rp) {
         existing.setVisible(existing.isVisible() || rp.getIsVisible());
         

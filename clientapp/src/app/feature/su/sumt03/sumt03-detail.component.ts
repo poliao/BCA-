@@ -4,26 +4,29 @@ import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '@app/core/services/message.service';
 import { ModalService } from '@app/shared/components/modal/modal.service';
 import { SubscriptionDisposer } from '@app/shared/components/subscription-disposer';
-import { Pattern } from '@app/shared/components/textbox/pattern';
 import { FormDatasource } from '@app/shared/service/base.service';
 import { FormUtilService } from '@app/shared/service/form-util.service';
-import { Observable, of, switchMap, takeUntil } from 'rxjs';
-import { SuMenu, SuMenuLabel } from './sumt03.model';
+import { Observable, of, switchMap } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
+import { ProductionProcess, ProcessPricingTier } from './sumt03.model';
 import { Sumt03Service } from './sumt03.service';
+import { RowState } from '@app/shared/constants';
 
 @Component({
   selector: 'app-sumt03-detail',
   templateUrl: './sumt03-detail.component.html'
 })
 export class Sumt03DetailComponent extends SubscriptionDisposer implements OnInit {
-  master = { systemCodes: [], mainMenus: [], programCodes: [], langCodes: [] as any[] };
-  suMenu: SuMenu = { menuLabels: [] } as SuMenu;
+  master = { processGroups: [], productionLocations: [] };
+  process: ProductionProcess = new ProductionProcess();
 
-  suMenuDataSource!: FormDatasource<SuMenu>;
-  suMenuLabelDataSources: FormDatasource<SuMenuLabel>[] = [];
+  processDataSource!: FormDatasource<ProductionProcess>;
+  pricingTierDataSources: FormDatasource<ProcessPricingTier>[] = [];
+  pricingTiersDataSource = new MatTableDataSource<FormDatasource<ProcessPricingTier>>();
 
   saving = false;
   actions: any;
+  displayedColumns: string[] = ['minQty', 'maxQty', 'fixedCost', 'variableRate', 'variableUnitLabel', 'action'];
 
   constructor(
     private route: ActivatedRoute,
@@ -38,100 +41,111 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
 
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
-      this.suMenu = data.sumt03.detail;
+      this.process = data.sumt03.detail;
       this.actions = data.sumt03.actions;
-      this.master.systemCodes = data.sumt03.master.systemCodes;
-      this.master.langCodes = data.sumt03.master.langCodes;
+      this.master.processGroups = data.sumt03.master.processGroups;
+      this.master.productionLocations = data.sumt03.master.productionLocations;
       this.rebuildForm();
     });
   }
 
-  createMenuForm(menu: SuMenu) {
-    const fg = this.fb.group({
-      systemCode: [null, [Validators.required]],
-      mainMenu: null,
-      menuCode: [null, [Validators.required, Validators.maxLength(20), Validators.pattern(Pattern.UpperOnly)]],
-      programCode: null,
-      icon: [null, [Validators.required, Validators.maxLength(50)]],
-      active: true
-    })
-    fg.controls.systemCode.valueChanges.pipe(
-      takeUntil(this.ngUnsubscribe)
-    ).subscribe(value => {
-      this.master.mainMenus = [];
-      if (!fg.controls.systemCode.pristine) fg.controls.mainMenu.setValue(null);
-      if (value) this.su.getMasterDependency('mainMenu', { systemCode: value, mainMenu: menu.menuCode }).subscribe(dependency => this.master.mainMenus = dependency.mainMenus);
-      this.master.programCodes = [];
-      if (!fg.controls.systemCode.pristine) fg.controls.programCode.setValue(null);
-      this.su.getMasterDependency('program', { systemCode: value }).subscribe(dependency => this.master.programCodes = dependency.programCodes);
+  createProcessForm() {
+    return this.fb.group({
+      processName: [null, [Validators.required, Validators.maxLength(255)]],
+      baseUom: [null, [Validators.maxLength(50)]],
+      groupId: [null, [Validators.required]],
+      locationId: [null, [Validators.required]],
+      status: ['ACTIVE', [Validators.required]]
     });
-    return fg;
   }
 
-  createMenuLabelForm(menuLabel: SuMenuLabel,required:boolean) {
-    const fg = this.fb.group({
-      menuName: [null, [Validators.maxLength(200)]]
+  createPricingTierForm() {
+    return this.fb.group({
+      minQty: [null, [Validators.required]],
+      maxQty: [null],
+      fixedCost: [0, [Validators.required]],
+      variableRate: [0, [Validators.required]],
+      variableUnitLabel: [null, [Validators.maxLength(50)]]
     });
-    if (required) {
-      fg.controls.menuName.addValidators(Validators.required);
-    }
-    return fg;
   }
 
   rebuildForm() {
-    this.suMenuDataSource = new FormDatasource<SuMenu>(this.suMenu, this.createMenuForm(this.suMenu));
-    if (this.suMenu.rowVersion) {
-      this.suMenuDataSource.form.controls.systemCode.disable({ emitEvent: false });
-      this.suMenuDataSource.form.controls.menuCode.disable({ emitEvent: false });
+    this.processDataSource = new FormDatasource<ProductionProcess>(this.process, this.createProcessForm());
+    if (this.process.id) {
+      // Optional: disable fields if needed
     }
-    this.suMenuLabelDataSources = [];
-    this.master.langCodes.forEach(lang => {
-      let label = this.suMenu.menuLabels.find(item => item.languageCode == lang.value);
-      if (!label) {
-        label = new SuMenuLabel();
-        label.languageCode = lang.value;
+
+    this.pricingTierDataSources = [];
+    if (this.process.pricingTiers) {
+      this.process.pricingTiers.forEach(tier => {
+        const dataSource = new FormDatasource<ProcessPricingTier>(tier, this.createPricingTierForm());
+        this.pricingTierDataSources.push(dataSource);
+      });
+    }
+    this.pricingTiersDataSource.data = this.activePricingTiers;
+  }
+
+  addTier() {
+    const tier = new ProcessPricingTier();
+    tier.rowState = RowState.Add;
+    const dataSource = new FormDatasource<ProcessPricingTier>(tier, this.createPricingTierForm());
+    this.pricingTierDataSources.push(dataSource);
+    this.pricingTiersDataSource.data = this.activePricingTiers;
+  }
+
+  removeTier(dataSource: FormDatasource<ProcessPricingTier>) {
+    this.modal.confirm('message.STD00003').subscribe(res => {
+      if (res) {
+        if (dataSource.isAdd) {
+          const actualIndex = this.pricingTierDataSources.indexOf(dataSource);
+          this.pricingTierDataSources.splice(actualIndex, 1);
+        } else {
+          dataSource.markForDelete();
+        }
+        this.pricingTiersDataSource.data = this.activePricingTiers;
       }
-      label.langName = lang.text;
-      const labelDataSource = new FormDatasource<SuMenuLabel>(label, this.createMenuLabelForm(label,lang.requireFlag));
-      this.suMenuLabelDataSources.push(labelDataSource);
     });
+  }
+
+  get activePricingTiers() {
+    return this.pricingTierDataSources.filter(ds => !ds.isDelete);
   }
 
   save() {
-    let invalid = false;
+    this.util.markFormGroupTouched(this.processDataSource.form);
+    if (this.processDataSource.form.invalid) return;
 
-    this.util.markFormGroupTouched(this.suMenuDataSource.form);
-    if (this.suMenuDataSource.form.invalid) invalid = true;
-
-    if (this.suMenuLabelDataSources.some(source => source.form.invalid)) {
-      this.suMenuLabelDataSources.forEach(source => this.util.markFormGroupTouched(source.form));
-      this.ms.warning('message.STD00027', ['label.SUMT03.MenuName']);
-      invalid = true;
+    if (this.pricingTierDataSources.some(ds => ds.form.invalid && !ds.isDelete)) {
+      this.pricingTierDataSources.forEach(ds => {
+        if (!ds.isDelete) this.util.markFormGroupTouched(ds.form);
+      });
+      this.ms.warning('message.STD00027');
+      return;
     }
 
-    if (invalid) return;
+    this.processDataSource.updateValue();
+    this.pricingTierDataSources.forEach(ds => ds.updateValue());
 
-    this.suMenuDataSource.updateValue();
+    this.process.pricingTiers = this.pricingTierDataSources.map(ds => ds.model);
 
-    this.suMenuLabelDataSources.forEach(dataSource => {
-      dataSource.updateValue();
-    })
-
-    const menuLabels = this.suMenuLabelDataSources.filter(source => !source.isNormal).map(source => source.model);
-    this.suMenu.menuLabels = menuLabels;
-
-    this.su.save(this.suMenu).pipe(
-      switchMap(() => this.su.getMenu(this.suMenu.menuCode, this.suMenu.systemCode))
-    ).subscribe(menu => {
-      this.suMenu = menu;
-      this.rebuildForm();
-      this.ms.success('message.STD00006');
+    this.saving = true;
+    this.su.save(this.process).pipe(
+      switchMap((res: any) => this.su.getProcess(res.id))
+    ).subscribe({
+      next: (process) => {
+        this.process = process;
+        this.rebuildForm();
+        this.ms.success('message.STD00006');
+        this.saving = false;
+      },
+      error: () => {
+        this.saving = false;
+      }
     });
   }
 
-
   canDeactivate(): Observable<boolean> {
-    if (this.suMenuDataSource.form.dirty || this.suMenuLabelDataSources.some(source => source.form.dirty)) {
+    if (this.processDataSource.form.dirty || this.pricingTierDataSources.some(ds => ds.form.dirty)) {
       return this.modal.confirm("message.STD00002");
     }
     return of(true);

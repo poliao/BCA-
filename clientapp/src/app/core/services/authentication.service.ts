@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { HttpService } from '../http/http.service';
@@ -12,10 +12,20 @@ export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<LoginResponse | null>;
   public currentUser: Observable<LoginResponse | null>;
 
-  constructor(private http: HttpService, private router: Router) {
+  constructor(private http: HttpService, private router: Router, private ngZone: NgZone) {
     const savedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<LoginResponse | null>(savedUser ? JSON.parse(savedUser) : null);
     this.currentUser = this.currentUserSubject.asObservable();
+
+    // Proactively check for token expiration every 10 seconds
+    setInterval(() => {
+      this.ngZone.run(() => {
+        if (this.currentUserValue && !this.isAuthenticated()) {
+          console.log('Token expired, logging out...');
+          this.logout();
+        }
+      });
+    }, 10000);
   }
 
   public get currentUserValue(): LoginResponse | null {
@@ -38,7 +48,18 @@ export class AuthenticationService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.currentUserValue;
+    const user = this.currentUserValue;
+    if (!user || !user.token) {
+      return false;
+    }
+
+    const profile = this.userProfile;
+    if (!profile || !profile.exp) {
+      return false;
+    }
+
+    const expirationDate = new Date(profile.exp * 1000);
+    return expirationDate > new Date();
   }
 
   getToken(): string | null {

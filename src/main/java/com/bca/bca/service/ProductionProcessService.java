@@ -1,0 +1,97 @@
+package com.bca.bca.service;
+
+import com.bca.bca.entity.*;
+import com.bca.bca.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ProductionProcessService {
+
+    private final ProductionProcessRepository processRepository;
+    private final ProcessGroupRepository groupRepository;
+    private final ProductionLocationRepository locationRepository;
+
+    @Transactional(readOnly = true)
+    public Page<ProductionProcess> findAll(Pageable pageable) {
+        return processRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductionProcess findById(Long id) {
+        return processRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Process not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProcessGroup> findAllGroups() {
+        return groupRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductionLocation> findAllLocations() {
+        return locationRepository.findAll();
+    }
+
+    @Transactional
+    public ProductionProcess save(ProductionProcess process) {
+        ProductionProcess persistentProcess;
+        if (process.getId() != null) {
+            persistentProcess = processRepository.findById(process.getId())
+                    .orElseThrow(() -> new RuntimeException("Process not found"));
+            persistentProcess.setProcessName(process.getProcessName());
+            persistentProcess.setBaseUom(process.getBaseUom());
+            persistentProcess.setGroupId(process.getGroupId());
+            persistentProcess.setLocationId(process.getLocationId());
+            persistentProcess.setStatus(process.getStatus());
+            persistentProcess.setRowVersion(process.getRowVersion());
+        } else {
+            persistentProcess = process;
+        }
+
+        if (process.getPricingTiers() != null) {
+            Map<Long, ProcessPricingTier> existingTierMap = persistentProcess.getPricingTiers().stream()
+                    .filter(t -> t.getId() != null)
+                    .collect(Collectors.toMap(ProcessPricingTier::getId, t -> t));
+
+            List<ProcessPricingTier> incomingTiers = process.getPricingTiers();
+            List<Long> incomingIds = incomingTiers.stream()
+                    .map(ProcessPricingTier::getId)
+                    .filter(id -> id != null)
+                    .collect(Collectors.toList());
+
+            // 1. Remove missing tiers
+            persistentProcess.getPricingTiers().removeIf(t -> t.getId() != null && !incomingIds.contains(t.getId()));
+
+            // 2. Update existing or Add new
+            for (ProcessPricingTier incoming : incomingTiers) {
+                if (incoming.getId() == null) {
+                    incoming.setProcess(persistentProcess);
+                    persistentProcess.getPricingTiers().add(incoming);
+                } else if (existingTierMap.containsKey(incoming.getId())) {
+                    ProcessPricingTier existing = existingTierMap.get(incoming.getId());
+                    existing.setMinQty(incoming.getMinQty());
+                    existing.setMaxQty(incoming.getMaxQty());
+                    existing.setFixedCost(incoming.getFixedCost());
+                    existing.setVariableRate(incoming.getVariableRate());
+                    existing.setVariableUnitLabel(incoming.getVariableUnitLabel());
+                    existing.setRowVersion(incoming.getRowVersion());
+                }
+            }
+        }
+        return processRepository.save(persistentProcess);
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        processRepository.deleteById(id);
+    }
+}

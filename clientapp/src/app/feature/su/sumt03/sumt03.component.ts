@@ -14,12 +14,12 @@ import { Sumt03Service } from './sumt03.service';
 })
 export class Sumt03Component implements OnInit {
 
-  displayedColumns: string[] = ['systemCode', 'menuCode', 'mainMenu', 'programCode', 'menuName', 'active', 'action'];
-  displayedColumnsNodelete: string[] = ['systemCode', 'menuCode', 'mainMenu', 'programCode', 'menuName', 'active'];
+  displayedColumns: string[] = ['processName', 'groupName', 'locationName', 'baseUom', 'status', 'action'];
+  displayedColumnsNodelete: string[] = ['processName', 'groupName', 'locationName', 'baseUom', 'status'];
   keyword = '';
-  initialPageSort = new PageCriteria('systemCode,menuCode');
+  initialPageSort = new PageCriteria('processName');
   data!: PaginatedDataSource<any, any>;
-  actions: any;
+  actions: any = {};
   constructor(
     private router: Router,
     private su: Sumt03Service,
@@ -34,7 +34,7 @@ export class Sumt03Component implements OnInit {
     });
     this.initialPageSort = this.save.retrive('sumt03page') ?? this.initialPageSort;
     this.keyword = this.save.retrive('sumt03') ?? '';
-    this.data = new PaginatedDataSource<any, any>((request, query) => this.su.getMenus(request, query), this.initialPageSort)
+    this.data = new PaginatedDataSource<any, any>((request, query) => this.su.getProcesses(request, query), this.initialPageSort)
 
     this.data.queryBy({ keyword: this.keyword });
   }
@@ -49,21 +49,18 @@ export class Sumt03Component implements OnInit {
     this.data.queryBy({ keyword: this.keyword }, true);
   }
 
-
   add() {
     this.router.navigate(['/su/sumt03/detail']);
   }
 
-
   remove(row: any) {
     this.modal.confirm('message.STD00003').pipe(
       filter(confirm => confirm),
-      switchMap(() => this.su.delete(row.menuCode, row.rowVersion))
+      switchMap(() => this.su.delete(row.id))
     ).subscribe(() => {
       this.ms.success('message.STD00014');
       const page = this.data.calculatePageAfterDelete();
       this.data.fetch(page);
     })
-
   }
 }

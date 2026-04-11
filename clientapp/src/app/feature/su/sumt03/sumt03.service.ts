@@ -1,34 +1,30 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { SuMenu } from './sumt03.model';
+import { ProductionProcess } from './sumt03.model';
 
 @Injectable()
 export class Sumt03Service {
 
   constructor(private http: HttpClient) { }
 
-  getMenus(page: any, query: string) {
+  getProcesses(page: any, query: string) {
     const filter = Object.assign(query, page);
-    return this.http.get<any>('sumt03', { params: filter });
+    return this.http.get<any>('su/sumt03', { params: filter });
   }
 
-  getMenu(code: string, systemCode: string) {
-    return this.http.get<SuMenu>('sumt03/detail', { params: { menuCode: code, systemCode: systemCode } });
+  getProcess(id: number) {
+    return this.http.get<ProductionProcess>('su/sumt03/detail', { params: { id: id } });
   }
 
   getMaster() {
-    return this.http.get<any>('sumt03/master');
+    return this.http.get<any>('su/sumt03/master');
   }
 
-  getMasterDependency(name: string, params: any) {
-    return this.http.get<any>('sumt03/dependency', { params: { ...{ name: name }, ...params } });
+  save(process: ProductionProcess) {
+    return this.http.post('su/sumt03', process);
   }
 
-  save(suMenu: SuMenu) {
-    return this.http.post('sumt03', suMenu);
-  }
-
-  delete(code: string, version: string) {
-    return this.http.delete('sumt03', { params: { menuCode: code, rowVersion: version } })
+  delete(id: any) {
+    return this.http.delete('su/sumt03', { params: { id: id } })
   }
 }
