@@ -5,7 +5,7 @@ $bg-sidebar-wrapper :$main;
 $border-color : #eee;
 $footer-top-border-color :#3a3a3a;
 $color: white;
-$header-menu-color :#6c7b88;
+$header-menu-color : rgba(255, 255, 255, 0.7);
 $hover-color: white;
 $shadow-color: #131212;
 $bg-scrollbar :#636363;
@@ -20,7 +20,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
 @mixin active() {
     background-color: rgba($main, 0.2);
     font-weight: 500;
-    color: #17191C;
+    color: white;
 }
 
 @keyframes swing {
@@ -78,8 +78,8 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
 }
 
 .sidebar {
-    background: linear-gradient(170deg, rgba($main, 0.5) 50%, rgba(#ffffff, 1) 100%), #ffffff;
-    box-shadow: 4px 0px 13px 1px rgba($secondary, 0.1);
+    background: $main;
+    box-shadow: 4px 0px 13px 1px rgba(0, 0, 0, 0.1);
 
     .sidebar-search input.search-menu,
     .sidebar-search .input-group-text {
@@ -97,7 +97,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
     .sidebar-menu ul li a,
     .sidebar-footer>div>a,
     #close-sidebar {
-        color: $gray-800;
+        color: white;
     }
 
     .sidebar-menu ul li>a:hover {
@@ -109,14 +109,14 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
     .sidebar-header>a:hover,
     .sidebar-footer>div>a:hover i,
     #close-sidebar:hover {
-        color: $gray-800;
+        color: white;
     }
 
     ul li:hover a i,
     .sidebar-dropdown .sidebar-submenu li a:hover:before,
     .sidebar-search input.search-menu:focus+span,
     .sidebar-menu .sidebar-dropdown.active a i {
-        color: $gray-800;
+        color: white;
     }
 
     .sidebar-menu ul li a i,
@@ -381,12 +381,12 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
         .sidebar-profile {
             padding: 20px;
             overflow: hidden;
-            background: $secondary;
-            background: linear-gradient(60deg, rgba($secondary, 1) 0%, rgba($secondary, 0.55) 100%);
+            background: white;
+            border-bottom: 1px solid #eee;
 
             .user-pic {
                 float: left;
-                color: rgb(52, 58, 64) !important;
+                color: #333 !important;
                 padding: 2px;
                 border-radius: 12px;
                 margin-right: 15px;
@@ -399,8 +399,8 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
                     border-radius: 50%;
                     width: 36px;
                     height: 36px;
-                    background: #d2d2d2;
-                    color: white;
+                    background: #eee;
+                    color: #666;
                 }
 
                 img {
@@ -421,16 +421,18 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
                 .user-name {
                     font-weight: 500;
                     word-break: break-all;
-                    color: rgb(52, 58, 64);
+                    color: #333;
                 }
 
                 .user-role {
                     font-size: 12px;
+                    color: #666;
                 }
 
                 .user-status {
                     font-size: 11px;
                     margin-top: 4px;
+                    color: #888;
 
                     i {
                         font-size: 8px;
@@ -547,6 +549,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
 
                     li {
                         font-size: 14px;
+                        color: rgba(255, 255, 255, 0.9);
 
                         a {
 

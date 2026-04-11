@@ -9,6 +9,7 @@ import { HeaderComponent } from './header/header.component';
 import { ShellComponent } from './shell.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { NgScrollbarModule } from 'ngx-scrollbar';
+import { LocalizedDatePipe } from '@app/shared/pipe/date.pipe';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
     TranslateModule,
     LayoutModule,
     MatMenuModule,
-    NgScrollbarModule
+    NgScrollbarModule,
+    LocalizedDatePipe
   ]
 })
 export class ShellModule { }

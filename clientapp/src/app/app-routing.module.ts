@@ -7,7 +7,6 @@ import { Shell } from './shell/shell.service';
 import { AuthGuard } from './core/guard/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'login', loadChildren: () => import('./feature/login/login.module').then(m => m.LoginModule) },
   {
     ...Shell.childRoutes([
@@ -18,10 +17,11 @@ const routes: Routes = [
       { path: 'dashboard', loadChildren: () => import('./feature/dashboard/dashboard.module').then(m => m.DashboardModule) },
       { path: 'su', loadChildren: () => import('./feature/su/su.module').then(m => m.SuModule) },
       { path: 'db', loadChildren: () => import('./feature/db/db.module').then(m => m.DbModule) },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]),
     canActivate: [AuthGuard]
   },
-  { path: '**', redirectTo: '', pathMatch: 'full' }
+  { path: '**', redirectTo: 'login', pathMatch: 'full' }
 ];
 
 @NgModule({

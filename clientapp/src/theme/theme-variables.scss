@@ -17,22 +17,22 @@ $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
 // Color system
 //
 
-$font-family-sans-serif: "Prompt", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+$font-family-sans-serif: "Sarabun", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
     "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-$font-family-monospace: "Prompt", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$font-family-monospace: "Sarabun", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-$main: #ffd800; //#982220
-$secondary: #ffd800; //#24CBC7
+$main: #69aedf;
+$secondary: #69aedf;
 $warn: #FFDAC6;
 $gray-800: #343a40;
-$cyan: rgb(0, 153, 230);
-$sunday: #ff3333;
-$monday: #ffe600;
-$tuesday: #ff1493;
-$wednesday: #28a745;
-$thursday: #fd7e14;
-$friday: #00bfff;
-$saturday: #6f42c1;
+$cyan: #00bcd4;
+$sunday: #ff5252;
+$monday: #ffd740;
+$tuesday: #ff4081;
+$wednesday: #69f0ae;
+$thursday: #ffab40;
+$friday: #40c4ff;
+$saturday: #7c4dff;
 $blue: #2094d8;
 
 // Create your own map

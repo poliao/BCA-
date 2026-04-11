@@ -3,8 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fdfaf0;
-  font-family: 'Prompt', sans-serif;
+  background-color: #f0f4f8;
+  font-family: 'Sarabun', sans-serif;
   padding: 20px;
 }
 
@@ -16,7 +16,7 @@
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   position: relative;
-  border-top: 5px solid #ffd700;
+  border-top: 5px solid #69aedf;
 }
 
 .lang-selector {
@@ -44,7 +44,7 @@
   margin-top: 10px;
 
   .logo-text {
-    font-family: 'Prompt', sans-serif;
+    font-family: 'Sarabun', sans-serif;
     font-size: 44px;
     font-weight: 700;
     margin: 0;
@@ -158,7 +158,7 @@
   margin-top: 15px;
 
   .forgot-link {
-    color: #3498db;
+    color: #69aedf;
     font-size: 13px;
     text-decoration: underline;
     font-weight: 500;
@@ -170,7 +170,7 @@
 }
 
 .btn-login-refine {
-  background-color: #2094d8;
+  background-color: #69aedf;
   border: none;
   color: white;
   padding: 13px;
