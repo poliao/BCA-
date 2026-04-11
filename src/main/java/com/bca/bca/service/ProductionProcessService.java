@@ -94,4 +94,44 @@ public class ProductionProcessService {
     public void deleteById(Long id) {
         processRepository.deleteById(id);
     }
+
+    // --- Process Group CRUD ---
+
+    @Transactional
+    public ProcessGroup saveGroup(ProcessGroup group) {
+        if (group.getId() != null) {
+            ProcessGroup persistent = groupRepository.findById(group.getId())
+                    .orElseThrow(() -> new RuntimeException("Group not found"));
+            persistent.setGroupName(group.getGroupName());
+            persistent.setDisplayOrder(group.getDisplayOrder());
+            persistent.setRowVersion(group.getRowVersion());
+            return groupRepository.save(persistent);
+        }
+        return groupRepository.save(group);
+    }
+
+    @Transactional
+    public void deleteGroup(Long id) {
+        groupRepository.deleteById(id);
+    }
+
+    // --- Production Location CRUD ---
+
+    @Transactional
+    public ProductionLocation saveLocation(ProductionLocation location) {
+        if (location.getId() != null) {
+            ProductionLocation persistent = locationRepository.findById(location.getId())
+                    .orElseThrow(() -> new RuntimeException("Location not found"));
+            persistent.setLocationName(location.getLocationName());
+            persistent.setLocationType(location.getLocationType());
+            persistent.setRowVersion(location.getRowVersion());
+            return locationRepository.save(persistent);
+        }
+        return locationRepository.save(location);
+    }
+
+    @Transactional
+    public void deleteLocation(Long id) {
+        locationRepository.deleteById(id);
+    }
 }

@@ -9,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
+import com.bca.bca.entity.ProcessGroup;
+import com.bca.bca.entity.ProductionLocation;
 import java.util.Map;
 
 @RestController
@@ -48,5 +51,39 @@ public class Sumt03Controller {
     @DeleteMapping
     public void delete(@RequestParam Long id) {
         processService.deleteById(id);
+    }
+
+    // --- Process Group Endpoints ---
+
+    @GetMapping("/group")
+    public List<ProcessGroup> getGroups() {
+        return processService.findAllGroups();
+    }
+
+    @PostMapping("/group")
+    public ProcessGroup saveGroup(@RequestBody ProcessGroup group) {
+        return processService.saveGroup(group);
+    }
+
+    @DeleteMapping("/group")
+    public void deleteGroup(@RequestParam Long id) {
+        processService.deleteGroup(id);
+    }
+
+    // --- Production Location Endpoints ---
+
+    @GetMapping("/location")
+    public List<ProductionLocation> getLocations() {
+        return processService.findAllLocations();
+    }
+
+    @PostMapping("/location")
+    public ProductionLocation saveLocation(@RequestBody ProductionLocation location) {
+        return processService.saveLocation(location);
+    }
+
+    @DeleteMapping("/location")
+    public void deleteLocation(@RequestParam Long id) {
+        processService.deleteLocation(id);
     }
 }

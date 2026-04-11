@@ -1,0 +1,21 @@
+<app-modal header="{{ (form.get('id').value ? 'label.ALL.Edit' : 'label.ALL.Add') | translate }} {{ 'label.SUMT03.ProcessGroup' | translate }}">
+    <div body>
+        <form [formGroup]="form">
+            <div class="row g-3">
+                <div class="col-12">
+                    <textbox formControlName="groupName">{{ 'label.SUMT03.ProcessGroup' | translate }}</textbox>
+                </div>
+                <div class="col-12">
+                    <number formControlName="displayOrder">{{ 'label.SUMT03.DisplayOrder' | translate }}</number>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div footer>
+        <button class="btn btn-primary" (click)="save()" [disabled]="saving">
+            <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+            <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+        </button>
+        <button class="btn btn-outline-secondary" (click)="onClose()">{{ 'label.ALL.Cancel' | translate }}</button>
+    </div>
+</app-modal>

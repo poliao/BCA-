@@ -27,4 +27,32 @@ export class Sumt03Service {
   delete(id: any) {
     return this.http.delete('su/sumt03', { params: { id: id } })
   }
+
+  // --- Process Group ---
+
+  getGroups() {
+    return this.http.get<any[]>('su/sumt03/group');
+  }
+
+  saveGroup(group: any) {
+    return this.http.post('su/sumt03/group', group);
+  }
+
+  deleteGroup(id: any) {
+    return this.http.delete('su/sumt03/group', { params: { id: id } });
+  }
+
+  // --- Production Location ---
+
+  getLocations() {
+    return this.http.get<any[]>('su/sumt03/location');
+  }
+
+  saveLocation(location: any) {
+    return this.http.post('su/sumt03/location', location);
+  }
+
+  deleteLocation(id: any) {
+    return this.http.delete('su/sumt03/location', { params: { id: id } });
+  }
 }

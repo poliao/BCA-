@@ -14,6 +14,10 @@ import { Sumt02Component } from './sumt02/sumt02.component';
 import { Sumt02Service } from './sumt02/sumt02.service';
 import { Sumt03DetailComponent } from './sumt03/sumt03-detail.component';
 import { Sumt03Component } from './sumt03/sumt03.component';
+import { Sumt03GroupComponent } from './sumt03/sumt03-group/sumt03-group.component';
+import { Sumt03GroupModalComponent } from './sumt03/sumt03-group/sumt03-group-modal.component';
+import { Sumt03LocationComponent } from './sumt03/sumt03-location/sumt03-location.component';
+import { Sumt03LocationModalComponent } from './sumt03/sumt03-location/sumt03-location-modal.component';
 import { Sumt03Service } from './sumt03/sumt03.service';
 import { Sumt04DetailComponent } from './sumt04/sumt04-detail.component';
 import { Sumt04MenuComponent } from './sumt04/sumt04-menu/sumt04-menu.component';
@@ -51,6 +55,8 @@ import { MatSortModule } from '@angular/material/sort';
     Sumt01Component, Sumt01DetailComponent,
     Sumt02Component, Sumt02DetailComponent,
     Sumt03Component, Sumt03DetailComponent,
+    Sumt03GroupComponent, Sumt03GroupModalComponent,
+    Sumt03LocationComponent, Sumt03LocationModalComponent,
     Sumt04Component, Sumt04DetailComponent, Sumt04MenuComponent,
     Surt04Component, Surt04DetailComponent,
     Sumt06Component, Sumt06DetailComponent, Sumt06CompanySelectComponet, Sumt06OrganizationComponent,
