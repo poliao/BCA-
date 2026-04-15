@@ -1,5 +1,6 @@
 <toolbar>
-    <button class="btn btn-primary" (click)="save()">
+    <button *ngIf="(actions.edit == true && language.id == null) || (actions.create == true && language.id != null)"
+        class="btn btn-primary" (click)="save()" [disabled]="saving">
         <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
         <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
     </button>
@@ -46,45 +47,50 @@
                         </button>
                     </div>
                     <div class="card-content">
-                        <app-table server [dataSource]="localizations" [columns]="displayedColumns">
-                            <ng-container matSort [matSortActive]="localizations.sortInfo.property" [matSortDirection]="localizations.sortInfo.direction">
-                            <ng-container matColumnDef="moduleName">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="150px">{{ 'label.DBMT01.ModuleName' |
-                                    translate }}</th>
-                                <td mat-cell *matCellDef="let row">
-                                    <form [formGroup]="row.form">
-                                        <textbox formControlName="moduleName"></textbox>
-                                    </form>
-                                </td>
+                        <app-table server *ngIf="localizations" [dataSource]="localizations"
+                            [columns]="actions.delete ? displayedColumns : displayedColumnsNodelete">
+                            <ng-container matSort [matSortActive]="localizations.sortInfo.property"
+                                [matSortDirection]="localizations.sortInfo.direction">
+                                <ng-container matColumnDef="moduleName">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">{{
+                                        'label.DBMT01.ModuleName' |
+                                        translate }}</th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <form [formGroup]="row.form">
+                                            <textbox formControlName="moduleName"></textbox>
+                                        </form>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="key">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="250px">{{ 'label.DBMT01.Key' |
+                                        translate }}</th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <form [formGroup]="row.form">
+                                            <textbox formControlName="key"></textbox>
+                                        </form>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="value">
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.DBMT01.Value' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <form [formGroup]="row.form">
+                                            <textbox formControlName="value"></textbox>
+                                        </form>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="action" *ngIf="actions.delete">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="70px" class="text-center">{{
+                                        'label.ALL.Delete' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="removeRow(row)">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row
+                                    *matHeaderRowDef="actions.delete == true ? displayedColumns : displayedColumnsNodelete">
+                                </tr>
                             </ng-container>
-                            <ng-container matColumnDef="key">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="250px">{{ 'label.DBMT01.Key' |
-                                    translate }}</th>
-                                <td mat-cell *matCellDef="let row">
-                                    <form [formGroup]="row.form">
-                                        <textbox formControlName="key"></textbox>
-                                    </form>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="value">
-                                <th mat-header-cell *matHeaderCellDef>{{ 'label.DBMT01.Value' | translate }}</th>
-                                <td mat-cell *matCellDef="let row">
-                                    <form [formGroup]="row.form">
-                                        <textbox formControlName="value"></textbox>
-                                    </form>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="action">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="70px" class="text-center">{{
-                                    'label.ALL.Delete' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="text-center">
-                                    <button class="btn btn-outline-danger btn-sm" (click)="removeRow(row)">
-                                        <i class="far fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        </ng-container>
                         </app-table>
                     </div>
                 </app-card>

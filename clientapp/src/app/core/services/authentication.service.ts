@@ -41,6 +41,15 @@ export class AuthenticationService {
     );
   }
 
+  public updateToken(newToken: string): void {
+    const user = this.currentUserValue;
+    if (user) {
+      user.token = newToken;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      this.currentUserSubject.next({ ...user });
+    }
+  }
+
   logout() {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);

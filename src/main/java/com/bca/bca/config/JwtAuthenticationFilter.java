@@ -64,6 +64,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             authorities);
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    // Auto-refresh token
+                    java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+                    extraClaims.put("roles", roles);
+                    String newToken = jwtUtils.generateToken(username, extraClaims);
+                    response.setHeader("New-Token", newToken);
                 }
             }
         } catch (Exception e) {

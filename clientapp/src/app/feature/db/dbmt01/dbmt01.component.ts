@@ -14,6 +14,7 @@ import { PageCriteria } from '@app/shared/components/datatable/page';
 })
 export class Dbmt01Component implements OnInit {
   displayedColumns: string[] = ['languageCode', 'languageName', 'isActive', 'action'];
+  displayedColumnsNoDelete: string[] = ['languageCode', 'languageName', 'isActive'];
   dataSource!: PaginatedDataSource<DbLanguage, any>;
   actions: any;
 

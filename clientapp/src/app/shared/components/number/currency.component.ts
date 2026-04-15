@@ -10,6 +10,7 @@ import { BaseFormField } from '../base-form';
 })
 export class CurrencyComponent extends BaseFormField {
   @Input() padZero: boolean = true;
+  @Input() scale: number = 2;
   imask = {
     mask: NullableMaskedNumber,  // enable number mask
     // other options are optional with defaults below
@@ -31,6 +32,9 @@ export class CurrencyComponent extends BaseFormField {
   private _writingValue: number;
 
   private initMask(): void {
+    this.imask.scale = this.scale;
+    this.imask.min = -(10 ** (15 - this.scale) - 10 ** -this.scale);
+    this.imask.max = 10 ** (15 - this.scale) - 10 ** -this.scale;
     this.imask.padFractionalZeros = this.padZero;
     this.maskRef = IMask(this.element, this.imask)
       .on('accept', this._onAccept.bind(this));

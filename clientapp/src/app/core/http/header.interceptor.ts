@@ -3,11 +3,13 @@ import {
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
+  HttpResponse
 } from '@angular/common/http';
 import { Inject, Injectable, Injector } from '@angular/core';
 import { I18nService } from '@app/core/services/i18n.service';
 import { AuthenticationService } from '@app/core/services/authentication.service';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 /**
  * Set user info header when requesting.
@@ -39,7 +41,16 @@ export class HeaderInterceptor implements HttpInterceptor {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      return next.handle(request.clone({ setHeaders: headers }));
+      return next.handle(request.clone({ setHeaders: headers })).pipe(
+        tap((event: HttpEvent<any>) => {
+          if (event instanceof HttpResponse) {
+            const newToken = event.headers.get('New-Token');
+            if (newToken) {
+              authService.updateToken(newToken);
+            }
+          }
+        })
+      );
     }
 
     return next.handle(request);

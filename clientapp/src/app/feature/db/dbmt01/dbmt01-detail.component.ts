@@ -26,6 +26,7 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
     saving = false;
     actions: any;
     displayedColumns: string[] = ['moduleName', 'key', 'value', 'action'];
+    displayedColumnsNodelete: string[] = ['moduleName', 'key', 'value',];
 
     constructor(
         private readonly route: ActivatedRoute,
@@ -67,9 +68,12 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
                         combinedRows = [...localAdds, ...rows];
                     }
 
+                    const filteredRows = combinedRows.filter(r => !r.isDelete);
+                    const deletedCount = combinedRows.length - filteredRows.length;
+
                     return {
-                        rows: combinedRows,
-                        count: res.count + localAdds.length
+                        rows: filteredRows,
+                        count: res.count + localAdds.length - deletedCount
                     };
                 })
             ),
@@ -107,6 +111,7 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
         if (this.language.languageCode) {
             this.languageDataSource.form.controls.languageCode.disable({ emitEvent: false });
         }
+        this.localizationDataSources = [];
     }
 
     addRow() {
@@ -141,7 +146,7 @@ export class Dbmt01DetailComponent extends SubscriptionDisposer implements OnIni
 
         this.languageDataSource.updateValue();
         this.localizationDataSources.forEach(l => l.updateValue());
-        
+
         // Also capture any changes from the current page that aren't in localizationDataSources yet
         this.localizations.data.forEach(l => {
             if (l.form.dirty && !this.localizationDataSources.includes(l)) {

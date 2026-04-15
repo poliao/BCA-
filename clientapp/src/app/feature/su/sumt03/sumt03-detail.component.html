@@ -45,36 +45,6 @@
     </div>
 </div>
 
-<style>
-    /* Ensure inputs inside the system table don't have extra spacing */
-    :host ::ng-deep .mat-table number,
-    :host ::ng-deep .mat-table textbox {
-        margin-bottom: 0;
-    }
-
-    :host ::ng-deep .mat-table td {
-        padding: 0.5rem 0.5rem !important;
-        vertical-align: middle !important;
-    }
-
-    :host ::ng-deep .mat-table th {
-        background-color: #f8f9fa !important;
-        color: #495057 !important;
-        font-weight: 600 !important;
-        padding: 0.75rem 0.5rem !important;
-    }
-
-    :host ::ng-deep .mat-table .form-group {
-        margin-bottom: 0;
-    }
-
-    /* Center the delete button vertically relative to inputs */
-    :host ::ng-deep .mat-column-action {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-</style>
-
 <div class="row mt-3">
     <div class="col">
         <app-card header="{{ 'label.SUMT03.PricingTiers' | translate }}">
@@ -105,7 +75,7 @@
                             {{ 'label.SUMT03.FixedCost' | translate }}<span class="text-danger"> *</span>
                         </th>
                         <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
-                            <number currency formControlName="fixedCost" [hasLabel]="false"></number>
+                            <number currency [scale]="4" formControlName="fixedCost" [hasLabel]="false"></number>
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="variableRate">
@@ -113,7 +83,7 @@
                             {{ 'label.SUMT03.VariableRate' | translate }}<span class="text-danger"> *</span>
                         </th>
                         <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
-                            <number currency formControlName="variableRate" [hasLabel]="false"></number>
+                            <number currency [scale]="4" formControlName="variableRate" [hasLabel]="false"></number>
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="variableUnitLabel">

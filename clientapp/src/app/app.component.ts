@@ -5,6 +5,7 @@ import { BackgroundService } from './core/services/background.service';
 import { I18nService } from './core/services/i18n.service';
 import { LoadingService } from './core/services/loading.service';
 import { UpdateService } from './core/services/update.service';
+import { IdleService } from './core/services/idle.service';
 
 @Component({
   selector: 'app-root',
@@ -21,11 +22,13 @@ export class AppComponent {
     private readonly router: Router,
     private readonly ls: LoadingService,
     private readonly bs: BackgroundService,
+    private readonly idleService: IdleService
   ) { }
 
   ngOnInit() {
     this.update.init();
     this.i18n.init();
+    this.idleService.startWatching();
     
     this.router.events.pipe(takeUntil(this.ngUnsubscribe)).subscribe((evt) => {
       //block ui when lazyloading start
