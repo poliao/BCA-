@@ -17,13 +17,11 @@ export class ProductionProcess extends EntityBase {
     processName: string;
     baseUom: string;
     groupId: number;
-    locationId: number;
     status: string = 'ACTIVE';
     pricingTiers: ProcessPricingTier[] = [];
 
     // UI Only properties
     groupName?: string;
-    locationName?: string;
 }
 
 export class ProcessPricingTier extends EntityBase {
@@ -34,4 +32,9 @@ export class ProcessPricingTier extends EntityBase {
     fixedCost: number = 0;
     variableRate: number = 0;
     variableUnitLabel: string;
+    colorCount?: number;
+    cutSize?: string;
+    totalAdditionalCost: number = 0;
+    locationId?: number;
+    locationName?: string;
 }

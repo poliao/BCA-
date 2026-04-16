@@ -33,7 +33,7 @@ public class ProductionProcessService {
 
     @Transactional(readOnly = true)
     public List<ProcessGroup> findAllGroups() {
-        return groupRepository.findAll();
+        return groupRepository.findAllByOrderByDisplayOrderAscGroupNameAsc();
     }
 
     @Transactional(readOnly = true)
@@ -50,40 +50,47 @@ public class ProductionProcessService {
             persistentProcess.setProcessName(process.getProcessName());
             persistentProcess.setBaseUom(process.getBaseUom());
             persistentProcess.setGroupId(process.getGroupId());
-            persistentProcess.setLocationId(process.getLocationId());
             persistentProcess.setStatus(process.getStatus());
             persistentProcess.setRowVersion(process.getRowVersion());
+            if (process.getPricingTiers() != null) {
+                Map<Long, ProcessPricingTier> existingTierMap = persistentProcess.getPricingTiers().stream()
+                        .filter(t -> t.getId() != null)
+                        .collect(Collectors.toMap(ProcessPricingTier::getId, t -> t));
+
+                List<ProcessPricingTier> incomingTiers = process.getPricingTiers();
+                List<Long> incomingIds = incomingTiers.stream()
+                        .map(ProcessPricingTier::getId)
+                        .filter(id -> id != null)
+                        .collect(Collectors.toList());
+
+                // 1. Remove missing tiers
+                persistentProcess.getPricingTiers().removeIf(t -> t.getId() != null && !incomingIds.contains(t.getId()));
+
+                // 2. Update existing or Add new
+                for (ProcessPricingTier incoming : incomingTiers) {
+                    if (incoming.getId() == null) {
+                        incoming.setProcess(persistentProcess);
+                        persistentProcess.getPricingTiers().add(incoming);
+                    } else if (existingTierMap.containsKey(incoming.getId())) {
+                        ProcessPricingTier existing = existingTierMap.get(incoming.getId());
+                        existing.setMinQty(incoming.getMinQty());
+                        existing.setMaxQty(incoming.getMaxQty());
+                        existing.setFixedCost(incoming.getFixedCost());
+                        existing.setVariableRate(incoming.getVariableRate());
+                        existing.setVariableUnitLabel(incoming.getVariableUnitLabel());
+                        existing.setColorCount(incoming.getColorCount());
+                        existing.setCutSize(incoming.getCutSize());
+                        existing.setTotalAdditionalCost(incoming.getTotalAdditionalCost());
+                        existing.setLocationId(incoming.getLocationId());
+                        existing.setRowVersion(incoming.getRowVersion());
+                    }
+                }
+            }
         } else {
             persistentProcess = process;
-        }
-
-        if (process.getPricingTiers() != null) {
-            Map<Long, ProcessPricingTier> existingTierMap = persistentProcess.getPricingTiers().stream()
-                    .filter(t -> t.getId() != null)
-                    .collect(Collectors.toMap(ProcessPricingTier::getId, t -> t));
-
-            List<ProcessPricingTier> incomingTiers = process.getPricingTiers();
-            List<Long> incomingIds = incomingTiers.stream()
-                    .map(ProcessPricingTier::getId)
-                    .filter(id -> id != null)
-                    .collect(Collectors.toList());
-
-            // 1. Remove missing tiers
-            persistentProcess.getPricingTiers().removeIf(t -> t.getId() != null && !incomingIds.contains(t.getId()));
-
-            // 2. Update existing or Add new
-            for (ProcessPricingTier incoming : incomingTiers) {
-                if (incoming.getId() == null) {
-                    incoming.setProcess(persistentProcess);
-                    persistentProcess.getPricingTiers().add(incoming);
-                } else if (existingTierMap.containsKey(incoming.getId())) {
-                    ProcessPricingTier existing = existingTierMap.get(incoming.getId());
-                    existing.setMinQty(incoming.getMinQty());
-                    existing.setMaxQty(incoming.getMaxQty());
-                    existing.setFixedCost(incoming.getFixedCost());
-                    existing.setVariableRate(incoming.getVariableRate());
-                    existing.setVariableUnitLabel(incoming.getVariableUnitLabel());
-                    existing.setRowVersion(incoming.getRowVersion());
+            if (persistentProcess.getPricingTiers() != null) {
+                for (ProcessPricingTier tier : persistentProcess.getPricingTiers()) {
+                    tier.setProcess(persistentProcess);
                 }
             }
         }

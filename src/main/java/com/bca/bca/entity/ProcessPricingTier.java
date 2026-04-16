@@ -21,11 +21,11 @@ public class ProcessPricingTier extends EntityBase {
     @Column(name = "tier_id")
     private Long id;
 
-    @Column(name = "process_id")
+    @Column(name = "process_id", insertable = false, updatable = false)
     private Long processId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "process_id", insertable = false, updatable = false)
+    @JoinColumn(name = "process_id")
     @JsonIgnore
     private ProductionProcess process;
 
@@ -43,4 +43,20 @@ public class ProcessPricingTier extends EntityBase {
 
     @Column(name = "variable_unit_label", length = 50)
     private String variableUnitLabel;
+
+    @Column(name = "color_count")
+    private Integer colorCount;
+
+    @Column(name = "cut_size", length = 50)
+    private String cutSize;
+
+    @Column(name = "total_additional_cost", precision = 12, scale = 4)
+    private BigDecimal totalAdditionalCost = BigDecimal.ZERO;
+
+    @Column(name = "location_id")
+    private Long locationId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", insertable = false, updatable = false)
+    private ProductionLocation location;
 }

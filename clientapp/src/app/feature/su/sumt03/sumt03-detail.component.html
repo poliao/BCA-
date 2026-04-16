@@ -32,12 +32,6 @@
                                 {{ 'label.SUMT03.ProcessGroup' | translate }}
                             </select-input>
                         </div>
-                        <div class="col-md-6">
-                            <select-input [items]="master.productionLocations" bindLabel="locationName" bindValue="id"
-                                formControlName="locationId" placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
-                                {{ 'label.SUMT03.Location' | translate }}
-                            </select-input>
-                        </div>
                     </div>
                 </form>
             </div>
@@ -46,7 +40,7 @@
 </div>
 
 <div class="row mt-3">
-    <div class="col">
+    <div class="col" *ngIf="!isGroupedLayout">
         <app-card header="{{ 'label.SUMT03.PricingTiers' | translate }}">
             <div class="card-menu">
                 <button class="btn btn-primary btn-sm" (click)='addTier()'>
@@ -68,6 +62,14 @@
                             {{ 'label.SUMT03.MaxQty' | translate }}</th>
                         <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
                             <number formControlName="maxQty" [separator]="true" [hasLabel]="false"></number>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="totalAdditionalCost">
+                        <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                            {{ 'ต้นทุนรวมเพิ่ม' }}<span class="text-danger"> *</span>
+                        </th>
+                        <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
+                            <number currency [scale]="4" formControlName="totalAdditionalCost" [hasLabel]="false"></number>
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="fixedCost">
@@ -93,6 +95,14 @@
                             <textbox formControlName="variableUnitLabel" [hasLabel]="false"></textbox>
                         </td>
                     </ng-container>
+                    <ng-container matColumnDef="locationId">
+                        <th mat-header-cell *matHeaderCellDef columnWidth="200px" class="text-center">{{ 'label.SUMT03.Location' | translate }}</th>
+                        <td mat-cell *matCellDef="let row" class="text-center" [formGroup]="row.form">
+                            <select-input [items]="master.productionLocations" bindLabel="locationName" bindValue="id"
+                                formControlName="locationId" [hasLabel]="false" placeholder="{{ 'label.ALL.PleaseSelect' | translate }}">
+                            </select-input>
+                        </td>
+                    </ng-container>
                     <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef columnWidth="50px" class="text-center">
                             {{'label.ALL.Delete' | translate }}</th>
@@ -106,6 +116,114 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
                 </app-table>
+            </div>
+        </app-card>
+    </div>
+
+    <!-- Print Process Groups Layout -->
+    <div class="col" *ngIf="isGroupedLayout">
+        <app-card header="ข้อมูลราคา {{ currentGroupName }} แยกตาม จำนวนสี และ ขนาดตัด">
+            <div class="card-menu">
+                <button class="btn btn-primary btn-sm" (click)='addPrintCondition()'>
+                    <i class="fas fa-plus-circle"></i> เพิ่มระบุจำนวนสีและขนาดตัดสำหรับ {{ currentGroupName }}
+                </button>
+            </div>
+            <div class="card-content bg-light p-3">
+                <div *ngIf="activePrintConditionGroups.length === 0" class="text-center text-muted p-4 bg-white border border-dashed rounded">
+                    กรุณากดปุ่ม <b>เพิ่มระบุจำนวนสีและขนาดตัด</b> เพื่อเริ่มกำหนดราคา
+                </div>
+
+                <div class="card mb-3 border border-secondary shadow-sm" *ngFor="let cond of activePrintConditionGroups; let i = index">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center" [formGroup]="cond.form" style="gap: 15px;">
+                            <span class="fw-bold" style="font-size: 1.1rem; color: #1a73e8;"><i class="fas fa-palette"></i> เงื่อนไขที่ {{ i+1 }}:</span>
+                            <div style="width: 150px;">
+                                <number formControlName="colorCount" [hasLabel]="false" placeholder="จำนวนสี (เช่น 1, 2, 4)"></number>
+                            </div>
+                            <div style="width: 200px;">
+                                <textbox formControlName="cutSize" [hasLabel]="false" placeholder="ขนาดตัด (เช่น ตัด2)"></textbox>
+                            </div>
+                            <div style="width: 200px;">
+                                <select-input [items]="master.productionLocations" bindLabel="locationName" bindValue="id"
+                                    formControlName="locationId" [hasLabel]="false" placeholder="สถานที่ผลิต">
+                                </select-input>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm" (click)="removePrintCondition(cond)">
+                            <i class="fas fa-trash"></i> ลบข้อมูลชุดนี้
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="text-end bg-light border-bottom p-2">
+                            <button class="btn btn-primary btn-sm rounded-pill" (click)='addTierToCondition(cond)'>
+                                <i class="fas fa-plus"></i> เพิ่มระดับราคา
+                            </button>
+                        </div>
+                        <app-table [dataSource]="cond.dataSource" [columns]="displayedColumns" [pagination]="false">
+                            <ng-container matColumnDef="minQty">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                                    {{ 'label.SUMT03.MinQty' | translate }}<span class="text-danger"> *</span>
+                                </th>
+                                <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
+                                    <number formControlName="minQty" [separator]="true" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="maxQty">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                                    {{ 'label.SUMT03.MaxQty' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
+                                    <number formControlName="maxQty" [separator]="true" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="totalAdditionalCost">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                                    {{ 'ต้นทุนรวมเพิ่ม' }}<span class="text-danger"> *</span>
+                                </th>
+                                <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
+                                    <number currency [scale]="4" formControlName="totalAdditionalCost" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="fixedCost">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                                    {{ 'label.SUMT03.FixedCost' | translate }}<span class="text-danger"> *</span>
+                                </th>
+                                <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
+                                    <number currency [scale]="4" formControlName="fixedCost" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="variableRate">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="150px" class="text-center">
+                                    {{ 'label.SUMT03.VariableRate' | translate }}<span class="text-danger"> *</span>
+                                </th>
+                                <td mat-cell *matCellDef="let row" class="text-right" [formGroup]="row.form">
+                                    <number currency [scale]="4" formControlName="variableRate" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="variableUnitLabel">
+                                <th mat-header-cell *matHeaderCellDef class="text-center">{{ 'label.SUMT03.VariableUnitLabel' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-left" [formGroup]="row.form">
+                                    <textbox formControlName="variableUnitLabel" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="locationId">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="50px" class="text-center"></th>
+                                <td mat-cell *matCellDef="let row" class="text-center"></td>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="50px" class="text-center">
+                                    {{'label.ALL.Delete' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="text-center">
+                                    <button class="btn btn-outline-danger btn-sm" (click)="removeTierFromCondition(cond, row)"
+                                        title="{{ 'label.ALL.Delete' | translate }}">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                        </app-table>
+                    </div>
+                </div>
             </div>
         </app-card>
     </div>

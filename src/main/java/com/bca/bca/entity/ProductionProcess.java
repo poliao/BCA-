@@ -12,8 +12,8 @@ import java.util.List;
 @Entity
 @Table(name = "production_processes")
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = {"pricingTiers"})
-@ToString(exclude = {"pricingTiers"})
+@EqualsAndHashCode(callSuper = true, exclude = { "pricingTiers" })
+@ToString(exclude = { "pricingTiers" })
 public class ProductionProcess extends EntityBase {
 
     @Id
@@ -45,5 +45,6 @@ public class ProductionProcess extends EntityBase {
     private String status = "ACTIVE";
 
     @OneToMany(mappedBy = "process", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     private List<ProcessPricingTier> pricingTiers = new ArrayList<>();
 }

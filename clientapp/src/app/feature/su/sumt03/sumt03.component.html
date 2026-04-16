@@ -19,40 +19,47 @@
                         <br>
                         <div class="row">
                             <div class="col">
-                                <app-table server [dataSource]="data" [columns]="actions.delete == false ? displayedColumnsNodelete : displayedColumns">
-                                    <ng-container matSort [matSortActive]="data.sortInfo.property" [matSortDirection]="data.sortInfo.direction">
+                                <app-table server [dataSource]="data"
+                                    [columns]="actions.delete == false ? displayedColumnsNodelete : displayedColumns">
+                                    <ng-container matSort [matSortActive]="data.sortInfo.property"
+                                        [matSortDirection]="data.sortInfo.direction">
                                         <ng-container matColumnDef="processName">
-                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px" class="text-center">{{ 'label.SUMT03.ProcessName' | translate }}</th>
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="250px"
+                                                class="text-center">{{ 'label.SUMT03.ProcessName' | translate }}</th>
                                             <td mat-cell *matCellDef="let row" class="text-left">
-                                                <a *ngIf="actions.readOnly == true" [routerLink]="['detail']" [state]="{ id: row.id }">{{ row.processName }}</a>
-                                                <span  *ngIf="actions.readOnly == false">{{ row.processName }}</span>
+                                                <a [routerLink]="['detail']" [state]="{ id: row.id }">{{ row.processName
+                                                    }}</a>
                                             </td>
                                         </ng-container>
                                         <ng-container matColumnDef="groupName">
-                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="150px" class="text-center">{{ 'label.SUMT03.ProcessGroup' | translate }}</th>
-                                            <td mat-cell *matCellDef="let row" class="text-center">{{row.group?.groupName || row.groupName}}</td>
-                                        </ng-container>
-                                        <ng-container matColumnDef="locationName">
-                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="200px" class="text-center">{{ 'label.SUMT03.Location' | translate }}</th>
-                                            <td mat-cell *matCellDef="let row" class="text-center">{{row.location?.locationName || row.locationName}}</td>
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header="group.groupName"
+                                                columnWidth="150px" class="text-center">{{ 'label.SUMT03.ProcessGroup' |
+                                                translate }}</th>
+                                            <td mat-cell *matCellDef="let row" class="text-center">
+                                                {{row.group?.groupName || row.groupName}}</td>
                                         </ng-container>
                                         <ng-container matColumnDef="baseUom">
-                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px" class="text-center">{{ 'label.SUMT03.BaseUom' | translate }}</th>
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px"
+                                                class="text-center">{{ 'label.SUMT03.BaseUom' | translate }}</th>
                                             <td mat-cell *matCellDef="let row" class="text-center">{{row.baseUom}}</td>
                                         </ng-container>
                                         <ng-container matColumnDef="status">
-                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px" class="text-center">{{ 'label.ALL.Status' | translate }}</th>
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="100px"
+                                                class="text-center">{{ 'label.ALL.Status' | translate }}</th>
                                             <td mat-cell *matCellDef="let row" class="text-center">{{row.status}}</td>
                                         </ng-container>
                                         <ng-container matColumnDef="action">
-                                            <th mat-header-cell *matHeaderCellDef columnWidth="50px" class="text-center">{{ 'label.ALL.Delete' | translate }}</th>
+                                            <th mat-header-cell *matHeaderCellDef columnWidth="50px"
+                                                class="text-center">{{ 'label.ALL.Delete' | translate }}</th>
                                             <td mat-cell *matCellDef="let row" class="text-center">
                                                 <button class="btn btn-outline-danger btn-sm" (click)="remove(row)">
                                                     <i class="far fa-trash-alt"></i>
                                                 </button>
                                             </td>
                                         </ng-container>
-                                        <tr mat-header-row *matHeaderRowDef="actions.delete == false ? displayedColumnsNodelete : displayedColumns"></tr>
+                                        <tr mat-header-row
+                                            *matHeaderRowDef="actions.delete == false ? displayedColumnsNodelete : displayedColumns">
+                                        </tr>
                                     </ng-container>
                                 </app-table>
                             </div>

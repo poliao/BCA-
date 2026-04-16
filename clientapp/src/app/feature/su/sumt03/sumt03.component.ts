@@ -14,8 +14,8 @@ import { Sumt03Service } from './sumt03.service';
 })
 export class Sumt03Component implements OnInit {
 
-  displayedColumns: string[] = ['processName', 'groupName', 'locationName', 'baseUom', 'status', 'action'];
-  displayedColumnsNodelete: string[] = ['processName', 'groupName', 'locationName', 'baseUom', 'status'];
+  displayedColumns: string[] = ['processName', 'groupName', 'baseUom', 'status', 'action'];
+  displayedColumnsNodelete: string[] = ['processName', 'groupName', 'baseUom', 'status'];
   keyword = '';
   initialPageSort = new PageCriteria('processName');
   data!: PaginatedDataSource<any, any>;

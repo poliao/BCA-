@@ -18,7 +18,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
 
 
 @mixin active() {
-    background-color: rgba($main, 0.2);
+    background-color: #007bff;
     font-weight: 500;
     color: white;
 }
@@ -101,7 +101,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
     }
 
     .sidebar-menu ul li>a:hover {
-        background-color: rgba($main, 0.18);
+        background-color: rgba(0, 0, 0, 0.1);
     }
 
     .sidebar-menu ul li:hover>a,
@@ -109,6 +109,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
     .sidebar-header>a:hover,
     .sidebar-footer>div>a:hover i,
     #close-sidebar:hover {
+        @include active();
         color: white;
     }
 
@@ -539,6 +540,7 @@ $img-shadow-color: rgba(0, 0, 0, 0.5);
                         visibility: visible;
                         opacity: 1;
                         max-height: 4000px;
+                        background: #3386be;
                         transition: visibility .5s, opacity .5s, max-height .5s;
                         transition-timing-function: ease-in-out;
                     }
