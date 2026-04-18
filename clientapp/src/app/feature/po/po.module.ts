@@ -11,6 +11,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { Pomt01DetailComponent } from './pomt01/pomt01-detail.component';
 import { Pomt01Component } from './pomt01/pomt01.component';
 import { Pomt01Service } from './pomt01/pomt01.service';
+import { Pomt02DetailComponent } from './pomt02/pomt02-detail.component';
+import { Pomt02Component } from './pomt02/pomt02.component';
+import { Pomt02Service } from './pomt02/pomt02.service';
 import { PoRoutingModule } from './po-routing.module';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -18,7 +21,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
-    Pomt01Component, Pomt01DetailComponent
+    Pomt01Component, Pomt01DetailComponent,
+    Pomt02Component, Pomt02DetailComponent
   ],
   imports: [
     SharedModule,
@@ -33,7 +37,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   ],
   providers: [
     Pomt01Service,
-
+    Pomt02Service
   ]
 })
 export class PoModule {

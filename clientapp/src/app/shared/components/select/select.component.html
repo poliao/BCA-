@@ -12,6 +12,7 @@
     [bindValue]="bindValue" [ngModel]="value" (ngModelChange)="onSelected($event)" [disabled]="disabled"
     [multiple]="multiple" [addTag]="tag" (add)="onAdded($event)" (remove)="onRemoved($event)" [appendTo]="appendTo"
     dropdownPosition="bottom" [class.sm]="small" [searchFn]="customSearch" [virtualScroll]="true"
+    [groupBy]="groupBy" [selectableGroup]="selectableGroup"
     notFoundText="{{ 'label.ALL.NotFound' | translate }}" placeholder="{{ placeholder | translate }}"
     [ngModelOptions]="{ standalone: true }">
 

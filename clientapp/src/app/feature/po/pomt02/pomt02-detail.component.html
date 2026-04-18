@@ -1,0 +1,48 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>รายละเอียดข้อมูลวัสดุ / อุปกรณ์</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="ข้อมูลทั่วไป">
+            <div class="card-content">
+                <form [formGroup]="itemDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-4 col-sm-6">
+                            <textbox formControlName="itemCode">รหัสวัสดุ</textbox>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <select-input [items]="categories" bindLabel="displayName" bindValue="categoryCode"
+                                formControlName="categoryCode">
+                                หมวดหมู่
+                            </select-input>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <number formControlName="leadTimeDays">ระยะเวลาจัดส่ง (วัน)</number>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <textbox formControlName="itemNameTh">ชื่อ (ไทย)</textbox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <textbox formControlName="itemNameEn">ชื่อ (อังกฤษ)</textbox>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <number formControlName="minimumOrderQuantity" currency [scale]="2">ปริมาณสั่งซื้อขั้นต่ำ
+                            </number>
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <textbox formControlName="unit">หน่วย</textbox>
+                        </div>
+                        <div class="col-md-4 col-sm-6 text-end d-flex align-items-center ">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

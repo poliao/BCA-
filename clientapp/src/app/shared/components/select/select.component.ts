@@ -14,6 +14,9 @@ export class SelectComponent extends BaseFormField {
   @Input() showDescription = false;
   @Input() multiple = false;
   @Input() addTag: any = false;
+  @Input() groupBy?: string | ((value: any) => any);
+  @Input() selectableGroup?: boolean = false;
+
   @Output() onAdd = new EventEmitter<any>();
   @Output() onRemove = new EventEmitter<any>();
   appendTo = 'Body'
