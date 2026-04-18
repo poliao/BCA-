@@ -19,8 +19,11 @@
                 </div>
                 <div class="col-md-9 col-sm-6">
                     <div class="input-group">
-                        <input type="text" class="form-control" [(ngModel)]="rdKeyword" [ngModelOptions]="{standalone: true}" placeholder="พิมพ์เลขผู้เสียภาษี 13 หลัก หรือ ชื่อบริษัท เพื่อค้นหาข้อมูลจาก RD...">
-                        <button class="btn btn-outline-secondary" type="button" (click)="onSearchRD()" [disabled]="searchingRD">
+                        <input type="text" class="form-control" [(ngModel)]="rdKeyword"
+                            [ngModelOptions]="{standalone: true}"
+                            placeholder="พิมพ์เลขผู้เสียภาษี 13 หลัก หรือ ชื่อบริษัท เพื่อค้นหาข้อมูลจาก RD...">
+                        <button class="btn btn-outline-secondary" type="button" (click)="onSearchRD()"
+                            [disabled]="searchingRD">
                             <i class="fas fa-search" [hidden]="searchingRD"></i>
                             <i class="fas fa-spinner fa-spin" [hidden]="!searchingRD"></i> ค้นหา
                         </button>
@@ -36,7 +39,7 @@
                     <textbox formControlName="jobName">ชื่องานหลักโปรเจกต์ (Main Job Name)</textbox>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-12">
                     <textbox formControlName="address">ที่อยู่ลูกค้า</textbox>
@@ -56,39 +59,45 @@
     <ng-container formArrayName="boxes">
         <mat-tab-group dynamicHeight animationDuration="200ms" class="custom-box-tabs">
             <mat-tab *ngFor="let boxCtrl of boxesArray.controls; let bIndex = index" [formGroupName]="bIndex">
-                
+
                 <ng-template mat-tab-label>
                     {{ boxCtrl.get('boxName')?.value || 'กล่องที่ ' + (bIndex + 1) }}
-                    <span class="ms-3 text-danger" style="cursor: pointer;" (click)="removeBox(bIndex)" *ngIf="boxesArray.length > 1">
+                    <span class="ms-3 text-danger" style="cursor: pointer;" (click)="removeBox(bIndex)"
+                        *ngIf="boxesArray.length > 1">
                         <i class="fas fa-times-circle"></i>
                     </span>
                 </ng-template>
 
                 <div class="p-4 bg-white border border-top-0">
-                    
+
                     <!-- Box Header Setup -->
                     <div class="row g-3">
                         <div class="col-md-4">
                             <textbox formControlName="boxName">ชื่อกล่อง / รหัสสินค้า (Box Name)</textbox>
                         </div>
                     </div>
-                    
+
                     <!-- Quantities per box -->
                     <div class="row g-3 mt-1 align-items-end">
-                        <div class="col-12 text-muted small"><i class="fas fa-info-circle"></i> เซ็ตจำนวนผลิตสำหรับกล่องนี้ (เปรียบเทียบราคาซ้อนได้)</div>
+                        <div class="col-12 text-muted small"><i class="fas fa-info-circle"></i>
+                            เซ็ตจำนวนผลิตสำหรับกล่องนี้ (เปรียบเทียบราคาซ้อนได้)</div>
                         <ng-container formArrayName="quantities">
-                            <div class="col-md-3 col-sm-4" *ngFor="let qtyCtrl of getQuantitiesArray(bIndex).controls; let qIndex = index">
+                            <div class="col-md-3 col-sm-4"
+                                *ngFor="let qtyCtrl of getQuantitiesArray(bIndex).controls; let qIndex = index">
                                 <div class="input-group">
                                     <div class="flex-grow-1">
                                         <number [formControlName]="qIndex">จำนวนเปรียบเทียบ {{qIndex + 1}}</number>
                                     </div>
-                                    <button class="btn btn-outline-danger shadow-none" type="button" (click)="removeQuantity(bIndex, qIndex)" [disabled]="getQuantitiesArray(bIndex).length <= 1">
+                                    <button class="btn btn-outline-danger shadow-none" type="button"
+                                        (click)="removeQuantity(bIndex, qIndex)"
+                                        [disabled]="getQuantitiesArray(bIndex).length <= 1">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addQuantity(bIndex)">
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    (click)="addQuantity(bIndex)">
                                     + เพิ่มจำนวน
                                 </button>
                             </div>
@@ -107,13 +116,18 @@
 
                     <ng-container formArrayName="parts">
                         <mat-accordion multi="true">
-                            <mat-expansion-panel *ngFor="let partCtrl of getPartsArray(bIndex).controls; let pIndex = index" [formGroupName]="pIndex" class="mb-3 border">
+                            <mat-expansion-panel
+                                *ngFor="let partCtrl of getPartsArray(bIndex).controls; let pIndex = index"
+                                [formGroupName]="pIndex" class="mb-3 border">
                                 <mat-expansion-panel-header class="bg-light">
                                     <mat-panel-title>
-                                        <b class="text-primary">{{ pIndex + 1 }}. {{ partCtrl.get('partName')?.value || 'ชิ้นส่วนใหม่' }}</b>
+                                        <b class="text-primary">{{ pIndex + 1 }}. {{ partCtrl.get('partName')?.value ||
+                                            'ชิ้นส่วนใหม่' }}</b>
                                     </mat-panel-title>
                                     <mat-panel-description class="justify-content-end text-danger" style="flex-grow:0;">
-                                        <button type="button" class="btn btn-link text-danger p-0 shadow-none border-0" (click)="$event.stopPropagation(); removePart(bIndex, pIndex)" *ngIf="getPartsArray(bIndex).length > 1">
+                                        <button type="button" class="btn btn-link text-danger p-0 shadow-none border-0"
+                                            (click)="$event.stopPropagation(); removePart(bIndex, pIndex)"
+                                            *ngIf="getPartsArray(bIndex).length > 1">
                                             <i class="fas fa-trash"></i> ลบชิ้นส่วนนี้
                                         </button>
                                     </mat-panel-description>
@@ -123,7 +137,8 @@
                                 <div class="pt-3 pb-1 px-1">
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-3">
-                                            <textbox formControlName="partName">ชื่อชิ้นส่วนย่อย (เช่น ปลอกสวม, ฐาน)</textbox>
+                                            <textbox formControlName="partName">ชื่อชิ้นส่วนย่อย (เช่น ปลอกสวม, ฐาน)
+                                            </textbox>
                                         </div>
                                     </div>
 
@@ -131,40 +146,55 @@
                                     <h6 class="border-bottom pb-2">กระดาษและการพิมพ์</h6>
                                     <div class="row g-3 mb-2">
                                         <div class="col-md-4">
-                                            <select-input bindLabel="processName" bindValue="id" [items]="paperOptions" formControlName="paperId">ชนิดกระดาษ (อิง Master)</select-input>
+                                            <select-input bindLabel="processName" bindValue="id" [items]="paperOptions"
+                                                formControlName="paperId">ชนิดกระดาษ (อิง Master)</select-input>
                                         </div>
                                         <div class="col-md-3">
-                                            <select-input bindLabel="text" bindValue="value" [items]="paperSizeOptions" formControlName="paperSize">ขนาดกระดาษที่ตัด</select-input>
+                                            <select-input bindLabel="text" bindValue="value" [items]="paperSizeOptions"
+                                                formControlName="paperSize">ขนาดกระดาษที่ตัด</select-input>
                                         </div>
                                     </div>
 
-                                    <div class="row g-3 mb-4 mt-1 bg-light p-2 rounded align-items-start border border-primary">
+                                    <div
+                                        class="row g-3 mb-4 mt-1 bg-light p-2 rounded align-items-start border border-primary">
                                         <div class="col-md-5">
-                                            <select-input bindLabel="processName" bindValue="id" [items]="printProcesses" formControlName="printProcessId">ระบุระบบพิมพ์</select-input>
+                                            <select-input bindLabel="processName" bindValue="id"
+                                                [items]="printProcesses"
+                                                formControlName="printProcessId">ระบุระบบพิมพ์</select-input>
                                         </div>
                                         <div class="col-md-3">
-                                            <select-input bindLabel="text" bindValue="value" [items]="printStyles" formControlName="printStyle">รูปแบบพิมพ์</select-input>
+                                            <select-input bindLabel="text" bindValue="value" [items]="printStyles"
+                                                formControlName="printStyle">รูปแบบพิมพ์</select-input>
                                         </div>
-                                        
+
                                         <div class="col-12 mt-3" *ngIf="partCtrl.get('printProcessId')?.value">
                                             <!-- Print Front -->
                                             <div class="row g-2 align-items-center">
-                                                <div class="col-md-2 fw-bold text-end">หน้าหล้ง (หน้าล่าง) :</div>
+                                                <div class="col-md-2 fw-bold text-end">หน้าหลัก :</div>
                                                 <div class="col-md-3">
-                                                    <select-input bindLabel="text" bindValue="value" [items]="getColorOptions(bIndex, pIndex)" formControlName="printColorFront">จำนวนสี</select-input>
+                                                    <select-input bindLabel="text" bindValue="value"
+                                                        [items]="getColorOptions(bIndex, pIndex)"
+                                                        formControlName="printColorFront">จำนวนสี</select-input>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <select-input bindLabel="text" bindValue="value" [items]="getCutSizeOptions(bIndex, pIndex, 'front')" formControlName="printCutSizeFront">ขนาดตัดหน้าพิมพ์</select-input>
+                                                    <select-input bindLabel="text" bindValue="value"
+                                                        [items]="getCutSizeOptions(bIndex, pIndex, 'front')"
+                                                        formControlName="printCutSizeFront">ขนาดตัดหน้าพิมพ์</select-input>
                                                 </div>
                                             </div>
                                             <!-- Print Back (Only if double sided) -->
-                                            <div class="row g-2 align-items-center mt-2" *ngIf="partCtrl.get('printStyle')?.value === 'กลับนอก'">
-                                                <div class="col-md-2 fw-bold text-end">หน้าบน (กลับนอก) :</div>
+                                            <div class="row g-2 align-items-center mt-2"
+                                                *ngIf="partCtrl.get('printStyle')?.value === 'กลับนอก'">
+                                                <div class="col-md-2 fw-bold text-end">กลับนอก :</div>
                                                 <div class="col-md-3">
-                                                    <select-input bindLabel="text" bindValue="value" [items]="getColorOptions(bIndex, pIndex)" formControlName="printColorBack">จำนวนสี</select-input>
+                                                    <select-input bindLabel="text" bindValue="value"
+                                                        [items]="getColorOptions(bIndex, pIndex)"
+                                                        formControlName="printColorBack">จำนวนสี</select-input>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <select-input bindLabel="text" bindValue="value" [items]="getCutSizeOptions(bIndex, pIndex, 'back')" formControlName="printCutSizeBack">ขนาดตัดหน้าพิมพ์</select-input>
+                                                    <select-input bindLabel="text" bindValue="value"
+                                                        [items]="getCutSizeOptions(bIndex, pIndex, 'back')"
+                                                        formControlName="printCutSizeBack">ขนาดตัดหน้าพิมพ์</select-input>
                                                 </div>
                                             </div>
                                         </div>
@@ -176,7 +206,8 @@
                                             <checkbox formControlName="isCorrugated">ประกบลูกฟูก</checkbox>
                                         </div>
                                         <div class="col-md-3" *ngIf="partCtrl.get('isCorrugated')?.value">
-                                            <select-input bindLabel="text" bindValue="value" [items]="fluteOptions" formControlName="fluteType">เลือกลอน</select-input>
+                                            <select-input bindLabel="text" bindValue="value" [items]="fluteOptions"
+                                                formControlName="fluteType">เลือกลอน</select-input>
                                         </div>
                                     </div>
 
@@ -184,34 +215,44 @@
                                     <h6 class="border-bottom pb-2 mt-4">งานหลังพิมพ์และตกแต่งพิเศษ</h6>
                                     <div class="row g-3 mb-3">
                                         <div class="col-md-4">
-                                            <select-input bindLabel="text" bindValue="value" [items]="coatingOptions" formControlName="coatingType">เลือกงานเคลือบผิว</select-input>
+                                            <select-input bindLabel="text" bindValue="value" [items]="coatingOptions"
+                                                formControlName="coatingType">เลือกงานเคลือบผิว</select-input>
                                         </div>
                                     </div>
 
                                     <div class="card bg-light border-0 shadow-sm mt-3">
                                         <div class="card-body py-2">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6 class="mb-0 text-secondary"><i class="fas fa-stamp me-2"></i> รายการงานปั๊ม และไดคัทเฉพาะชิ้นส่วนนี้</h6>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addStamp(bIndex, pIndex)">
+                                                <h6 class="mb-0 text-secondary"><i class="fas fa-stamp me-2"></i>
+                                                    รายการงานปั๊ม และไดคัทเฉพาะชิ้นส่วนนี้</h6>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                    (click)="addStamp(bIndex, pIndex)">
                                                     <i class="fas fa-plus"></i> เพิ่มงานปั๊ม
                                                 </button>
                                             </div>
-                                            
+
                                             <ng-container formArrayName="stamps">
-                                                <div class="row g-2 align-items-center mb-2 border-bottom pb-2" *ngFor="let stampCtrl of getStampsArray(bIndex, pIndex).controls; let sIndex = index" [formGroupName]="sIndex">
+                                                <div class="row g-2 align-items-center mb-2 border-bottom pb-2"
+                                                    *ngFor="let stampCtrl of getStampsArray(bIndex, pIndex).controls; let sIndex = index"
+                                                    [formGroupName]="sIndex">
                                                     <div class="col-md-3">
-                                                        <select-input bindLabel="text" bindValue="value" [items]="stampOptions" formControlName="stampType">
+                                                        <select-input bindLabel="text" bindValue="value"
+                                                            [items]="stampOptions" formControlName="stampType">
                                                             ประเภทงาน
                                                         </select-input>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <number formControlName="width" currency [scale]="2">ขนาดกว้าง (ซม.)</number>
+                                                        <number formControlName="width" currency [scale]="2">ขนาดกว้าง
+                                                            (ซม.)</number>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <number formControlName="length" currency [scale]="2">ขนาดยาว (ซม.)</number>
+                                                        <number formControlName="length" currency [scale]="2">ขนาดยาว
+                                                            (ซม.)</number>
                                                     </div>
                                                     <div class="col-md-2 mt-4">
-                                                        <button type="button" class="btn btn-outline-danger btn-sm w-100" (click)="removeStamp(bIndex, pIndex, sIndex)">
+                                                        <button type="button"
+                                                            class="btn btn-outline-danger btn-sm w-100"
+                                                            (click)="removeStamp(bIndex, pIndex, sIndex)">
                                                             ลบรายการ
                                                         </button>
                                                     </div>
@@ -219,7 +260,7 @@
                                             </ng-container>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
                             </mat-expansion-panel>
                         </mat-accordion>
@@ -233,11 +274,12 @@
 </form>
 
 <style>
-.custom-box-tabs .mat-tab-body-content {
-    background-color: transparent !important;
-}
-.custom-box-tabs .mat-tab-labels {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #005ce6;
-}
+    .custom-box-tabs .mat-tab-body-content {
+        background-color: transparent !important;
+    }
+
+    .custom-box-tabs .mat-tab-labels {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #005ce6;
+    }
 </style>
