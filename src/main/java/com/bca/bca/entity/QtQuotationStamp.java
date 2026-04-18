@@ -15,7 +15,7 @@ public class QtQuotationStamp extends QtQuotationItemBase {
     private String stampType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quotation_id")
+    @JoinColumn(name = "part_id")
     @JsonIgnore
-    private QtQuotation quotation;
+    private QtQuotationPart part;
 }

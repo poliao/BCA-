@@ -14,8 +14,8 @@ import java.util.List;
 @Entity
 @Table(name = "qt_quotations")
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = { "papers", "printings", "coatings", "stamps", "gluing", "folding", "designs" })
-@ToString(exclude = { "papers", "printings", "coatings", "stamps", "gluing", "folding", "designs" })
+@EqualsAndHashCode(callSuper = true, exclude = { "boxes" })
+@ToString(exclude = { "boxes" })
 public class QtQuotation extends EntityBase {
 
     @Id
@@ -97,29 +97,5 @@ public class QtQuotation extends EntityBase {
 
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
-    private List<QtQuotationPaper> papers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")
-    private List<QtQuotationPrint> printings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")
-    private List<QtQuotationCoating> coatings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")
-    private List<QtQuotationStamp> stamps = new ArrayList<>();
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")
-    private List<QtQuotationGlue> gluing = new ArrayList<>();
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")
-    private List<QtQuotationFold> folding = new ArrayList<>();
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")
-    private List<QtQuotationDesign> designs = new ArrayList<>();
+    private List<QtQuotationBox> boxes = new ArrayList<>();
 }

@@ -80,6 +80,8 @@ public class ProductionProcessService {
                         existing.setVariableUnitLabel(incoming.getVariableUnitLabel());
                         existing.setColorCount(incoming.getColorCount());
                         existing.setCutSize(incoming.getCutSize());
+                        existing.setStampType(incoming.getStampType());
+                        existing.setStampSize(incoming.getStampSize());
                         existing.setTotalAdditionalCost(incoming.getTotalAdditionalCost());
                         existing.setLocationId(incoming.getLocationId());
                         existing.setRowVersion(incoming.getRowVersion());

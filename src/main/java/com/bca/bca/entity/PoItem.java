@@ -30,7 +30,7 @@ public class PoItem extends EntityBase {
     @Column(name = "category_code", length = 50)
     private String categoryCode;
 
-    @Column(name = "minimum_order_quantity", precision = 18, scale = 2)
+    @Column(name = "minimum_order_quantity", precision = 18, scale = 4)
     private BigDecimal minimumOrderQuantity;
 
     @Column(name = "unit", length = 50)
@@ -38,6 +38,9 @@ public class PoItem extends EntityBase {
 
     @Column(name = "lead_time_days")
     private Integer leadTimeDays;
+
+    @Column(name = "purchase_price", precision = 18, scale = 4)
+    private BigDecimal purchasePrice;
 
     @Column(name = "active")
     private Boolean active = true;

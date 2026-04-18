@@ -1,81 +1,53 @@
 import { EntityBase } from "@app/shared/service/base.service";
 
 export class Qtmt01 extends EntityBase {
-  id: number;
-  quotationNo: string;
-  quotationDate: Date;
-  expiryDate: Date;
-  customerCode: string;
-  customerName: string;
-  contactName: string;
-  contactPhone: string;
-  address: string;
-  branchType: string;
-  zipCode: string;
-  taxId: string;
-  remark: string;
-  jobName: string;
-  jobType: string;
+  id!: number;
+  quotationNo!: string;
+  quotationDate!: Date;
+  customerCode!: string;
+  customerName!: string;
+  taxId!: string;
+  address!: string;
+  jobName!: string;
+
+  // New deeply nested hierarchy
+  boxes: Qtmt01Box[] = [];
+}
+
+export class Qtmt01Box {
+  boxId!: number;
+  boxName!: string; // e.g. "กล่องครีม", "กล่องสบู่"
   
-  // Financial Summary
-  totalCost: number;
-  totalAmount: number;
-  vatRate: number = 7;
-  vatAmount: number;
-  whtRate: number;
-  whtAmount: number;
-  grandTotal: number;
-  profitAmount: number;
-  profitMarginPercent: number;
-
-  papers: Qtmt01Paper[] = [];
-  printings: Qtmt01Print[] = [];
-  coatings: Qtmt01Coating[] = [];
-  stamps: Qtmt01Stamp[] = [];
-  gluing: Qtmt01Glue[] = [];
-  folding: Qtmt01Fold[] = [];
-  designs: Qtmt01Design[] = [];
+  // Quantities for this specific box
+  orderQuantities: number[] = []; 
+  
+  // The physical components of this box
+  parts: Qtmt01Part[] = [];
 }
 
-export class Qtmt01ItemBase extends EntityBase {
-  id: number;
-  productName: string;
-  description: string;
-  quantity: number;
-  unit: string;
-  cost: number;
-  marginPercent: number;
-  unitPrice: number;
-  amount: number;
-}
+export class Qtmt01Part {
+  partId!: number;
+  partName!: string; // e.g. "ตัวกล่อง", "ฝาครอบ", "ไส้ใน"
+  
+  // Material
+  paperId!: number;
+  paperSize!: string;
 
-export class Qtmt01Paper extends Qtmt01ItemBase {
-  gsm: string;
-  paperSize: string;
-  paperType: string;
-}
+  // Printing
+  printProcessId!: number;
+  printStyle!: string; // "หน้าเดียว", "กลับนอก", "กลับในตัว"
+  printColorFront!: number;
+  printColorBack!: number;
+  printCutSizeFront!: string;
+  printCutSizeBack!: string;
 
-export class Qtmt01Print extends Qtmt01ItemBase {
-  colorCount: string;
-  sides: string;
-}
+  // Corrugated specifically set at Part level for maximum flexibility
+  isCorrugated!: boolean;
+  fluteType!: string;
 
-export class Qtmt01Coating extends Qtmt01ItemBase {
-  coatingType: string;
-}
+  // Finishing
+  coatingType!: string;
 
-export class Qtmt01Stamp extends Qtmt01ItemBase {
-  stampType: string;
-}
-
-export class Qtmt01Glue extends Qtmt01ItemBase {
-  glueType: string;
-}
-
-export class Qtmt01Fold extends Qtmt01ItemBase {
-  foldType: string;
-}
-
-export class Qtmt01Design extends Qtmt01ItemBase {
-  designComplexity: string;
+  // Stamps array specifically for this part
+  stamps: any[] = [];
 }

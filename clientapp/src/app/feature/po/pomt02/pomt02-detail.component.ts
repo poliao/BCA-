@@ -62,6 +62,7 @@ export class Pomt02DetailComponent implements OnInit {
       minimumOrderQuantity: [null, [Validators.required]],
       unit: [null, [Validators.required, Validators.maxLength(50)]],
       leadTimeDays: [null],
+      purchasePrice: [null, [Validators.required]],
       active: [true]
     });
 

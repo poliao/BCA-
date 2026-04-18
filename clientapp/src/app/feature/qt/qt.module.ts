@@ -10,6 +10,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { Qtmt01 } from './qtmt01/qtmt01.model';
 import { Qtmt01Component } from './qtmt01/qtmt01.component';
 import { Qtmt01DetailComponent } from './qtmt01/qtmt01-detail.component';
@@ -31,7 +32,8 @@ import { QtRoutingModule } from './qt-routing.module';
     MatTreeModule,
     MatIconModule,
     MatSortModule,
-    MatRadioModule
+    MatRadioModule,
+    MatExpansionModule
   ],
   providers: [
     Qtmt01Service,

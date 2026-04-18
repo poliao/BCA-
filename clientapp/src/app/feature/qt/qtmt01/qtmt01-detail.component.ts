@@ -1,16 +1,13 @@
-// Standardizing RD Search Implementation
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '@app/core/services/message.service';
 import { FormDatasource } from '@app/shared/service/base.service';
 import { FormUtilService } from '@app/shared/service/form-util.service';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, first } from 'rxjs/operators';
-import { Qtmt01, Qtmt01ItemBase, Qtmt01Paper, Qtmt01Print, Qtmt01Coating, Qtmt01Stamp, Qtmt01Glue, Qtmt01Fold, Qtmt01Design } from './qtmt01.model';
+import { Observable } from 'rxjs';
+import { Qtmt01, Qtmt01Box, Qtmt01Part } from './qtmt01.model';
 import { Qtmt01Service } from './qtmt01.service';
 import { SubscriptionDisposer } from '@app/shared/components/subscription-disposer';
-import { MatTableDataSource } from '@angular/material/table';
 import { ModalService, Size } from '@app/shared/components/modal/modal.service';
 import { Qtmt01RdLookupComponent } from './qtmt01-rd-lookup.component';
 
@@ -21,22 +18,51 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
   quotation: Qtmt01 = new Qtmt01();
   quotationDataSource!: FormDatasource<Qtmt01>;
 
-  // Categorized data sources
-  categories = ['PAPER', 'PRINT', 'COATING', 'STAMP', 'GLUE', 'FOLD', 'DESIGN'];
-  itemDataSources: { [key: string]: FormDatasource<Qtmt01ItemBase>[] } = {};
-  tableDataSources: { [key: string]: MatTableDataSource<FormDatasource<Qtmt01ItemBase>> } = {};
-
-  displayedColumns: string[] = ['index', 'productName', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  paperColumns: string[] = ['index', 'productName', 'gsm', 'paperSize', 'paperType', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  printColumns: string[] = ['index', 'productName', 'colorCount', 'sides', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  coatingColumns: string[] = ['index', 'productName', 'coatingType', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  stampColumns: string[] = ['index', 'productName', 'stampType', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  glueColumns: string[] = ['index', 'productName', 'glueType', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  foldColumns: string[] = ['index', 'productName', 'foldType', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-  designColumns: string[] = ['index', 'productName', 'designComplexity', 'quantity', 'unit', 'cost', 'marginPercent', 'unitPrice', 'amount', 'action'];
-
   saving = false;
   actions: any;
+
+  // Master Data
+  masterProcesses: any[] = [];
+  paperOptions: any[] = [];
+  printProcesses: any[] = [];
+
+  paperSizeOptions = [
+    { value: 'A4', text: 'A4 (210 x 297 mm)' },
+    { value: 'A3', text: 'A3 (297 x 420 mm)' },
+    { value: 'A5', text: 'A5 (148 x 210 mm)' },
+    { value: 'Custom', text: 'กำหนดขนาดเอง' }
+  ];
+
+  printStyles = [
+    { value: 'หน้าเดียว', text: 'พิมพ์หน้าเดียว' },
+    { value: 'กลับนอก', text: 'พิมพ์ 2 หน้า (กลับนอก)' },
+    { value: 'กลับในตัว', text: 'พิมพ์ 2 หน้า (กลับในตัว)' }
+  ];
+
+  coatingOptions = [
+    { value: 'OPP เงา', text: 'OPP เงา' },
+    { value: 'OPP ด้าน', text: 'OPP ด้าน' },
+    { value: 'UV', text: 'อาบ UV' },
+    { value: 'Spot UV', text: 'Spot UV' }
+  ];
+
+  stampOptions = [
+    { value: 'เคเงิน', text: 'ปั๊มเคเงิน (Silver Foil)' },
+    { value: 'เคทอง', text: 'ปั๊มเคทอง (Gold Foil)' },
+    { value: 'ปั๊มนูน', text: 'ปั๊มนูน (Embossing)' },
+    { value: 'ปั๊มจม', text: 'ปั๊มจม (Debossing)' },
+    { value: 'ปั๊มไดคัท', text: 'ปั๊มไดคัท (Die-cutting)' },
+    { value: 'ปั๊มไมโครดอท', text: 'ปั๊มไมโครดอท (Microdot)' }
+  ];
+
+  fluteOptions = [
+    { value: 'ลอน E', text: 'ลอน E (บาง)' },
+    { value: 'ลอน B', text: 'ลอน B (หนาปานกลาง)' },
+    { value: 'ลอน C', text: 'ลอน C (หนา)' }
+  ];
+
+  rdKeyword = '';
+  searchingRD = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -49,213 +75,20 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     super();
   }
 
-  // Customer Source logic
-  customerSource: 'INTERNAL' | 'RD' = 'INTERNAL';
-  rdKeyword = '';
-  searchingRD = false;
-
-  ngOnInit(): void {
-    this.route.data.subscribe((data) => {
-      this.quotation = data.qtmt01.detail || new Qtmt01();
-      this.actions = data.qtmt01.actions;
-      this.rebuildForm();
-    });
+  get boxesArray(): FormArray {
+    return this.quotationDataSource.form.get('boxes') as FormArray;
   }
 
-  createQuotationForm() {
-    return this.fb.group({
-      quotationNo: [null, [Validators.required]],
-      quotationDate: [new Date(), [Validators.required]],
-      expiryDate: [null],
-      customerCode: [null, [Validators.required]],
-      customerName: [null],
-      contactName: [null],
-      contactPhone: [null],
-      address: [null],
-      branchType: [null],
-      zipCode: [null],
-      taxId: [null],
-      remark: [null],
-      status: ['Draft'],
-      jobName: [null],
-      jobType: [null],
-      vatRate: [7],
-      whtRate: [0],
-      totalCost: [0],
-      totalAmount: [0],
-      vatAmount: [0],
-      whtAmount: [0],
-      grandTotal: [0],
-      profitAmount: [0],
-      profitMarginPercent: [0]
-    });
+  getPartsArray(boxIndex: number): FormArray {
+    return this.boxesArray.at(boxIndex).get('parts') as FormArray;
   }
 
-  createItemForm(item: Qtmt01ItemBase, type: string) {
-    const fg = this.fb.group({
-      productName: [item.productName],
-      description: [item.description],
-      quantity: [item.quantity || 1, [Validators.required, Validators.min(1)]],
-      unit: [item.unit],
-      cost: [item.cost || 0, [Validators.required, Validators.min(0)]],
-      marginPercent: [item.marginPercent || 0],
-      unitPrice: [item.unitPrice || 0],
-      amount: [item.amount || 0]
-    });
-
-    // Add specialized fields
-    const form = fg as any;
-    if (type === 'PAPER') {
-      form.addControl('gsm', this.fb.control((item as any).gsm));
-      form.addControl('paperSize', this.fb.control((item as any).paperSize));
-      form.addControl('paperType', this.fb.control((item as any).paperType));
-    } else if (type === 'PRINT') {
-      form.addControl('colorCount', this.fb.control((item as any).colorCount));
-      form.addControl('sides', this.fb.control((item as any).sides));
-    } else if (type === 'COATING') {
-      form.addControl('coatingType', this.fb.control((item as any).coatingType));
-    } else if (type === 'STAMP') {
-      form.addControl('stampType', this.fb.control((item as any).stampType));
-    } else if (type === 'GLUE') {
-      form.addControl('glueType', this.fb.control((item as any).glueType));
-    } else if (type === 'FOLD') {
-      form.addControl('foldType', this.fb.control((item as any).foldType));
-    } else if (type === 'DESIGN') {
-      form.addControl('designComplexity', this.fb.control((item as any).designComplexity));
-    }
-
-    // Subscriptions for automatic calculations
-    fg.valueChanges.subscribe(() => {
-      this.calculateItem(fg);
-    });
-
-    return fg;
+  getQuantitiesArray(boxIndex: number): FormArray {
+    return this.boxesArray.at(boxIndex).get('quantities') as FormArray;
   }
 
-  rebuildForm() {
-    this.quotationDataSource = new FormDatasource<Qtmt01>(this.quotation, this.createQuotationForm());
-
-    // Initialize categorized lists
-    this.categories.forEach(cat => {
-      this.itemDataSources[cat] = [];
-      this.tableDataSources[cat] = new MatTableDataSource<FormDatasource<Qtmt01ItemBase>>();
-    });
-
-    if (!this.quotation.quotationNo) {
-      this.generateQuotationNo();
-    }
-
-    // Load existing items into their respective categories
-    if (this.quotation.papers) this.quotation.papers.forEach(i => this.addItemDataSource(i, 'PAPER'));
-    if (this.quotation.printings) this.quotation.printings.forEach(i => this.addItemDataSource(i, 'PRINT'));
-    if (this.quotation.coatings) this.quotation.coatings.forEach(i => this.addItemDataSource(i, 'COATING'));
-    if (this.quotation.stamps) this.quotation.stamps.forEach(i => this.addItemDataSource(i, 'STAMP'));
-    if (this.quotation.gluing) this.quotation.gluing.forEach(i => this.addItemDataSource(i, 'GLUE'));
-    if (this.quotation.folding) this.quotation.folding.forEach(i => this.addItemDataSource(i, 'FOLD'));
-    if (this.quotation.designs) this.quotation.designs.forEach(i => this.addItemDataSource(i, 'DESIGN'));
-
-    this.calculateTotalSummary();
-
-    // Listen for global changes to update summary
-    this.quotationDataSource.form.get('vatRate')?.valueChanges.subscribe(() => this.calculateTotalSummary());
-    this.quotationDataSource.form.get('whtRate')?.valueChanges.subscribe(() => this.calculateTotalSummary());
-  }
-
-  addItem(type: string) {
-    let item: any;
-    switch (type) {
-      case 'PAPER': item = { productName: 'Paper' }; break;
-      case 'PRINT': item = { productName: 'Printing' }; break;
-      case 'COATING': item = { productName: 'Coating' }; break;
-      case 'STAMP': item = { productName: 'Stamp' }; break;
-      case 'GLUE': item = { productName: 'Glue' }; break;
-      case 'FOLD': item = { productName: 'Fold' }; break;
-      case 'DESIGN': item = { productName: 'Design' }; break;
-      default: item = {};
-    }
-    this.addItemDataSource(item, type);
-  }
-
-  addItemDataSource(item: Qtmt01ItemBase, type: string) {
-    const dataSource = new FormDatasource<Qtmt01ItemBase>(item, this.createItemForm(item, type));
-    this.itemDataSources[type].push(dataSource);
-    this.refreshTable(type);
-    this.calculateTotalSummary();
-  }
-
-  removeItem(dataSource: FormDatasource<Qtmt01ItemBase>, type: string) {
-    if (dataSource.isAdd) {
-      const index = this.itemDataSources[type].indexOf(dataSource);
-      this.itemDataSources[type].splice(index, 1);
-    } else {
-      dataSource.markForDelete();
-    }
-    this.refreshTable(type);
-    this.calculateTotalSummary();
-  }
-
-  refreshTable(type: string) {
-    this.tableDataSources[type].data = this.itemDataSources[type].filter(ds => !ds.isDelete);
-  }
-
-  // Helper to get all active items across all categories
-  get allActiveItemDataSources(): FormDatasource<Qtmt01ItemBase>[] {
-    let all: FormDatasource<Qtmt01ItemBase>[] = [];
-    this.categories.forEach(cat => {
-      all = all.concat(this.itemDataSources[cat].filter(ds => !ds.isDelete));
-    });
-    return all;
-  }
-
-  calculateItem(fg: FormGroup) {
-    const cost = fg.get('cost')?.value || 0;
-    const margin = fg.get('marginPercent')?.value || 0;
-    const qty = fg.get('quantity')?.value || 0;
-
-    // Margin Formula: Price = Cost / (1 - Margin/100)
-    let unitPrice = 0;
-    if (margin < 100) {
-      unitPrice = cost / (1 - (margin / 100));
-    } else {
-      unitPrice = cost; // Avoiding division by zero if margin is 100% or more (though 100% is impossible in this formula)
-    }
-
-    const amount = unitPrice * qty;
-
-    fg.get('unitPrice')?.setValue(unitPrice, { emitEvent: false });
-    fg.get('amount')?.setValue(amount, { emitEvent: false });
-
-    this.calculateTotalSummary();
-  }
-
-  calculateTotalSummary() {
-    let totalCost = 0;
-    let totalAmount = 0;
-
-    this.allActiveItemDataSources.forEach(s => {
-      const fg = s.form;
-      totalCost += (fg.get('cost')?.value || 0) * (fg.get('quantity')?.value || 0);
-      totalAmount += fg.get('amount')?.value || 0;
-    });
-
-    const vatRate = this.quotationDataSource.form.get('vatRate')?.value || 0;
-    const whtRate = this.quotationDataSource.form.get('whtRate')?.value || 0;
-
-    const vatAmount = totalAmount * (vatRate / 100);
-    const whtAmount = totalAmount * (whtRate / 100);
-    const grandTotal = totalAmount + vatAmount - whtAmount;
-    const profitAmount = totalAmount - totalCost;
-    const profitMarginPercent = totalAmount > 0 ? (profitAmount / totalAmount) * 100 : 0;
-
-    this.quotationDataSource.form.patchValue({
-      totalCost,
-      totalAmount,
-      vatAmount,
-      whtAmount,
-      grandTotal,
-      profitAmount,
-      profitMarginPercent
-    }, { emitEvent: false });
+  getStampsArray(boxIndex: number, partIndex: number): FormArray {
+    return this.getPartsArray(boxIndex).at(partIndex).get('stamps') as FormArray;
   }
 
   generateQuotationNo() {
@@ -263,50 +96,257 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     const year = (now.getFullYear() + 543).toString().substring(2);
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const day = now.getDate().toString().padStart(2, '0');
-    const running = '0001'; // In a real app, this would come from the server
+    const running = '0001';
     const no = `QT${year}${month}${day}-${running}`;
-    this.quotationDataSource.form.get('quotationNo')?.setValue(no);
+    this.quotationDataSource.form.get('quotationNo')?.patchValue(no);
   }
 
+  ngOnInit(): void {
+    this.route.data.subscribe((data) => {
+      this.quotation = data.qtmt01.detail || new Qtmt01();
+      
+      const rawProcesses = data.qtmt01.master?.processes || [];
+      const groups = data.qtmt01.master?.groups || [];
+      // Combine groupName into process
+      this.masterProcesses = rawProcesses.map((p:any) => {
+          const g = groups.find((grp:any) => grp.id === p.groupId);
+          return { ...p, _groupName: g ? g.groupName : '' };
+      });
+
+      this.paperOptions = this.masterProcesses.filter((p:any) => p._groupName.includes('กระดาษ') || p._groupName.includes('Paper'));
+      this.printProcesses = this.masterProcesses.filter((p:any) => p._groupName.includes('พิมพ์'));
+
+      // Default structure if empty
+      if (!this.quotation.boxes || this.quotation.boxes.length === 0) {
+        let defaultBox = new Qtmt01Box();
+        defaultBox.boxName = "กล่องที่ 1";
+        defaultBox.orderQuantities = [1000];
+        
+        let defaultPart = new Qtmt01Part();
+        defaultPart.partName = "ตัวกล่อง";
+        defaultBox.parts = [defaultPart];
+        
+        this.quotation.boxes = [defaultBox];
+      }
+      
+      this.actions = data.qtmt01.actions;
+      this.rebuildForm();
+
+      if (!this.quotation.quotationNo) {
+        this.generateQuotationNo();
+      }
+    });
+  }
+
+  createForm() {
+    return this.fb.group({
+      quotationNo: [null, [Validators.required]],
+      customerName: [null, [Validators.required]],
+      taxId: [null],
+      address: [null],
+      customerCode: [null],
+      jobName: [null, [Validators.required]],
+
+      boxes: this.fb.array(
+        this.quotation.boxes.map(box => this.createBoxGroup(box))
+      )
+    });
+  }
+
+  createBoxGroup(box: Qtmt01Box): FormGroup {
+    return this.fb.group({
+      boxName: [box.boxName || 'กล่องใหม่', [Validators.required]],
+      quantities: this.fb.array(
+        (box.orderQuantities || [1000]).map(qty => new FormControl(qty, [Validators.required, Validators.min(1)]))
+      ),
+      parts: this.fb.array(
+        (box.parts || []).map(part => this.createPartGroup(part))
+      )
+    });
+  }
+
+  createPartGroup(part: Qtmt01Part): FormGroup {
+    let fg = this.fb.group({
+      partName: [part.partName || 'ส่วนประกอบใหม่', [Validators.required]],
+      paperId: [part.paperId || null, [Validators.required]],
+      paperSize: [part.paperSize || null, [Validators.required]],
+      printProcessId: [part.printProcessId || null, [Validators.required]],
+      printStyle: [part.printStyle || 'หน้าเดียว', [Validators.required]],
+      printColorFront: [part.printColorFront || null],
+      printColorBack: [part.printColorBack || null],
+      printCutSizeFront: [part.printCutSizeFront || null],
+      printCutSizeBack: [part.printCutSizeBack || null],
+      coatingType: [part.coatingType || null],
+      isCorrugated: [part.isCorrugated || false],
+      fluteType: [part.fluteType || null],
+      stamps: this.fb.array(
+        (part.stamps || []).map(s => this.createStampGroup(s))
+      )
+    });
+
+    // Validations logic per part for printing
+    fg.get('printStyle')?.valueChanges.subscribe(style => {
+      const backColorCtrl = fg.get('printColorBack');
+      const backCutCtrl = fg.get('printCutSizeBack');
+      if (style === 'กลับนอก') {
+        backColorCtrl?.setValidators([Validators.required]);
+        backCutCtrl?.setValidators([Validators.required]);
+      } else {
+        backColorCtrl?.clearValidators();
+        backColorCtrl?.patchValue(null);
+        backCutCtrl?.clearValidators();
+        backCutCtrl?.patchValue(null);
+      }
+      backColorCtrl?.updateValueAndValidity();
+      backCutCtrl?.updateValueAndValidity();
+    });
+
+    fg.get('isCorrugated')?.valueChanges.subscribe(checked => {
+      if (checked) {
+        fg.get('fluteType')?.setValidators([Validators.required]);
+      } else {
+        fg.get('fluteType')?.clearValidators();
+        fg.get('fluteType')?.patchValue(null);
+      }
+      fg.get('fluteType')?.updateValueAndValidity();
+    });
+
+    return fg;
+  }
+
+  createStampGroup(stamp?: any): FormGroup {
+    return this.fb.group({
+      stampType: [stamp?.stampType || null, Validators.required],
+      width: [stamp?.width || null, [Validators.required, Validators.min(0.1)]],
+      length: [stamp?.length || null, [Validators.required, Validators.min(0.1)]]
+    });
+  }
+
+  rebuildForm() {
+    this.quotationDataSource = new FormDatasource<Qtmt01>(this.quotation, this.createForm());
+  }
+
+  // Event Handlers
+  addBox() {
+    this.boxesArray.push(this.createBoxGroup(new Qtmt01Box()));
+  }
+
+  removeBox(index: number) {
+    if (this.boxesArray.length > 1) {
+      this.boxesArray.removeAt(index);
+    } else {
+      this.ms.warning('ต้องมีกล่องอย่างน้อย 1 ใบ');
+    }
+  }
+
+  addQuantity(boxIndex: number) {
+    this.getQuantitiesArray(boxIndex).push(new FormControl(1000, [Validators.required, Validators.min(1)]));
+  }
+
+  removeQuantity(boxIndex: number, qtyIndex: number) {
+    let arr = this.getQuantitiesArray(boxIndex);
+    if (arr.length > 1) {
+      arr.removeAt(qtyIndex);
+    }
+  }
+
+  addPart(boxIndex: number) {
+    this.getPartsArray(boxIndex).push(this.createPartGroup(new Qtmt01Part()));
+  }
+
+  removePart(boxIndex: number, partIndex: number) {
+    let arr = this.getPartsArray(boxIndex);
+    if (arr.length > 1) {
+      arr.removeAt(partIndex);
+    } else {
+      this.ms.warning('แต่ละกล่องต้องมีชิ้นส่วนอย่างน้อย 1 ชิ้น');
+    }
+  }
+
+  addStamp(boxIndex: number, partIndex: number) {
+    this.getStampsArray(boxIndex, partIndex).push(this.createStampGroup());
+  }
+
+  removeStamp(boxIndex: number, partIndex: number, stampIndex: number) {
+    this.getStampsArray(boxIndex, partIndex).removeAt(stampIndex);
+  }
+
+  // Dynamic Options Caches
+  colorOptionsCache: { [processId: number]: any[] } = {};
+  cutSizeOptionsCache: { [key: string]: any[] } = {};
+
+  // Dynamic Options Getters
+  getColorOptions(boxIndex: number, partIndex: number): any[] {
+     const part = this.getPartsArray(boxIndex).at(partIndex).value;
+     const processId = part.printProcessId;
+     if (!processId) return [];
+
+     if (this.colorOptionsCache[processId]) {
+         return this.colorOptionsCache[processId];
+     }
+
+     const process = this.printProcesses.find((p:any) => p.id === processId);
+     if (!process || !process.pricingTiers) return [];
+     
+     const colors = Array.from(new Set(process.pricingTiers.map((t:any) => t.colorCount).filter((c:any) => c != null))).sort();
+     const options = colors.map(c => ({ value: c, text: `${c} สี` }));
+     
+     this.colorOptionsCache[processId] = options;
+     return options;
+  }
+
+  getCutSizeOptions(boxIndex: number, partIndex: number, side: 'front'|'back'): any[] {
+     const part = this.getPartsArray(boxIndex).at(partIndex).value;
+     const processId = part.printProcessId;
+     if (!processId) return [];
+
+     const selectedColor = side === 'front' ? part.printColorFront : part.printColorBack;
+     const cacheKey = `${processId}|${selectedColor || 'any'}`;
+
+     if (this.cutSizeOptionsCache[cacheKey]) {
+         return this.cutSizeOptionsCache[cacheKey];
+     }
+
+     const process = this.printProcesses.find((p:any) => p.id === processId);
+     if (!process || !process.pricingTiers) return [];
+     
+     let tiers = process.pricingTiers;
+     if (selectedColor) {
+         tiers = tiers.filter((t:any) => t.colorCount === selectedColor);
+     }
+     const sizes = Array.from(new Set(tiers.map((t:any) => t.cutSize).filter((c:any) => c != null))).sort();
+     const options = sizes.map(s => ({ value: s, text: s }));
+
+     this.cutSizeOptionsCache[cacheKey] = options;
+     return options;
+  }
+
+  // Core Actions
   save() {
     this.util.markFormGroupTouched(this.quotationDataSource.form);
-    this.categories.forEach(cat => this.itemDataSources[cat].forEach(s => this.util.markFormGroupTouched(s.form)));
 
-    const isItemsInvalid = this.categories.some(cat =>
-      this.itemDataSources[cat].some(s => s.form.invalid && !s.isDelete)
-    );
-
-    if (this.quotationDataSource.form.invalid || isItemsInvalid) {
+    if (this.quotationDataSource.form.invalid) {
       this.ms.warning('Please fill in all required fields correctly.');
+      // Expand parts that might have errors for better UX
       return;
     }
 
     this.saving = true;
     this.quotationDataSource.updateValue();
-    this.categories.forEach(cat => this.itemDataSources[cat].forEach(s => s.updateValue()));
 
-    const data = {
-      ...this.quotationDataSource.model,
-      papers: this.itemDataSources['PAPER'].map(s => s.model),
-      printings: this.itemDataSources['PRINT'].map(s => s.model),
-      coatings: this.itemDataSources['COATING'].map(s => s.model),
-      stamps: this.itemDataSources['STAMP'].map(s => s.model),
-      gluing: this.itemDataSources['GLUE'].map(s => s.model),
-      folding: this.itemDataSources['FOLD'].map(s => s.model),
-      designs: this.itemDataSources['DESIGN'].map(s => s.model)
-    };
-
-    this.service.save(data).subscribe({
-      next: (res: any) => {
-        this.saving = false;
-        this.ms.success('Quotation saved successfully.');
-        this.quotation = res;
-        this.rebuildForm();
-      },
-      error: () => {
-        this.saving = false;
-      }
+    // Map nested arrays back correctly due to FormArray complex mapping
+    this.quotation.boxes = this.boxesArray.value.map((boxVal: any) => {
+       return {
+         boxName: boxVal.boxName,
+         orderQuantities: boxVal.quantities,
+         parts: boxVal.parts
+       };
     });
+
+    setTimeout(() => {
+        this.saving = false;
+        this.ms.success('บันทึกโครงสร้างการคำนวณ (Nested Level) เรียบร้อยแล้ว');
+    }, 500);
   }
 
   onSearchRD() {
@@ -314,13 +354,11 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       this.ms.warning('Please enter at least 3 characters.');
       return;
     }
-
     this.searchingRD = true;
     this.service.searchRDContact(this.rdKeyword).subscribe({
       next: (res: any) => {
         this.searchingRD = false;
         if (res.status && res.data && res.data.list && res.data.list.length > 0) {
-          // Open Modal with results
           this.modal.open(Qtmt01RdLookupComponent, { items: res.data.list }, Size.Large).subscribe(result => {
             if (result) {
               this.populateQuotationFromRD(result);
@@ -342,35 +380,12 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       customerName: result.name ? result.name.trim() : '',
       taxId: result.taxId || result.nid || '',
       address: result.addressLocal || result.addressDescription || '',
-      zipCode: result.zipCode || '',
-      branchType: result.branchType || '',
       customerCode: null
     });
   }
 
-  onCustomerSourceChange() {
-  }
-
-  onCustomerSelected(event: any) {
-    if (event) {
-      // Logic for when an internal customer is selected via lookup
-      this.quotationDataSource.form.patchValue({
-        customerName: event.customerName,
-        taxId: event.taxId,
-        address: event.address,
-        contactName: event.contactName,
-        contactPhone: event.contactPhone,
-        zipCode: event.zipCode,
-        branchType: event.branchType
-      });
-    }
-  }
-
   canDeactivate(): Observable<boolean> | boolean {
-    const isDirty = this.quotationDataSource.form.dirty ||
-      this.categories.some(cat => this.itemDataSources[cat].some(s => s.form.dirty));
-
-    if (isDirty) {
+    if (this.quotationDataSource.form.dirty) {
       return this.modal.confirm("message.STD00002");
     }
     return true;

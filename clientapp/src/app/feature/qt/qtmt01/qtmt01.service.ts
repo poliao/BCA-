@@ -19,6 +19,10 @@ export class Qtmt01Service {
     return this.http.get<Qtmt01>(`qt/qtmt01/${id}`);
   }
 
+  getMaster() {
+    return this.http.get<any[]>('qt/qtmt01/master');
+  }
+
   save(data: any) {
     return this.http.post('qt/qtmt01', data);
   }

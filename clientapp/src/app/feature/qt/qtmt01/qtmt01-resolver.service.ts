@@ -21,9 +21,10 @@ export const Qtmt01Resolver: ResolveFn<Observable<any>> = (route: ActivatedRoute
     ]).pipe(map(([quotation]) => quotation))
     : of(new Qtmt01());
 
+  const master = db.getMaster();
   const actions = authorizeService.getActions(routeDataCode);
 
-  return forkJoin([auditLog, actions, detail]).pipe(
-    map(([_, actions, detail]) => ({ actions, detail }))
+  return forkJoin([auditLog, actions, master, detail]).pipe(
+    map(([_, actions, master, detail]) => ({ actions, master, detail }))
   );
 };

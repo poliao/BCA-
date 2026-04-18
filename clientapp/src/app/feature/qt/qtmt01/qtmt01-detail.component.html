@@ -1,521 +1,243 @@
-<!-- RD Search Implementation -->
 <toolbar>
     <button class="btn btn-primary" (click)="save()">
         <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
-        <i class="fas fa-save" [hidden]="saving"></i> บันทึก
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
     </button>
 </toolbar>
 
-<h4>{{ 'label.QTMT01.ProgramName' | translate }}</h4>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">ตั้งค่าแบบงานพิมพ์ (Multi-Box / Multi-Part Quotation)</h4>
+</div>
 
-<div class="row" [formGroup]="quotationDataSource.form">
-    <!-- Master Information -->
-    <div class="col-md-12">
-        <app-card header="{{ 'label.QTMT01.QuotationInformation' | translate }}">
-            <div class="card-content">
-                <mat-tab-group>
-                    <mat-tab label="{{ 'label.QTMT01.GeneralInfo' | translate }}">
-                        <div class="row mt-3">
-                            <div class="col-md-3">
-                                <textbox formControlName="quotationNo" [readonly]="true">
-                                    {{ 'label.QTMT01.QuotationNo' | translate }}
-                                </textbox>
-                            </div>
-                            <div class="col-md-3">
-                                <datepicker formControlName="quotationDate">
-                                    {{ 'label.QTMT01.QuotationDate' | translate }}
-                                </datepicker>
-                            </div>
-                            <div class="col-md-3">
-                                <datepicker formControlName="expiryDate">
-                                    {{ 'label.QTMT01.ExpiryDate' | translate }}
-                                </datepicker>
-                            </div>
-                            <div class="col-md-3">
-                                <textbox formControlName="status" [readonly]="true">
-                                    {{ 'label.ALL.Status' | translate }}
-                                </textbox>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <textbox formControlName="jobName">
-                                    {{ 'label.QTMT01.JobName' | translate }}
-                                </textbox>
-                            </div>
-                            <div class="col-md-4">
-                                <textbox formControlName="jobType">
-                                    {{ 'label.QTMT01.JobType' | translate }}
-                                </textbox>
-                            </div>
-                        </div>
-                    </mat-tab>
-                    <mat-tab label="{{ 'label.QTMT01.CustomerInfo' | translate }}">
-                        <!-- Source Selection -->
-                        <div class="row mt-3 border-bottom pb-2">
-                            <div class="col-md-12">
-                                <label class="me-3">{{ 'label.QTMT01.CustomerSource' | translate }}:</label>
-                                <mat-radio-group [(ngModel)]="customerSource" [ngModelOptions]="{standalone: true}"
-                                    (change)="onCustomerSourceChange()">
-                                    <mat-radio-button value="INTERNAL" class="me-3">
-                                        {{ 'label.QTMT01.InternalDB' | translate }}
-                                    </mat-radio-button>
-                                    <mat-radio-button value="RD">
-                                        {{ 'label.QTMT01.RDContact' | translate }}
-                                    </mat-radio-button>
-                                </mat-radio-group>
-                            </div>
-                        </div>
+<form [formGroup]="quotationDataSource.form">
+    <!-- GENERAL INFO (Quotation Level) -->
+    <app-card>
+        <div class="card-content">
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-sm-6">
+                    <textbox formControlName="quotationNo" [disabled]="true">เลขที่ใบเสนอราคา (Quotation No.)</textbox>
+                </div>
+                <div class="col-md-9 col-sm-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="rdKeyword" [ngModelOptions]="{standalone: true}" placeholder="พิมพ์เลขผู้เสียภาษี 13 หลัก หรือ ชื่อบริษัท เพื่อค้นหาข้อมูลจาก RD...">
+                        <button class="btn btn-outline-secondary" type="button" (click)="onSearchRD()" [disabled]="searchingRD">
+                            <i class="fas fa-search" [hidden]="searchingRD"></i>
+                            <i class="fas fa-spinner fa-spin" [hidden]="!searchingRD"></i> ค้นหา
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <textbox formControlName="customerName">ชื่อลูกค้า / บริษัท</textbox>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <textbox formControlName="taxId">เลขประจำตัวผู้เสียภาษี</textbox>
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    <textbox formControlName="jobName">ชื่องานหลักโปรเจกต์ (Main Job Name)</textbox>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <textbox formControlName="address">ที่อยู่ลูกค้า</textbox>
+                </div>
+            </div>
+        </div>
+    </app-card>
 
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <!-- Internal Lookup -->
-                                <lookup *ngIf="customerSource === 'INTERNAL'" formControlName="customerCode"
-                                    (selected)="onCustomerSelected($event)">
-                                    {{ 'label.QTMT01.Customer' | translate }}
-                                </lookup>
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+        <h5 class="mb-0 text-secondary"><i class="fas fa-boxes me-2"></i> โครงสร้างกล่องและชิ้นส่วน (Boxes & Parts)</h5>
+        <button type="button" class="btn btn-primary" (click)="addBox()">
+            <i class="fas fa-plus-circle"></i> เพิ่มกล่องใหม่
+        </button>
+    </div>
 
-                                <!-- RD Search -->
-                                <div *ngIf="customerSource === 'RD'" class="d-flex align-items-end">
-                                    <div class="flex-grow-1 me-2">
-                                        <textbox [(ngModel)]="rdKeyword" [ngModelOptions]="{standalone: true}"
-                                            placeholder="Enter Company Name or Tax ID...">
-                                            {{ 'label.QTMT01.RDSearchKeyword' | translate }}
-                                        </textbox>
+    <!-- BOX LEVEL -->
+    <ng-container formArrayName="boxes">
+        <mat-tab-group dynamicHeight animationDuration="200ms" class="custom-box-tabs">
+            <mat-tab *ngFor="let boxCtrl of boxesArray.controls; let bIndex = index" [formGroupName]="bIndex">
+                
+                <ng-template mat-tab-label>
+                    {{ boxCtrl.get('boxName')?.value || 'กล่องที่ ' + (bIndex + 1) }}
+                    <span class="ms-3 text-danger" style="cursor: pointer;" (click)="removeBox(bIndex)" *ngIf="boxesArray.length > 1">
+                        <i class="fas fa-times-circle"></i>
+                    </span>
+                </ng-template>
+
+                <div class="p-4 bg-white border border-top-0">
+                    
+                    <!-- Box Header Setup -->
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <textbox formControlName="boxName">ชื่อกล่อง / รหัสสินค้า (Box Name)</textbox>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantities per box -->
+                    <div class="row g-3 mt-1 align-items-end">
+                        <div class="col-12 text-muted small"><i class="fas fa-info-circle"></i> เซ็ตจำนวนผลิตสำหรับกล่องนี้ (เปรียบเทียบราคาซ้อนได้)</div>
+                        <ng-container formArrayName="quantities">
+                            <div class="col-md-3 col-sm-4" *ngFor="let qtyCtrl of getQuantitiesArray(bIndex).controls; let qIndex = index">
+                                <div class="input-group">
+                                    <div class="flex-grow-1">
+                                        <number [formControlName]="qIndex">จำนวนเปรียบเทียบ {{qIndex + 1}}</number>
                                     </div>
-                                    <button type="button" class="btn btn-info" (click)="onSearchRD()"
-                                        [disabled]="searchingRD">
-                                        <i class="fas" [class.fa-search]="!searchingRD" [class.fa-spinner]="searchingRD"
-                                            [class.fa-spin]="searchingRD"></i>
-                                        {{ 'label.QTMT01.SearchRD' | translate }}
+                                    <button class="btn btn-outline-danger shadow-none" type="button" (click)="removeQuantity(bIndex, qIndex)" [disabled]="getQuantitiesArray(bIndex).length <= 1">
+                                        <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
-
-                            <div class="col-md-6">
-                                <textbox formControlName="customerName" [readonly]="customerSource === 'INTERNAL'">
-                                    {{ 'label.QTMT01.CustomerName' | translate }}
-                                </textbox>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="col-md-3">
-                                <textbox formControlName="contactName">
-                                    {{ 'label.QTMT01.ContactPerson' | translate }}
-                                </textbox>
-                            </div>
-                            <div class="col-md-3">
-                                <textbox formControlName="contactPhone">
-                                    {{ 'label.QTMT01.ContactPhone' | translate }}
-                                </textbox>
-                            </div>
-                            <div class="col-md-2">
-                                <textbox formControlName="taxId">
-                                    {{ 'label.QTMT01.TaxId' | translate }}
-                                </textbox>
-                            </div>
-                            <div class="col-md-2">
-                                <textbox formControlName="branchType">
-                                    {{ 'label.QTMT01.BranchType' | translate }}
-                                </textbox>
-                            </div>
-                            <div class="col-md-2">
-                                <textbox formControlName="zipCode">
-                                    {{ 'label.QTMT01.ZipCode' | translate }}
-                                </textbox>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-
-                            <div class="col-md-6">
-                                <areabox formControlName="address" [rows]="3">
-                                    {{ 'label.QTMT01.Address' | translate }}
-                                </areabox>
-                            </div>
-                        </div>
-
-                    </mat-tab>
-                </mat-tab-group>
-            </div>
-        </app-card>
-    </div>
-
-    <!-- Quotation Items Tab System -->
-    <div class="col-12 mt-3">
-        <app-card header="{{ 'label.QTMT01.QuotationItems' | translate }}">
-            <div class="card-content px-0">
-                <mat-tab-group>
-                    <!-- 1. Paper Category -->
-                    <mat-tab label="{{ 'label.QTMT01.Paper' | translate }}">
-                        <div class="p-3 border-bottom d-flex justify-content-end">
-                            <button class="btn btn-primary" (click)="addItem('PAPER')">
-                                <i class="fas fa-plus"></i> {{ 'label.ALL.Add' | translate }}
-                            </button>
-                        </div>
-                        <app-table [dataSource]="tableDataSources['PAPER']" [columns]="paperColumns"
-                            [pagination]="false">
-                            <ng-container matColumnDef="index">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="40px" class="text-center">#</th>
-                                <td mat-cell *matCellDef="let row; let i = index" class="text-center align-middle">{{ i
-                                    + 1 }}</td>
-                            </ng-container>
-                            <ng-container matColumnDef="productName">
-                                <th mat-header-cell *matHeaderCellDef style="min-width: 200px;">{{
-                                    'label.QTMT01.ProductDescription' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" [formGroup]="row.form">
-                                    <textbox formControlName="productName" [hasLabel]="false"></textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="gsm">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">GSM</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <textbox formControlName="gsm" class="text-center" [hasLabel]="false"></textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="paperSize">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">Size</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <textbox formControlName="paperSize" class="text-center" [hasLabel]="false">
-                                    </textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="paperType">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">Type</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <textbox formControlName="paperType" class="text-center" [hasLabel]="false">
-                                    </textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="quantity">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                    'label.QTMT01.Quantity' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="quantity" class="text-center" [hasLabel]="false"></number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="unit">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                    'label.QTMT01.Unit' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <textbox formControlName="unit" class="text-center" [hasLabel]="false"></textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="cost">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
-                                    'label.QTMT01.UnitCost' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="cost" currency [hasLabel]="false"></number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="marginPercent">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                    'label.QTMT01.MarginPercent' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="marginPercent" class="text-center" [hasLabel]="false">
-                                    </number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="unitPrice">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
-                                    'label.QTMT01.Price' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="unitPrice" currency [disabled]="true" [hasLabel]="false">
-                                    </number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="amount">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">{{
-                                    'label.QTMT01.TotalAmount' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="amount" currency [disabled]="true" [hasLabel]="false">
-                                    </number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="action">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="50px"></th>
-                                <td mat-cell *matCellDef="let row" class="text-center align-middle"><button
-                                        class="btn btn-link text-danger p-0" (click)="removeItem(row, 'PAPER')"><i
-                                            class="fas fa-trash"></i></button></td>
-                            </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="paperColumns"></tr>
-                            <tr mat-row *matRowDef="let row; columns: paperColumns"></tr>
-                        </app-table>
-                    </mat-tab>
-
-                    <!-- 2. Printing Category -->
-                    <mat-tab label="{{ 'label.QTMT01.Printing' | translate }}">
-                        <div class="p-3 border-bottom d-flex justify-content-end">
-                            <button class="btn btn-primary" (click)="addItem('PRINT')">
-                                <i class="fas fa-plus"></i> {{ 'label.ALL.Add' | translate }}
-                            </button>
-                        </div>
-                        <app-table [dataSource]="tableDataSources['PRINT']" [columns]="printColumns"
-                            [pagination]="false">
-                            <ng-container matColumnDef="index">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="40px" class="text-center">#</th>
-                                <td mat-cell *matCellDef="let row; let i = index" class="text-center align-middle">{{ i
-                                    + 1 }}</td>
-                            </ng-container>
-                            <ng-container matColumnDef="productName">
-                                <th mat-header-cell *matHeaderCellDef>{{ 'label.QTMT01.ProductDescription' | translate
-                                    }}</th>
-                                <td mat-cell *matCellDef="let row" [formGroup]="row.form">
-                                    <textbox formControlName="productName" [hasLabel]="false"></textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="colorCount">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">Colors
-                                </th>
-                                <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                    <textbox formControlName="colorCount" class="text-center" [hasLabel]="false">
-                                    </textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="sides">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">Sides</th>
-                                <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                    <textbox formControlName="sides" class="text-center" [hasLabel]="false"></textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="quantity">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                    'label.QTMT01.Quantity' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="quantity" class="text-center" [hasLabel]="false"></number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="unit">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                    'label.QTMT01.Unit' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <textbox formControlName="unit" class="text-center" [hasLabel]="false"></textbox>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="cost">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
-                                    'label.QTMT01.UnitCost' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="cost" currency [hasLabel]="false"></number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="marginPercent">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                    'label.QTMT01.MarginPercent' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="marginPercent" class="text-center" [hasLabel]="false">
-                                    </number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="unitPrice">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
-                                    'label.QTMT01.Price' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="unitPrice" currency [disabled]="true" [hasLabel]="false">
-                                    </number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="amount">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">{{
-                                    'label.QTMT01.TotalAmount' | translate }}</th>
-                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                    <number formControlName="amount" currency [disabled]="true" [hasLabel]="false">
-                                    </number>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="action">
-                                <th mat-header-cell *matHeaderCellDef columnWidth="50px"></th>
-                                <td mat-cell *matCellDef="let row" class="text-center align-middle"><button
-                                        class="btn btn-link text-danger p-0" (click)="removeItem(row, 'PRINT')"><i
-                                            class="fas fa-trash"></i></button></td>
-                            </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="printColumns"></tr>
-                            <tr mat-row *matRowDef="let row; columns: printColumns"></tr>
-                        </app-table>
-                    </mat-tab>
-
-                    <!-- 3. Other Categories -->
-                    <ng-container *ngFor="let cat of ['COATING', 'STAMP', 'GLUE', 'FOLD', 'DESIGN']">
-                        <mat-tab label="{{ 'label.QTMT01.' + cat | translate }}">
-                            <div class="p-3 border-bottom d-flex justify-content-end">
-                                <button class="btn btn-primary" (click)="addItem(cat)">
-                                    <i class="fas fa-plus"></i> {{ 'label.ALL.Add' | translate }}
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addQuantity(bIndex)">
+                                    + เพิ่มจำนวน
                                 </button>
                             </div>
-                            <app-table [dataSource]="tableDataSources[cat]"
-                                [columns]="cat === 'COATING' ? coatingColumns : (cat === 'STAMP' ? stampColumns : (cat === 'GLUE' ? glueColumns : (cat === 'FOLD' ? foldColumns : designColumns)))"
-                                [pagination]="false">
-                                <ng-container matColumnDef="index">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="40px" class="text-center">#</th>
-                                    <td mat-cell *matCellDef="let row; let i = index" class="text-center align-middle">
-                                        {{ i + 1 }}</td>
-                                </ng-container>
-                                <ng-container matColumnDef="productName">
-                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.QTMT01.ProductDescription' |
-                                        translate }}</th>
-                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form">
-                                        <textbox formControlName="productName" [hasLabel]="false"></textbox>
-                                    </td>
-                                </ng-container>
+                        </ng-container>
+                    </div>
 
-                                <ng-container matColumnDef="coatingType" *ngIf="cat === 'COATING'">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Coating Type</th>
-                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                        <textbox formControlName="coatingType" [hasLabel]="false"></textbox>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="stampType" *ngIf="cat === 'STAMP'">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Stamp Type</th>
-                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                        <textbox formControlName="stampType" [hasLabel]="false"></textbox>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="glueType" *ngIf="cat === 'GLUE'">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Glue Type</th>
-                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                        <textbox formControlName="glueType" [hasLabel]="false"></textbox>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="foldType" *ngIf="cat === 'FOLD'">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Fold Type</th>
-                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                        <textbox formControlName="foldType" [hasLabel]="false"></textbox>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="designComplexity" *ngIf="cat === 'DESIGN'">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Complexity</th>
-                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
-                                        <textbox formControlName="designComplexity" [hasLabel]="false"></textbox>
-                                    </td>
-                                </ng-container>
+                    <hr class="my-4 border-primary opacity-25">
 
-                                <ng-container matColumnDef="quantity">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                        'label.QTMT01.Quantity' | translate }}</th>
-                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                        <number formControlName="quantity" class="text-center" [hasLabel]="false">
-                                        </number>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="unit">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                        'label.QTMT01.Unit' | translate }}</th>
-                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                        <textbox formControlName="unit" class="text-center" [hasLabel]="false">
-                                        </textbox>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="cost">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
-                                        'label.QTMT01.UnitCost' | translate }}</th>
-                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                        <number formControlName="cost" currency [hasLabel]="false"></number>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="marginPercent">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
-                                        'label.QTMT01.MarginPercent' | translate }}</th>
-                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                        <number formControlName="marginPercent" class="text-center" [hasLabel]="false">
-                                        </number>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="unitPrice">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
-                                        'label.QTMT01.Price' | translate }}</th>
-                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                        <number formControlName="unitPrice" currency [disabled]="true"
-                                            [hasLabel]="false"></number>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="amount">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">{{
-                                        'label.QTMT01.TotalAmount' | translate }}</th>
-                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
-                                        <number formControlName="amount" currency [disabled]="true" [hasLabel]="false">
-                                        </number>
-                                    </td>
-                                </ng-container>
-                                <ng-container matColumnDef="action">
-                                    <th mat-header-cell *matHeaderCellDef columnWidth="50px"></th>
-                                    <td mat-cell *matCellDef="let row" class="text-center align-middle"><button
-                                            class="btn btn-link text-danger p-0" (click)="removeItem(row, cat)"><i
-                                                class="fas fa-trash"></i></button></td>
-                                </ng-container>
+                    <!-- PART LEVEL -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-primary">รายการชิ้นส่วนในกล่องนี้ (Parts Configuration)</h6>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addPart(bIndex)">
+                            <i class="fas fa-plus"></i> เพิ่มชิ้นส่วนอุปกรณ์
+                        </button>
+                    </div>
 
-                                <tr mat-header-row
-                                    *matHeaderRowDef="cat === 'COATING' ? coatingColumns : (cat === 'STAMP' ? stampColumns : (cat === 'GLUE' ? glueColumns : (cat === 'FOLD' ? foldColumns : designColumns)))">
-                                </tr>
-                                <tr mat-row
-                                    *matRowDef="let row; columns: cat === 'COATING' ? coatingColumns : (cat === 'STAMP' ? stampColumns : (cat === 'GLUE' ? glueColumns : (cat === 'FOLD' ? foldColumns : designColumns)))">
-                                </tr>
-                            </app-table>
-                        </mat-tab>
+                    <ng-container formArrayName="parts">
+                        <mat-accordion multi="true">
+                            <mat-expansion-panel *ngFor="let partCtrl of getPartsArray(bIndex).controls; let pIndex = index" [formGroupName]="pIndex" class="mb-3 border">
+                                <mat-expansion-panel-header class="bg-light">
+                                    <mat-panel-title>
+                                        <b class="text-primary">{{ pIndex + 1 }}. {{ partCtrl.get('partName')?.value || 'ชิ้นส่วนใหม่' }}</b>
+                                    </mat-panel-title>
+                                    <mat-panel-description class="justify-content-end text-danger" style="flex-grow:0;">
+                                        <button type="button" class="btn btn-link text-danger p-0 shadow-none border-0" (click)="$event.stopPropagation(); removePart(bIndex, pIndex)" *ngIf="getPartsArray(bIndex).length > 1">
+                                            <i class="fas fa-trash"></i> ลบชิ้นส่วนนี้
+                                        </button>
+                                    </mat-panel-description>
+                                </mat-expansion-panel-header>
+
+                                <!-- Part Configuration Form -->
+                                <div class="pt-3 pb-1 px-1">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-3">
+                                            <textbox formControlName="partName">ชื่อชิ้นส่วนย่อย (เช่น ปลอกสวม, ฐาน)</textbox>
+                                        </div>
+                                    </div>
+
+                                    <!-- Material & Print block -->
+                                    <h6 class="border-bottom pb-2">กระดาษและการพิมพ์</h6>
+                                    <div class="row g-3 mb-2">
+                                        <div class="col-md-4">
+                                            <select-input bindLabel="processName" bindValue="id" [items]="paperOptions" formControlName="paperId">ชนิดกระดาษ (อิง Master)</select-input>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select-input bindLabel="text" bindValue="value" [items]="paperSizeOptions" formControlName="paperSize">ขนาดกระดาษที่ตัด</select-input>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4 mt-1 bg-light p-2 rounded align-items-start border border-primary">
+                                        <div class="col-md-5">
+                                            <select-input bindLabel="processName" bindValue="id" [items]="printProcesses" formControlName="printProcessId">ระบุระบบพิมพ์</select-input>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select-input bindLabel="text" bindValue="value" [items]="printStyles" formControlName="printStyle">รูปแบบพิมพ์</select-input>
+                                        </div>
+                                        
+                                        <div class="col-12 mt-3" *ngIf="partCtrl.get('printProcessId')?.value">
+                                            <!-- Print Front -->
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-md-2 fw-bold text-end">หน้าหล้ง (หน้าล่าง) :</div>
+                                                <div class="col-md-3">
+                                                    <select-input bindLabel="text" bindValue="value" [items]="getColorOptions(bIndex, pIndex)" formControlName="printColorFront">จำนวนสี</select-input>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select-input bindLabel="text" bindValue="value" [items]="getCutSizeOptions(bIndex, pIndex, 'front')" formControlName="printCutSizeFront">ขนาดตัดหน้าพิมพ์</select-input>
+                                                </div>
+                                            </div>
+                                            <!-- Print Back (Only if double sided) -->
+                                            <div class="row g-2 align-items-center mt-2" *ngIf="partCtrl.get('printStyle')?.value === 'กลับนอก'">
+                                                <div class="col-md-2 fw-bold text-end">หน้าบน (กลับนอก) :</div>
+                                                <div class="col-md-3">
+                                                    <select-input bindLabel="text" bindValue="value" [items]="getColorOptions(bIndex, pIndex)" formControlName="printColorBack">จำนวนสี</select-input>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select-input bindLabel="text" bindValue="value" [items]="getCutSizeOptions(bIndex, pIndex, 'back')" formControlName="printCutSizeBack">ขนาดตัดหน้าพิมพ์</select-input>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Packaging Lamination base inside material spec -->
+                                    <div class="row g-3 mb-4 align-items-center">
+                                        <div class="col-auto">
+                                            <checkbox formControlName="isCorrugated">ประกบลูกฟูก</checkbox>
+                                        </div>
+                                        <div class="col-md-3" *ngIf="partCtrl.get('isCorrugated')?.value">
+                                            <select-input bindLabel="text" bindValue="value" [items]="fluteOptions" formControlName="fluteType">เลือกลอน</select-input>
+                                        </div>
+                                    </div>
+
+                                    <!-- Finishing block -->
+                                    <h6 class="border-bottom pb-2 mt-4">งานหลังพิมพ์และตกแต่งพิเศษ</h6>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <select-input bindLabel="text" bindValue="value" [items]="coatingOptions" formControlName="coatingType">เลือกงานเคลือบผิว</select-input>
+                                        </div>
+                                    </div>
+
+                                    <div class="card bg-light border-0 shadow-sm mt-3">
+                                        <div class="card-body py-2">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0 text-secondary"><i class="fas fa-stamp me-2"></i> รายการงานปั๊ม และไดคัทเฉพาะชิ้นส่วนนี้</h6>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addStamp(bIndex, pIndex)">
+                                                    <i class="fas fa-plus"></i> เพิ่มงานปั๊ม
+                                                </button>
+                                            </div>
+                                            
+                                            <ng-container formArrayName="stamps">
+                                                <div class="row g-2 align-items-center mb-2 border-bottom pb-2" *ngFor="let stampCtrl of getStampsArray(bIndex, pIndex).controls; let sIndex = index" [formGroupName]="sIndex">
+                                                    <div class="col-md-3">
+                                                        <select-input bindLabel="text" bindValue="value" [items]="stampOptions" formControlName="stampType">
+                                                            ประเภทงาน
+                                                        </select-input>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <number formControlName="width" currency [scale]="2">ขนาดกว้าง (ซม.)</number>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <number formControlName="length" currency [scale]="2">ขนาดยาว (ซม.)</number>
+                                                    </div>
+                                                    <div class="col-md-2 mt-4">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm w-100" (click)="removeStamp(bIndex, pIndex, sIndex)">
+                                                            ลบรายการ
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </ng-container>
-                </mat-tab-group>
-            </div>
-        </app-card>
-    </div>
 
-    <!-- Summary Section -->
-    <div class="col-md-7 mt-3">
-        <app-card header="{{ 'label.QTMT01.Remarks' | translate }}">
-            <div class="card-content">
-                <areabox formControlName="remark" [rows]="5" placeholder="Additional notes or terms..."></areabox>
-            </div>
-        </app-card>
-    </div>
-    <div class="col-md-5 mt-3">
-        <app-card header="{{ 'label.QTMT01.FinancialSummary' | translate }}">
-            <div class="card-content">
-                <div class="d-flex justify-content-between mb-2">
-                    <span>{{ 'label.QTMT01.TotalCost' | translate }}:</span>
-                    <strong>{{ quotationDataSource.form.get('totalCost').value | number:'1.2-2' }}</strong>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>{{ 'label.QTMT01.TotalRevenue' | translate }}:</span>
-                    <strong>{{ quotationDataSource.form.get('totalAmount').value | number:'1.2-2' }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2 text-success">
-                    <span>{{ 'label.QTMT01.ProfitAmount' | translate }}:</span>
-                    <strong>{{ quotationDataSource.form.get('profitAmount').value | number:'1.2-2' }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2 text-info border-bottom pb-2">
-                    <span>{{ 'label.QTMT01.ProfitMargin' | translate }}:</span>
-                    <strong>{{ quotationDataSource.form.get('profitMarginPercent').value | number:'1.2-2' }}%</strong>
-                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </ng-container>
 
-                <div class="row mt-3">
-                    <div class="col-6">
-                        <select-input formControlName="vatRate"
-                            [items]="[{value: 0, text: 'No VAT'}, {value: 7, text: '7%'}]">
-                            {{ 'label.QTMT01.VatPercent' | translate }}
-                        </select-input>
-                    </div>
-                    <div class="col-6 text-end align-self-end">
-                        <strong>{{ quotationDataSource.form.get('vatAmount').value | number:'1.2-2' }}</strong>
-                    </div>
-                </div>
-                <div class="row mt-2 border-bottom pb-2">
-                    <div class="col-6">
-                        <select-input formControlName="whtRate"
-                            [items]="[{value: 0, text: 'None'}, {value: 1, text: '1%'}, {value: 3, text: '3%'}, {value: 5, text: '5%'}]">
-                            {{ 'label.QTMT01.WhtPercent' | translate }}
-                        </select-input>
-                    </div>
-                    <div class="col-6 text-end align-self-end">
-                        <strong class="text-danger">- {{ quotationDataSource.form.get('whtAmount').value |
-                            number:'1.2-2'
-                            }}</strong>
-                    </div>
-                </div>
+</form>
 
-                <div class="d-flex justify-content-between mt-3">
-                    <h4>{{ 'label.QTMT01.GrandTotal' | translate }}:</h4>
-                    <h4 class="text-primary">{{ quotationDataSource.form.get('grandTotal').value | number:'1.2-2' }}
-                    </h4>
-                </div>
-            </div>
-        </app-card>
-    </div>
-</div>
+<style>
+.custom-box-tabs .mat-tab-body-content {
+    background-color: transparent !important;
+}
+.custom-box-tabs .mat-tab-labels {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #005ce6;
+}
+</style>

@@ -27,27 +27,18 @@ public class QtQuotationService {
 
     @Transactional
     public QtQuotation save(QtQuotation quotation) {
-        // Link all specialized items to the master quotation
-        if (quotation.getPapers() != null) {
-            quotation.getPapers().forEach(item -> item.setQuotation(quotation));
-        }
-        if (quotation.getPrintings() != null) {
-            quotation.getPrintings().forEach(item -> item.setQuotation(quotation));
-        }
-        if (quotation.getCoatings() != null) {
-            quotation.getCoatings().forEach(item -> item.setQuotation(quotation));
-        }
-        if (quotation.getStamps() != null) {
-            quotation.getStamps().forEach(item -> item.setQuotation(quotation));
-        }
-        if (quotation.getGluing() != null) {
-            quotation.getGluing().forEach(item -> item.setQuotation(quotation));
-        }
-        if (quotation.getFolding() != null) {
-            quotation.getFolding().forEach(item -> item.setQuotation(quotation));
-        }
-        if (quotation.getDesigns() != null) {
-            quotation.getDesigns().forEach(item -> item.setQuotation(quotation));
+        if (quotation.getBoxes() != null) {
+            quotation.getBoxes().forEach(box -> {
+                box.setQuotation(quotation);
+                if (box.getParts() != null) {
+                    box.getParts().forEach(part -> {
+                        part.setBox(box);
+                        if (part.getStamps() != null) {
+                            part.getStamps().forEach(stamp -> stamp.setPart(part));
+                        }
+                    });
+                }
+            });
         }
         
         return quotationRepository.save(quotation);

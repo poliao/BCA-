@@ -67,7 +67,14 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
     const groupId = this.processDataSource.form.get('groupId')?.value;
     if (!groupId) return false;
     const group: any = this.master.processGroups.find((g: any) => g.id === groupId);
-    return group && (group.groupName === 'พิมพ์' || group.groupName === 'เพลท');
+    return group && (group.groupName === 'พิมพ์' || group.groupName === 'เพลท' || group.groupName === 'บล็อคปั้ม');
+  }
+
+  get isStampGroup(): boolean {
+    if (!this.processDataSource || !this.processDataSource.form) return false;
+    const groupId = this.processDataSource.form.get('groupId')?.value;
+    const group: any = this.master.processGroups.find((g: any) => g.id === groupId);
+    return group && group.groupName === 'บล็อคปั้ม';
   }
 
   get currentGroupName(): string {
@@ -98,12 +105,25 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
     });
   }
 
-  createConditionForm(colorCount: number | null, cutSize: string | null, locationId: number | null) {
-    return this.fb.group({
-      colorCount: [colorCount, [Validators.required]],
-      cutSize: [cutSize, [Validators.required, Validators.maxLength(50)]],
-      locationId: [locationId, [Validators.required]]
+  createConditionForm(colorCount: number | null, cutSize: string | null, locationId: number | null, stampType: string | null = null, stampSize: string | null = null) {
+    const fg = this.fb.group({
+      colorCount: [colorCount],
+      cutSize: [cutSize, [Validators.maxLength(50)]],
+      stampType: [stampType, [Validators.maxLength(50)]],
+      stampSize: [stampSize, [Validators.maxLength(50)]],
+      locationId: [locationId]
     });
+
+    // Dynamic validators based on group type
+    if (this.isStampGroup) {
+      fg.get('stampType')?.setValidators([Validators.required]);
+    } else {
+      fg.get('colorCount')?.setValidators([Validators.required]);
+      fg.get('cutSize')?.setValidators([Validators.required]);
+    }
+    fg.get('locationId')?.setValidators([Validators.required]);
+
+    return fg;
   }
 
   rebuildForm() {
@@ -117,7 +137,12 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
         // Build condition groups
         const map = new Map<string, ProcessPricingTier[]>();
         this.process.pricingTiers.forEach(tier => {
-          const key = `${tier.colorCount || 0}|${tier.cutSize || ''}|${tier.locationId || 0}`;
+          let key = '';
+          if (this.isStampGroup) {
+            key = `${tier.stampType || ''}|${tier.stampSize || ''}|${tier.locationId || 0}`;
+          } else {
+            key = `${tier.colorCount || 0}|${tier.cutSize || ''}|${tier.locationId || 0}`;
+          }
           if (!map.has(key)) map.set(key, []);
           map.get(key)!.push(tier);
         });
@@ -125,7 +150,13 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
         Array.from(map.values()).forEach(tiers => {
           const first = tiers[0];
           const condGroup: PrintConditionGroup = {
-            form: this.createConditionForm(first.colorCount || null, first.cutSize || null, first.locationId || null),
+            form: this.createConditionForm(
+              first.colorCount || null,
+              first.cutSize || null,
+              first.locationId || null,
+              first.stampType || null,
+              first.stampSize || null
+            ),
             tiers: tiers.map(t => new FormDatasource<ProcessPricingTier>(t, this.createPricingTierForm())),
             dataSource: new MatTableDataSource<FormDatasource<ProcessPricingTier>>()
           };
@@ -280,11 +311,13 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
     if (this.isGroupedLayout) {
       // Collect from condition groups
       this.printConditionGroups.forEach(cond => {
-        const { colorCount, cutSize, locationId } = cond.form.getRawValue();
+        const { colorCount, cutSize, locationId, stampType, stampSize } = cond.form.getRawValue();
         cond.tiers.forEach(ds => {
           ds.updateValue();
           ds.model.colorCount = colorCount;
           ds.model.cutSize = cutSize;
+          ds.model.stampType = stampType;
+          ds.model.stampSize = stampSize;
           ds.model.locationId = locationId;
           allFinalTiers.push(ds.model);
         });

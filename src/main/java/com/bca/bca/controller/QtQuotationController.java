@@ -4,9 +4,11 @@ import com.bca.bca.dto.PageResponse;
 import com.bca.bca.entity.QtQuotation;
 import com.bca.bca.service.QtQuotationService;
 import com.bca.bca.service.RdProxyService;
+import com.bca.bca.service.ProductionProcessService;
 import com.bca.bca.util.QueryUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,6 +20,15 @@ public class QtQuotationController {
 
     private final QtQuotationService quotationService;
     private final RdProxyService rdProxyService;
+    private final ProductionProcessService productionProcessService;
+
+    @GetMapping("/master")
+    public Map<String, Object> getMaster() {
+        return Map.of(
+            "processes", productionProcessService.findAll(Pageable.unpaged()).getContent(),
+            "groups", productionProcessService.findAllGroups()
+        );
+    }
 
     @GetMapping
     public PageResponse<QtQuotation> findAll(

@@ -56,6 +56,12 @@ public class ProcessPricingTier extends EntityBase {
     @Column(name = "location_id")
     private Long locationId;
 
+    @Column(name = "stamp_type", length = 50)
+    private String stampType;
+
+    @Column(name = "stamp_size", length = 50)
+    private String stampSize;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", insertable = false, updatable = false)
     private ProductionLocation location;

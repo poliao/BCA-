@@ -34,6 +34,8 @@ export class ProcessPricingTier extends EntityBase {
     variableUnitLabel: string;
     colorCount?: number;
     cutSize?: string;
+    stampType?: string;
+    stampSize?: string;
     totalAdditionalCost: number = 0;
     locationId?: number;
     locationName?: string;
