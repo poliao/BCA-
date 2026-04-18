@@ -31,8 +31,8 @@ public class Menu extends EntityBase {
     @Column(name = "icon", length = 100)
     private String icon;
 
-    @Column(name = "parent_id")
-    private Long parentId;
+    @Column(name = "parent_menu_code", length = 50)
+    private String parentMenuCode;
 
     @Column(name = "sequence")
     private Integer sequence;

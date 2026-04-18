@@ -15,6 +15,7 @@
 # IDEs and editors
 /.idea
 .project
+.angular
 .classpath
 .cproject
 /.vscode

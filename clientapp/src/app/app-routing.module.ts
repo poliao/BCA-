@@ -17,6 +17,8 @@ const routes: Routes = [
       { path: 'dashboard', loadChildren: () => import('./feature/dashboard/dashboard.module').then(m => m.DashboardModule) },
       { path: 'su', loadChildren: () => import('./feature/su/su.module').then(m => m.SuModule) },
       { path: 'db', loadChildren: () => import('./feature/db/db.module').then(m => m.DbModule) },
+      { path: 'qt', loadChildren: () => import('./feature/qt/qt.module').then(m => m.QtModule) },
+      { path: 'po', loadChildren: () => import('./feature/po/po.module').then(m => m.PoModule) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]),
     canActivate: [AuthGuard]

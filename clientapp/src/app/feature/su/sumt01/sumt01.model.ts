@@ -7,6 +7,6 @@ export class SuMenu extends EntityBase {
     menuNameTh!: string;
     url!: string;
     icon!: string;
-    parentId!: number;
+    parentMenuCode!: string;
     sequence!: number;
 }

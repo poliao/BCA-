@@ -53,8 +53,6 @@ public class Sumt03Controller {
         processService.deleteById(id);
     }
 
-    // --- Process Group Endpoints ---
-
     @GetMapping("/group")
     public List<ProcessGroup> getGroups() {
         return processService.findAllGroups();
@@ -69,8 +67,6 @@ public class Sumt03Controller {
     public void deleteGroup(@RequestParam Long id) {
         processService.deleteGroup(id);
     }
-
-    // --- Production Location Endpoints ---
 
     @GetMapping("/location")
     public List<ProductionLocation> getLocations() {

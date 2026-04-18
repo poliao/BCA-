@@ -65,9 +65,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                    // Auto-refresh token
-                    java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
-                    extraClaims.put("roles", roles);
+                    // Auto-refresh token — preserve ALL original claims (username, firstName, lastName, roles, etc.)
+                    io.jsonwebtoken.Claims originalClaims = jwtUtils.getAllClaimsFromToken(jwt);
+                    java.util.Map<String, Object> extraClaims = new java.util.HashMap<>(originalClaims);
+                    // Remove reserved JWT fields so they are regenerated fresh
+                    extraClaims.remove("sub");
+                    extraClaims.remove("iat");
+                    extraClaims.remove("exp");
                     String newToken = jwtUtils.generateToken(username, extraClaims);
                     response.setHeader("New-Token", newToken);
                 }

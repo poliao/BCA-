@@ -12,13 +12,21 @@ export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<LoginResponse | null>;
   public currentUser: Observable<LoginResponse | null>;
 
+  private tokenCheckInterval: any;
+
   constructor(private http: HttpService, private router: Router, private ngZone: NgZone) {
     const savedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<LoginResponse | null>(savedUser ? JSON.parse(savedUser) : null);
     this.currentUser = this.currentUserSubject.asObservable();
+    this.startTokenCheck();
+  }
 
+  private startTokenCheck(): void {
+    if (this.tokenCheckInterval) {
+      clearInterval(this.tokenCheckInterval);
+    }
     // Proactively check for token expiration every 10 seconds
-    setInterval(() => {
+    this.tokenCheckInterval = setInterval(() => {
       this.ngZone.run(() => {
         if (this.currentUserValue && !this.isAuthenticated()) {
           console.log('Token expired, logging out...');
@@ -37,6 +45,7 @@ export class AuthenticationService {
       tap(user => {
         localStorage.setItem('currentUser', JSON.stringify(user));
         this.currentUserSubject.next(user);
+        this.startTokenCheck(); // restart check interval on new login
       })
     );
   }
@@ -51,6 +60,10 @@ export class AuthenticationService {
   }
 
   logout() {
+    if (this.tokenCheckInterval) {
+      clearInterval(this.tokenCheckInterval);
+      this.tokenCheckInterval = null;
+    }
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);

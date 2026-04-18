@@ -1,0 +1,521 @@
+<!-- RD Search Implementation -->
+<toolbar>
+    <button class="btn btn-primary" (click)="save()">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> บันทึก
+    </button>
+</toolbar>
+
+<h4>{{ 'label.QTMT01.ProgramName' | translate }}</h4>
+
+<div class="row" [formGroup]="quotationDataSource.form">
+    <!-- Master Information -->
+    <div class="col-md-12">
+        <app-card header="{{ 'label.QTMT01.QuotationInformation' | translate }}">
+            <div class="card-content">
+                <mat-tab-group>
+                    <mat-tab label="{{ 'label.QTMT01.GeneralInfo' | translate }}">
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <textbox formControlName="quotationNo" [readonly]="true">
+                                    {{ 'label.QTMT01.QuotationNo' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-3">
+                                <datepicker formControlName="quotationDate">
+                                    {{ 'label.QTMT01.QuotationDate' | translate }}
+                                </datepicker>
+                            </div>
+                            <div class="col-md-3">
+                                <datepicker formControlName="expiryDate">
+                                    {{ 'label.QTMT01.ExpiryDate' | translate }}
+                                </datepicker>
+                            </div>
+                            <div class="col-md-3">
+                                <textbox formControlName="status" [readonly]="true">
+                                    {{ 'label.ALL.Status' | translate }}
+                                </textbox>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <textbox formControlName="jobName">
+                                    {{ 'label.QTMT01.JobName' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-4">
+                                <textbox formControlName="jobType">
+                                    {{ 'label.QTMT01.JobType' | translate }}
+                                </textbox>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="{{ 'label.QTMT01.CustomerInfo' | translate }}">
+                        <!-- Source Selection -->
+                        <div class="row mt-3 border-bottom pb-2">
+                            <div class="col-md-12">
+                                <label class="me-3">{{ 'label.QTMT01.CustomerSource' | translate }}:</label>
+                                <mat-radio-group [(ngModel)]="customerSource" [ngModelOptions]="{standalone: true}"
+                                    (change)="onCustomerSourceChange()">
+                                    <mat-radio-button value="INTERNAL" class="me-3">
+                                        {{ 'label.QTMT01.InternalDB' | translate }}
+                                    </mat-radio-button>
+                                    <mat-radio-button value="RD">
+                                        {{ 'label.QTMT01.RDContact' | translate }}
+                                    </mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <!-- Internal Lookup -->
+                                <lookup *ngIf="customerSource === 'INTERNAL'" formControlName="customerCode"
+                                    (selected)="onCustomerSelected($event)">
+                                    {{ 'label.QTMT01.Customer' | translate }}
+                                </lookup>
+
+                                <!-- RD Search -->
+                                <div *ngIf="customerSource === 'RD'" class="d-flex align-items-end">
+                                    <div class="flex-grow-1 me-2">
+                                        <textbox [(ngModel)]="rdKeyword" [ngModelOptions]="{standalone: true}"
+                                            placeholder="Enter Company Name or Tax ID...">
+                                            {{ 'label.QTMT01.RDSearchKeyword' | translate }}
+                                        </textbox>
+                                    </div>
+                                    <button type="button" class="btn btn-info" (click)="onSearchRD()"
+                                        [disabled]="searchingRD">
+                                        <i class="fas" [class.fa-search]="!searchingRD" [class.fa-spinner]="searchingRD"
+                                            [class.fa-spin]="searchingRD"></i>
+                                        {{ 'label.QTMT01.SearchRD' | translate }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <textbox formControlName="customerName" [readonly]="customerSource === 'INTERNAL'">
+                                    {{ 'label.QTMT01.CustomerName' | translate }}
+                                </textbox>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-md-3">
+                                <textbox formControlName="contactName">
+                                    {{ 'label.QTMT01.ContactPerson' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-3">
+                                <textbox formControlName="contactPhone">
+                                    {{ 'label.QTMT01.ContactPhone' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-2">
+                                <textbox formControlName="taxId">
+                                    {{ 'label.QTMT01.TaxId' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-2">
+                                <textbox formControlName="branchType">
+                                    {{ 'label.QTMT01.BranchType' | translate }}
+                                </textbox>
+                            </div>
+                            <div class="col-md-2">
+                                <textbox formControlName="zipCode">
+                                    {{ 'label.QTMT01.ZipCode' | translate }}
+                                </textbox>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+
+                            <div class="col-md-6">
+                                <areabox formControlName="address" [rows]="3">
+                                    {{ 'label.QTMT01.Address' | translate }}
+                                </areabox>
+                            </div>
+                        </div>
+
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+        </app-card>
+    </div>
+
+    <!-- Quotation Items Tab System -->
+    <div class="col-12 mt-3">
+        <app-card header="{{ 'label.QTMT01.QuotationItems' | translate }}">
+            <div class="card-content px-0">
+                <mat-tab-group>
+                    <!-- 1. Paper Category -->
+                    <mat-tab label="{{ 'label.QTMT01.Paper' | translate }}">
+                        <div class="p-3 border-bottom d-flex justify-content-end">
+                            <button class="btn btn-primary" (click)="addItem('PAPER')">
+                                <i class="fas fa-plus"></i> {{ 'label.ALL.Add' | translate }}
+                            </button>
+                        </div>
+                        <app-table [dataSource]="tableDataSources['PAPER']" [columns]="paperColumns"
+                            [pagination]="false">
+                            <ng-container matColumnDef="index">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="40px" class="text-center">#</th>
+                                <td mat-cell *matCellDef="let row; let i = index" class="text-center align-middle">{{ i
+                                    + 1 }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="productName">
+                                <th mat-header-cell *matHeaderCellDef style="min-width: 200px;">{{
+                                    'label.QTMT01.ProductDescription' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" [formGroup]="row.form">
+                                    <textbox formControlName="productName" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="gsm">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">GSM</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <textbox formControlName="gsm" class="text-center" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="paperSize">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">Size</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <textbox formControlName="paperSize" class="text-center" [hasLabel]="false">
+                                    </textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="paperType">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">Type</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <textbox formControlName="paperType" class="text-center" [hasLabel]="false">
+                                    </textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="quantity">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                    'label.QTMT01.Quantity' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="quantity" class="text-center" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="unit">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                    'label.QTMT01.Unit' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <textbox formControlName="unit" class="text-center" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="cost">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
+                                    'label.QTMT01.UnitCost' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="cost" currency [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="marginPercent">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                    'label.QTMT01.MarginPercent' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="marginPercent" class="text-center" [hasLabel]="false">
+                                    </number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="unitPrice">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
+                                    'label.QTMT01.Price' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="unitPrice" currency [disabled]="true" [hasLabel]="false">
+                                    </number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="amount">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">{{
+                                    'label.QTMT01.TotalAmount' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="amount" currency [disabled]="true" [hasLabel]="false">
+                                    </number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="50px"></th>
+                                <td mat-cell *matCellDef="let row" class="text-center align-middle"><button
+                                        class="btn btn-link text-danger p-0" (click)="removeItem(row, 'PAPER')"><i
+                                            class="fas fa-trash"></i></button></td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="paperColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: paperColumns"></tr>
+                        </app-table>
+                    </mat-tab>
+
+                    <!-- 2. Printing Category -->
+                    <mat-tab label="{{ 'label.QTMT01.Printing' | translate }}">
+                        <div class="p-3 border-bottom d-flex justify-content-end">
+                            <button class="btn btn-primary" (click)="addItem('PRINT')">
+                                <i class="fas fa-plus"></i> {{ 'label.ALL.Add' | translate }}
+                            </button>
+                        </div>
+                        <app-table [dataSource]="tableDataSources['PRINT']" [columns]="printColumns"
+                            [pagination]="false">
+                            <ng-container matColumnDef="index">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="40px" class="text-center">#</th>
+                                <td mat-cell *matCellDef="let row; let i = index" class="text-center align-middle">{{ i
+                                    + 1 }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="productName">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'label.QTMT01.ProductDescription' | translate
+                                    }}</th>
+                                <td mat-cell *matCellDef="let row" [formGroup]="row.form">
+                                    <textbox formControlName="productName" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="colorCount">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">Colors
+                                </th>
+                                <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                    <textbox formControlName="colorCount" class="text-center" [hasLabel]="false">
+                                    </textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="sides">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="100px" class="text-center">Sides</th>
+                                <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                    <textbox formControlName="sides" class="text-center" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="quantity">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                    'label.QTMT01.Quantity' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="quantity" class="text-center" [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="unit">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                    'label.QTMT01.Unit' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <textbox formControlName="unit" class="text-center" [hasLabel]="false"></textbox>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="cost">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
+                                    'label.QTMT01.UnitCost' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="cost" currency [hasLabel]="false"></number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="marginPercent">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                    'label.QTMT01.MarginPercent' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="marginPercent" class="text-center" [hasLabel]="false">
+                                    </number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="unitPrice">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
+                                    'label.QTMT01.Price' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="unitPrice" currency [disabled]="true" [hasLabel]="false">
+                                    </number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="amount">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">{{
+                                    'label.QTMT01.TotalAmount' | translate }}</th>
+                                <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                    <number formControlName="amount" currency [disabled]="true" [hasLabel]="false">
+                                    </number>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <th mat-header-cell *matHeaderCellDef columnWidth="50px"></th>
+                                <td mat-cell *matCellDef="let row" class="text-center align-middle"><button
+                                        class="btn btn-link text-danger p-0" (click)="removeItem(row, 'PRINT')"><i
+                                            class="fas fa-trash"></i></button></td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="printColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: printColumns"></tr>
+                        </app-table>
+                    </mat-tab>
+
+                    <!-- 3. Other Categories -->
+                    <ng-container *ngFor="let cat of ['COATING', 'STAMP', 'GLUE', 'FOLD', 'DESIGN']">
+                        <mat-tab label="{{ 'label.QTMT01.' + cat | translate }}">
+                            <div class="p-3 border-bottom d-flex justify-content-end">
+                                <button class="btn btn-primary" (click)="addItem(cat)">
+                                    <i class="fas fa-plus"></i> {{ 'label.ALL.Add' | translate }}
+                                </button>
+                            </div>
+                            <app-table [dataSource]="tableDataSources[cat]"
+                                [columns]="cat === 'COATING' ? coatingColumns : (cat === 'STAMP' ? stampColumns : (cat === 'GLUE' ? glueColumns : (cat === 'FOLD' ? foldColumns : designColumns)))"
+                                [pagination]="false">
+                                <ng-container matColumnDef="index">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="40px" class="text-center">#</th>
+                                    <td mat-cell *matCellDef="let row; let i = index" class="text-center align-middle">
+                                        {{ i + 1 }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="productName">
+                                    <th mat-header-cell *matHeaderCellDef>{{ 'label.QTMT01.ProductDescription' |
+                                        translate }}</th>
+                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form">
+                                        <textbox formControlName="productName" [hasLabel]="false"></textbox>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="coatingType" *ngIf="cat === 'COATING'">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Coating Type</th>
+                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                        <textbox formControlName="coatingType" [hasLabel]="false"></textbox>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="stampType" *ngIf="cat === 'STAMP'">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Stamp Type</th>
+                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                        <textbox formControlName="stampType" [hasLabel]="false"></textbox>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="glueType" *ngIf="cat === 'GLUE'">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Glue Type</th>
+                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                        <textbox formControlName="glueType" [hasLabel]="false"></textbox>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="foldType" *ngIf="cat === 'FOLD'">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Fold Type</th>
+                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                        <textbox formControlName="foldType" [hasLabel]="false"></textbox>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="designComplexity" *ngIf="cat === 'DESIGN'">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="150px">Complexity</th>
+                                    <td mat-cell *matCellDef="let row" [formGroup]="row.form" class="align-middle">
+                                        <textbox formControlName="designComplexity" [hasLabel]="false"></textbox>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="quantity">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                        'label.QTMT01.Quantity' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                        <number formControlName="quantity" class="text-center" [hasLabel]="false">
+                                        </number>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="unit">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                        'label.QTMT01.Unit' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                        <textbox formControlName="unit" class="text-center" [hasLabel]="false">
+                                        </textbox>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="cost">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
+                                        'label.QTMT01.UnitCost' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                        <number formControlName="cost" currency [hasLabel]="false"></number>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="marginPercent">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="80px" class="text-center">{{
+                                        'label.QTMT01.MarginPercent' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                        <number formControlName="marginPercent" class="text-center" [hasLabel]="false">
+                                        </number>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="unitPrice">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="110px" class="text-center">{{
+                                        'label.QTMT01.Price' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                        <number formControlName="unitPrice" currency [disabled]="true"
+                                            [hasLabel]="false"></number>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="amount">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="120px" class="text-center">{{
+                                        'label.QTMT01.TotalAmount' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="align-middle" [formGroup]="row.form">
+                                        <number formControlName="amount" currency [disabled]="true" [hasLabel]="false">
+                                        </number>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="action">
+                                    <th mat-header-cell *matHeaderCellDef columnWidth="50px"></th>
+                                    <td mat-cell *matCellDef="let row" class="text-center align-middle"><button
+                                            class="btn btn-link text-danger p-0" (click)="removeItem(row, cat)"><i
+                                                class="fas fa-trash"></i></button></td>
+                                </ng-container>
+
+                                <tr mat-header-row
+                                    *matHeaderRowDef="cat === 'COATING' ? coatingColumns : (cat === 'STAMP' ? stampColumns : (cat === 'GLUE' ? glueColumns : (cat === 'FOLD' ? foldColumns : designColumns)))">
+                                </tr>
+                                <tr mat-row
+                                    *matRowDef="let row; columns: cat === 'COATING' ? coatingColumns : (cat === 'STAMP' ? stampColumns : (cat === 'GLUE' ? glueColumns : (cat === 'FOLD' ? foldColumns : designColumns)))">
+                                </tr>
+                            </app-table>
+                        </mat-tab>
+                    </ng-container>
+                </mat-tab-group>
+            </div>
+        </app-card>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="col-md-7 mt-3">
+        <app-card header="{{ 'label.QTMT01.Remarks' | translate }}">
+            <div class="card-content">
+                <areabox formControlName="remark" [rows]="5" placeholder="Additional notes or terms..."></areabox>
+            </div>
+        </app-card>
+    </div>
+    <div class="col-md-5 mt-3">
+        <app-card header="{{ 'label.QTMT01.FinancialSummary' | translate }}">
+            <div class="card-content">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ 'label.QTMT01.TotalCost' | translate }}:</span>
+                    <strong>{{ quotationDataSource.form.get('totalCost').value | number:'1.2-2' }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ 'label.QTMT01.TotalRevenue' | translate }}:</span>
+                    <strong>{{ quotationDataSource.form.get('totalAmount').value | number:'1.2-2' }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span>{{ 'label.QTMT01.ProfitAmount' | translate }}:</span>
+                    <strong>{{ quotationDataSource.form.get('profitAmount').value | number:'1.2-2' }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2 text-info border-bottom pb-2">
+                    <span>{{ 'label.QTMT01.ProfitMargin' | translate }}:</span>
+                    <strong>{{ quotationDataSource.form.get('profitMarginPercent').value | number:'1.2-2' }}%</strong>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <select-input formControlName="vatRate"
+                            [items]="[{value: 0, text: 'No VAT'}, {value: 7, text: '7%'}]">
+                            {{ 'label.QTMT01.VatPercent' | translate }}
+                        </select-input>
+                    </div>
+                    <div class="col-6 text-end align-self-end">
+                        <strong>{{ quotationDataSource.form.get('vatAmount').value | number:'1.2-2' }}</strong>
+                    </div>
+                </div>
+                <div class="row mt-2 border-bottom pb-2">
+                    <div class="col-6">
+                        <select-input formControlName="whtRate"
+                            [items]="[{value: 0, text: 'None'}, {value: 1, text: '1%'}, {value: 3, text: '3%'}, {value: 5, text: '5%'}]">
+                            {{ 'label.QTMT01.WhtPercent' | translate }}
+                        </select-input>
+                    </div>
+                    <div class="col-6 text-end align-self-end">
+                        <strong class="text-danger">- {{ quotationDataSource.form.get('whtAmount').value |
+                            number:'1.2-2'
+                            }}</strong>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <h4>{{ 'label.QTMT01.GrandTotal' | translate }}:</h4>
+                    <h4 class="text-primary">{{ quotationDataSource.form.get('grandTotal').value | number:'1.2-2' }}
+                    </h4>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

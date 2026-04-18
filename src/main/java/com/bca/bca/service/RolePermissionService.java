@@ -41,7 +41,7 @@ public class RolePermissionService {
                 .menuId(m.getId())
                 .menuCode(m.getMenuCode())
                 .menuName(m.getMenuNameTh() != null ? m.getMenuNameTh() : m.getMenuNameEn())
-                .parentId(m.getParentId())
+                .parentMenuCode(m.getParentMenuCode())
                 .isVisible(p != null ? p.getIsVisible() : false)
                 .canRead(p != null ? p.getCanRead() : false)
                 .canCreate(p != null ? p.getCanCreate() : false)
@@ -58,15 +58,15 @@ public class RolePermissionService {
     }
 
     private List<RolePermissionTreeDto> buildTree(List<RolePermissionTreeDto> flatList) {
-        Map<Long, RolePermissionTreeDto> dtoMap = flatList.stream()
-            .collect(Collectors.toMap(RolePermissionTreeDto::getMenuId, d -> d));
+        Map<String, RolePermissionTreeDto> dtoMap = flatList.stream()
+            .collect(Collectors.toMap(RolePermissionTreeDto::getMenuCode, d -> d));
 
         List<RolePermissionTreeDto> rootNodes = new ArrayList<>();
         for (RolePermissionTreeDto dto : flatList) {
-            if (dto.getParentId() == null) {
+            if (dto.getParentMenuCode() == null || dto.getParentMenuCode().isEmpty()) {
                 rootNodes.add(dto);
             } else {
-                RolePermissionTreeDto parent = dtoMap.get(dto.getParentId());
+                RolePermissionTreeDto parent = dtoMap.get(dto.getParentMenuCode());
                 if (parent != null) {
                     parent.getChildren().add(dto);
                 }

@@ -10,8 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { MAT_TABS_CONFIG, MatTabsModule } from '@angular/material/tabs';
+import { MatTabsModule, MAT_TABS_CONFIG } from '@angular/material/tabs';
 import { MatTreeModule } from '@angular/material/tree';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -45,6 +46,7 @@ import { LocalizedDatePipe } from './pipe/date.pipe';
     MatIconModule,
     MatCheckboxModule,
     MatSortModule,
+    MatRadioModule,
     TooltipModule,
     LocalizedDatePipe
   ],
@@ -65,6 +67,7 @@ import { LocalizedDatePipe } from './pipe/date.pipe';
     MatIconModule,
     MatCheckboxModule,
     MatSortModule,
+    MatRadioModule,
     TooltipModule,
     LocalizedDatePipe
   ],

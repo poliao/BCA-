@@ -37,7 +37,7 @@ public class RolePermissionTreeDto {
     private Boolean canVerify = false;
     
     // For Tree Hierarchy
-    private Long parentId;
+    private String parentMenuCode;
     @Builder.Default
     private List<RolePermissionTreeDto> children = new ArrayList<>();
     

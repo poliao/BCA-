@@ -1,0 +1,86 @@
+<h4>{{ 'label.QTMT01.ProgramName' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card>
+            <div class="card-content">
+                <div class="row">
+                    <div class="col-6">
+                        <app-search [value]="keyword" (search)="onSearch($event)"
+                            placeholder="{{ 'label.QTMT01.SearchPlaceholder' | translate }}">
+                        </app-search>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button class="btn btn-primary" (click)="add()">
+                            <i class="fas fa-plus-circle"></i> {{ 'label.ALL.Add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-table server [dataSource]="dataSource" [columns]="displayedColumns">
+                            <ng-container matSort [matSortActive]="dataSource.sortInfo.property"
+                                [matSortDirection]="dataSource.sortInfo.direction">
+
+                                <ng-container matColumnDef="quotationNo">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="180px"
+                                        class="text-center">{{ 'label.QTMT01.QuotationNo' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <button class="btn btn-link p-0" (click)="edit(row)">{{ row.quotationNo
+                                            }}</button>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="quotationDate">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="150px"
+                                        class="text-center">{{ 'label.QTMT01.QuotationDate' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">{{ row.quotationDate |
+                                        date:'dd/MM/yyyy' }}</td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="customerName">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">
+                                        {{ 'label.QTMT01.CustomerName' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row">{{ row.customerName }}</td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="grandTotal">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="150px"
+                                        class="text-center">
+                                        {{ 'label.QTMT01.GrandTotal' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-end">{{ row.grandTotal |
+                                        number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="profitMarginPercent">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="120px"
+                                        class="text-center">
+                                        {{ 'label.QTMT01.ProfitMargin' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <span [class.text-success]="row.profitMarginPercent > 20"
+                                            [class.text-danger]="row.profitMarginPercent < 10">
+                                            {{ row.profitMarginPercent | number:'1.1-1' }}%
+                                        </span>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="status">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header columnWidth="120px"
+                                        class="text-center">
+                                        {{ 'label.ALL.Status' | translate }}</th>
+                                    <td mat-cell *matCellDef="let row" class="text-center">
+                                        <status [status]="row.status"></status>
+                                    </td>
+                                </ng-container>
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                            </ng-container>
+                        </app-table>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+    </div>
+</div>

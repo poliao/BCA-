@@ -41,14 +41,6 @@ const demos: Menu[] = [
   } as Menu
 ];
 
-const problemMenu: Menu = {
-  title: '',
-  icon: 'fas fa-exclamation-triangle',
-  active: false,
-  type: 'dropdown',
-  url: '/su/rppm01'
-} as Menu;
-
 @Injectable({
   providedIn: 'root'
 })
@@ -59,11 +51,11 @@ export class SidebarService {
   menuList?: Menu[];
   behaviorSubject = new BehaviorSubject<Menu[]>([]);
 
-  constructor(public breakpointObserver: BreakpointObserver, private readonly http: HttpClient,private readonly translate: TranslateService) {
+  constructor(public breakpointObserver: BreakpointObserver, private readonly http: HttpClient, private readonly translate: TranslateService) {
     this.isMediumScreenObserv = this.breakpointObserver
       .observe([`(max-width: ${ScreenSize.Large - 1}px)`])
       .pipe(map(state => state.matches))
-    
+
   }
 
   toggle(): void {
@@ -119,7 +111,7 @@ export class SidebarService {
   //       }
   //       this.menuList = result;
   //       this.behaviorSubject.next(this.menuList);
-        
+
   //       return allMenus;
   //     })
   //   );
@@ -137,17 +129,17 @@ export class SidebarService {
         }));
 
         // Build hierarchy
-        const menuMap = new Map<number | string, Menu>();
+        const menuMap = new Map<string, Menu>();
         const roots: Menu[] = [];
 
         mappedMenus.forEach(menu => {
-          menuMap.set(menu['id'] || menu.menuCode, menu);
+          menuMap.set(menu.menuCode, menu);
         });
 
         mappedMenus.forEach(menu => {
-          const parentId = menu['parentId'];
-          if (parentId && menuMap.has(parentId)) {
-            const parent = menuMap.get(parentId);
+          const parentMenuCode = menu['parentMenuCode'];
+          if (parentMenuCode && menuMap.has(parentMenuCode)) {
+            const parent = menuMap.get(parentMenuCode);
             parent.subMenus = parent.subMenus || [];
             parent.subMenus.push(menu);
           } else {
@@ -156,9 +148,7 @@ export class SidebarService {
         });
 
         let allMenus = (!isDevMode() ? [] : demos).concat(roots);
-        problemMenu.title = this.translate.instant('message.STD00052');
-        allMenus = allMenus.concat(problemMenu);
-        
+
         const clearActive = (items: Menu[]): Menu[] => {
           return items.map(menu => ({
             ...menu,
@@ -174,7 +164,7 @@ export class SidebarService {
         }
         this.menuList = result;
         this.behaviorSubject.next(this.menuList);
-        
+
         return allMenus;
       })
     );

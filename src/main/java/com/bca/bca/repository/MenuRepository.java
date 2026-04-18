@@ -20,7 +20,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
             "    WHERE r.role_code IN :roleCodes AND rp.is_visible = true " +
             "    UNION " +
             "    SELECT m.* FROM su_menus m " +
-            "    INNER JOIN authorized_menus am ON am.parent_id = m.menu_id" +
+            "    INNER JOIN authorized_menus am ON am.parent_menu_code = m.menu_code" +
             ") " +
             "SELECT DISTINCT * FROM authorized_menus ORDER BY sequence ASC", nativeQuery = true)
     List<Menu> findAuthorizedMenus(@Param("roleCodes") Collection<String> roleCodes);

@@ -47,7 +47,7 @@ export class Sumt01DetailComponent extends SubscriptionDisposer implements OnIni
       menuNameTh: [null, [Validators.required, Validators.maxLength(100)]],
       url: [null, [Validators.maxLength(255)]],
       icon: [null, [Validators.maxLength(100)]],
-      parentId: [null],
+      parentMenuCode: [null],
       sequence: [null]
     });
     return fg;

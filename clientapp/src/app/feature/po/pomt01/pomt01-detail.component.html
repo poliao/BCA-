@@ -1,0 +1,46 @@
+<toolbar>
+    <button class="btn btn-primary" (click)="save()">
+        <i class="fas fa-cog fa-spin" [hidden]="!saving"></i>
+        <i class="fas fa-save" [hidden]="saving"></i> {{ 'label.ALL.Save' | translate }}
+    </button>
+</toolbar>
+
+<h4>{{ 'label.POMT01.ProgramNameDetail' | translate }}</h4>
+<div class="row">
+    <div class="col">
+        <app-card header="{{ 'label.POMT01.CategoryDetail' | translate }}">
+            <div class="card-content">
+                <form [formGroup]="categoryDataSource.form">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="categoryCode">{{ 'label.POMT01.CategoryCode' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="categoryNameTh">{{ 'label.POMT01.NameTh' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <textbox formControlName="categoryNameEn">{{ 'label.POMT01.NameEn' | translate }}
+                            </textbox>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <select-input [items]="master" bindLabel="categoryNameTh" bindValue="categoryCode"
+                                formControlName="parentCategoryCode">
+                                {{ 'label.POMT01.ParentCategory' | translate }}
+                            </select-input>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <number formControlName="sequence">{{ 'label.POMT01.Sequence' | translate }}
+                            </number>
+                        </div>
+                        <div class="col-md-12">
+                            <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}
+                            </checkbox>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </app-card>
+    </div>
+</div>

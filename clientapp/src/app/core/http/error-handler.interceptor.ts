@@ -61,7 +61,7 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
       case 403: this.message.warning(`You don't have access to the url : ${errorResponse.url}`);
         break;
       case 401:
-        this.message.warning(`You don't have access to the content`);
+        this.message.warning(`Session expired. Please log in again.`);
         this.injector.get(AuthenticationService).logout();
         break;
       case 500: this.message.error(errorResponse.error.code);
