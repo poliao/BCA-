@@ -10,5 +10,7 @@ export class Pomt02 extends EntityBase {
     unit!: string;
     leadTimeDays!: number;
     purchasePrice!: number;
+    width?: number;
+    length?: number;
     active!: boolean;
 }
