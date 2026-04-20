@@ -22,7 +22,8 @@
                             </select-input>
                         </div>
                         <div class="col-md-4 col-sm-12">
-                            <number formControlName="leadTimeDays">{{ 'label.POMT02.LeadTimeDays' | translate }}</number>
+                            <number formControlName="leadTimeDays">{{ 'label.POMT02.LeadTimeDays' | translate }}
+                            </number>
                         </div>
                         <div class="col-md-4 col-sm-12">
                             <textbox formControlName="itemNameTh">{{ 'label.POMT02.ItemNameTh' | translate }}</textbox>
@@ -42,6 +43,16 @@
                         </div>
                         <div class="col-md-2 col-sm-6">
                             <textbox formControlName="unit">{{ 'label.POMT02.Unit' | translate }}</textbox>
+                        </div>
+                        <div class="col-md-2 col-sm-6" *ngIf="isPaper">
+                            <number formControlName="width" currency [scale]="2">
+                                {{ 'label.POMT02.Width' | translate }}
+                            </number>
+                        </div>
+                        <div class="col-md-2 col-sm-6" *ngIf="isPaper">
+                            <number formControlName="length" currency [scale]="2">
+                                {{ 'label.POMT02.Length' | translate }}
+                            </number>
                         </div>
                         <div class="col-md-2 col-sm-6 text-end d-flex align-items-center ">
                             <checkbox formControlName="active">{{ 'label.ALL.Active' | translate }}</checkbox>

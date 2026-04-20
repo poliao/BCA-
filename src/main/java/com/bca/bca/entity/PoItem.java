@@ -42,6 +42,12 @@ public class PoItem extends EntityBase {
     @Column(name = "purchase_price", precision = 18, scale = 4)
     private BigDecimal purchasePrice;
 
+    @Column(name = "width", precision = 18, scale = 4)
+    private BigDecimal width;
+
+    @Column(name = "length", precision = 18, scale = 4)
+    private BigDecimal length;
+
     @Column(name = "active")
     private Boolean active = true;
 }

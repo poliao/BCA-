@@ -14,7 +14,9 @@ export class Pomt02DetailComponent implements OnInit {
   item: Pomt02 = {} as Pomt02;
   itemDataSource!: FormDatasource<Pomt02>;
   actions: any;
+  allCategories: any[] = [];
   categories: any[] = [];
+  isPaper = false;
   saving = false;
 
   constructor(
@@ -31,7 +33,8 @@ export class Pomt02DetailComponent implements OnInit {
       this.item = data.pomt02.detail;
       this.actions = data.pomt02.actions;
       
-      const allCategories: any[] = data.pomt02.master || [];
+      this.allCategories = data.pomt02.master || [];
+      const allCategories = this.allCategories;
       this.categories = [];
       
       // Build a flattened hierarchical list supporting unlimited depth
@@ -63,6 +66,8 @@ export class Pomt02DetailComponent implements OnInit {
       unit: [null, [Validators.required, Validators.maxLength(50)]],
       leadTimeDays: [null],
       purchasePrice: [null, [Validators.required]],
+      width: [null],
+      length: [null],
       active: [true]
     });
 
@@ -75,6 +80,16 @@ export class Pomt02DetailComponent implements OnInit {
 
   rebuildForm() {
     this.itemDataSource = new FormDatasource<Pomt02>(this.item, this.createForm());
+    
+    const categoryCtrl = this.itemDataSource.form.get('categoryCode');
+    if (categoryCtrl) {
+        this.isPaper = this.checkIsPaper(categoryCtrl.value);
+        categoryCtrl.valueChanges.subscribe(val => {
+            setTimeout(() => {
+                this.isPaper = this.checkIsPaper(val);
+            }, 0);
+        });
+    }
   }
 
   save() {
@@ -95,5 +110,22 @@ export class Pomt02DetailComponent implements OnInit {
         this.saving = false;
       }
     });
+  }
+
+  private checkIsPaper(categoryCode: string): boolean {
+    if (!categoryCode) return false;
+    const category = this.allCategories.find(c => c.categoryCode === categoryCode);
+    if (!category) return false;
+
+    const name = (category.categoryNameTh || '') + (category.categoryNameEn || '');
+    if (name.includes('กระดาษ') || name.toLowerCase().includes('paper')) {
+      return true;
+    }
+
+    if (category.parentCategoryCode) {
+      return this.checkIsPaper(category.parentCategoryCode);
+    }
+
+    return false;
   }
 }
