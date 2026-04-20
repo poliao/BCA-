@@ -5,6 +5,7 @@ import com.bca.bca.entity.QtQuotation;
 import com.bca.bca.service.QtQuotationService;
 import com.bca.bca.service.RdProxyService;
 import com.bca.bca.service.ProductionProcessService;
+import com.bca.bca.service.PoItemService;
 import com.bca.bca.util.QueryUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,12 +22,14 @@ public class QtQuotationController {
     private final QtQuotationService quotationService;
     private final RdProxyService rdProxyService;
     private final ProductionProcessService productionProcessService;
+    private final PoItemService poItemService;
 
     @GetMapping("/master")
     public Map<String, Object> getMaster() {
         return Map.of(
             "processes", productionProcessService.findAll(Pageable.unpaged()).getContent(),
-            "groups", productionProcessService.findAllGroups()
+            "groups", productionProcessService.findAllGroups(),
+            "papers", poItemService.findAll()
         );
     }
 

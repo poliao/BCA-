@@ -33,14 +33,31 @@ public class QtQuotationService {
                 if (box.getParts() != null) {
                     box.getParts().forEach(part -> {
                         part.setBox(box);
-                        if (part.getStamps() != null) {
-                            part.getStamps().forEach(stamp -> stamp.setPart(part));
+
+                        // Wire coating entries and their items
+                        if (part.getCoatings() != null) {
+                            part.getCoatings().forEach(entry -> {
+                                entry.setPart(part);
+                                if (entry.getItems() != null) {
+                                    entry.getItems().forEach(item -> item.setBatch(entry));
+                                }
+                            });
+                        }
+
+                        // Wire stamp entries and their items
+                        if (part.getStampEntries() != null) {
+                            part.getStampEntries().forEach(entry -> {
+                                entry.setPart(part);
+                                if (entry.getItems() != null) {
+                                    entry.getItems().forEach(item -> item.setEntry(entry));
+                                }
+                            });
                         }
                     });
                 }
             });
         }
-        
+
         return quotationRepository.save(quotation);
     }
 

@@ -13,4 +13,18 @@ export class Pomt02 extends EntityBase {
     width?: number;
     length?: number;
     active!: boolean;
+    sizes: Pomt02Size[] = [];
+}
+
+export class Pomt02Size extends EntityBase {
+    id?: number;
+    width!: number;
+    length!: number;
+    grams: Pomt02Gram[] = [];
+}
+
+export class Pomt02Gram extends EntityBase {
+    id?: number;
+    gram!: number;
+    purchasePrice!: number;
 }

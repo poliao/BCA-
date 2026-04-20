@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "po_items")
@@ -50,4 +52,22 @@ public class PoItem extends EntityBase {
 
     @Column(name = "active")
     private Boolean active = true;
+
+    @OneToMany(mappedBy = "poItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PoItemSize> sizes = new ArrayList<>();
+
+    // Helper method to ensure bidirectional mapping is set correctly
+    public void setSizes(List<PoItemSize> sizes) {
+        if (this.sizes != null) {
+            this.sizes.clear();
+        } else {
+            this.sizes = new ArrayList<>();
+        }
+        if (sizes != null) {
+            for (PoItemSize size : sizes) {
+                size.setPoItem(this);
+                this.sizes.add(size);
+            }
+        }
+    }
 }

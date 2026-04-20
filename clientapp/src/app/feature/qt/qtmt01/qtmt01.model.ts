@@ -29,9 +29,19 @@ export class Qtmt01Part {
   partId!: number;
   partName!: string; // e.g. "ตัวกล่อง", "ฝาครอบ", "ไส้ใน"
   
-  // Material
+  // Material & Layout Details
   paperId!: number;
-  paperSize!: string;
+  paperSizeId!: number;
+  paperGramId!: number;
+  
+  isCutBasePaper: boolean = false;
+  paperCutPieces!: number;
+  paperCutWidth!: number;
+  paperCutLength!: number;
+  
+  layQty!: number;
+  layHorizontal!: number;
+  layVertical!: number;
 
   // Printing
   printProcessId!: number;
@@ -48,6 +58,28 @@ export class Qtmt01Part {
   // Finishing
   coatingType!: string;
 
-  // Stamps array specifically for this part
-  stamps: any[] = [];
+  // Coating batches: each batch = 1 optional cut step → 1+ coating processes
+  coatings: {
+    id?: number;
+    isCutBeforeCoating?: boolean;
+    coatingCutPieces?: number;
+    coatingCutWidth?: number;
+    coatingCutLength?: number;
+    items?: { id?: number; coatingProcessId?: number; coatingNote?: string }[];
+  }[] = [];
+
+  // Stamp entries (บล็อคปั้ม): each entry = 1 batch of stamp operations
+  stampEntries: {
+    id?: number;
+    stampProcessId?: number;      // Process id from SUMT03 group "บล็อคปั้ม"
+    stampSizeSelected?: string;   // stampSize from pricingTier of selected process
+    batchNote?: string;
+    items?: {
+      id?: number;
+      stampItemProcessId?: number; // Process id from SUMT03 group "ปั้ม"
+      width?: number;
+      length?: number;
+      stampNote?: string;
+    }[];
+  }[] = [];
 }

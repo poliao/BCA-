@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from '@app/core/services/message.service';
 import { FormDatasource } from '@app/shared/service/base.service';
@@ -68,7 +68,8 @@ export class Pomt02DetailComponent implements OnInit {
       purchasePrice: [null, [Validators.required]],
       width: [null],
       length: [null],
-      active: [true]
+      active: [true],
+      sizes: this.fb.array([])
     });
 
     if (this.item.id) {
@@ -80,6 +81,32 @@ export class Pomt02DetailComponent implements OnInit {
 
   rebuildForm() {
     this.itemDataSource = new FormDatasource<Pomt02>(this.item, this.createForm());
+    const sizesFormArray = this.itemDataSource.form.get('sizes') as FormArray;
+    sizesFormArray.clear();
+    
+    if (this.item.sizes && this.item.sizes.length > 0) {
+        this.item.sizes.forEach(size => {
+            const sizeFg = this.fb.group({
+                id: [size.id],
+                rowVersion: [size.rowVersion],
+                width: [size.width, Validators.required],
+                length: [size.length, Validators.required],
+                grams: this.fb.array([])
+            });
+            const gramsFormArray = sizeFg.get('grams') as FormArray;
+            if (size.grams && size.grams.length > 0) {
+                size.grams.forEach(g => {
+                    gramsFormArray.push(this.fb.group({
+                        id: [g.id],
+                        rowVersion: [g.rowVersion],
+                        gram: [g.gram, Validators.required],
+                        purchasePrice: [g.purchasePrice, Validators.required]
+                    }));
+                });
+            }
+            sizesFormArray.push(sizeFg);
+        });
+    }
     
     const categoryCtrl = this.itemDataSource.form.get('categoryCode');
     if (categoryCtrl) {
@@ -90,6 +117,43 @@ export class Pomt02DetailComponent implements OnInit {
             }, 0);
         });
     }
+  }
+
+  get sizes(): FormArray {
+    return this.itemDataSource.form.get('sizes') as FormArray;
+  }
+
+  grams(sizeIndex: number): FormArray {
+    return this.sizes.at(sizeIndex).get('grams') as FormArray;
+  }
+
+  addSize() {
+    this.sizes.push(this.fb.group({
+      id: [null],
+      rowVersion: [null],
+      width: [null, Validators.required],
+      length: [null, Validators.required],
+      grams: this.fb.array([])
+    }));
+  }
+
+  removeSize(index: number) {
+    this.sizes.removeAt(index);
+    this.sizes.markAsDirty();
+  }
+
+  addGram(sizeIndex: number) {
+    this.grams(sizeIndex).push(this.fb.group({
+      id: [null],
+      rowVersion: [null],
+      gram: [null, Validators.required],
+      purchasePrice: [null, Validators.required]
+    }));
+  }
+
+  removeGram(sizeIndex: number, gramIndex: number) {
+    this.grams(sizeIndex).removeAt(gramIndex);
+    this.sizes.markAsDirty();
   }
 
   save() {

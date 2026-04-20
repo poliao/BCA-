@@ -17,21 +17,17 @@ import { Qtmt01RdLookupComponent } from './qtmt01-rd-lookup.component';
 export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnInit {
   quotation: Qtmt01 = new Qtmt01();
   quotationDataSource!: FormDatasource<Qtmt01>;
-
   saving = false;
   actions: any;
+  private readonly EMPTY_ARRAY: any[] = [];
 
   // Master Data
   masterProcesses: any[] = [];
   paperOptions: any[] = [];
   printProcesses: any[] = [];
-
-  paperSizeOptions = [
-    { value: 'A4', text: 'A4 (210 x 297 mm)' },
-    { value: 'A3', text: 'A3 (297 x 420 mm)' },
-    { value: 'A5', text: 'A5 (148 x 210 mm)' },
-    { value: 'Custom', text: 'กำหนดขนาดเอง' }
-  ];
+  coatingProcesses: any[] = [];
+  stampProcesses: any[] = [];      // บล็อคปั้ม (block-level)
+  stampItemProcesses: any[] = []; // ประเภทการปั้ม (item-level)
 
   printStyles = [
     { value: 'หน้าเดียว', text: 'พิมพ์หน้าเดียว' },
@@ -47,12 +43,12 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
   ];
 
   stampOptions = [
-    { value: 'เคเงิน', text: 'ปั๊มเคเงิน (Silver Foil)' },
-    { value: 'เคทอง', text: 'ปั๊มเคทอง (Gold Foil)' },
-    { value: 'ปั๊มนูน', text: 'ปั๊มนูน (Embossing)' },
-    { value: 'ปั๊มจม', text: 'ปั๊มจม (Debossing)' },
-    { value: 'ปั๊มไดคัท', text: 'ปั๊มไดคัท (Die-cutting)' },
-    { value: 'ปั๊มไมโครดอท', text: 'ปั๊มไมโครดอท (Microdot)' }
+    { value: 'ปั้มไดคัท',    text: 'ปั้มไดคัท (Die-cutting)' },
+    { value: 'ปั้มนูน',      text: 'ปั้มนูน (Embossing)' },
+    { value: 'ปั้มจม',       text: 'ปั้มจม (Debossing)' },
+    { value: 'ปั้มเคเงิน',  text: 'ปั้มเคเงิน (Silver Foil)' },
+    { value: 'ปั้มเคทอง',   text: 'ปั้มเคทอง (Gold Foil)' },
+    { value: 'ปั้มไมโครดอท', text: 'ปั้มไมโครดอท (Microdot)' }
   ];
 
   fluteOptions = [
@@ -87,8 +83,12 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     return this.boxesArray.at(boxIndex).get('quantities') as FormArray;
   }
 
-  getStampsArray(boxIndex: number, partIndex: number): FormArray {
-    return this.getPartsArray(boxIndex).at(partIndex).get('stamps') as FormArray;
+  getStampEntriesArray(boxIndex: number, partIndex: number): FormArray {
+    return this.getPartsArray(boxIndex).at(partIndex).get('stampEntries') as FormArray;
+  }
+
+  getStampItemsArray(boxIndex: number, partIndex: number, entryIndex: number): FormArray {
+    return this.getStampEntriesArray(boxIndex, partIndex).at(entryIndex).get('items') as FormArray;
   }
 
   generateQuotationNo() {
@@ -107,14 +107,28 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       
       const rawProcesses = data.qtmt01.master?.processes || [];
       const groups = data.qtmt01.master?.groups || [];
+      const rawPapers = data.qtmt01.master?.papers || [];
+
       // Combine groupName into process
       this.masterProcesses = rawProcesses.map((p:any) => {
           const g = groups.find((grp:any) => grp.id === p.groupId);
           return { ...p, _groupName: g ? g.groupName : '' };
       });
 
-      this.paperOptions = this.masterProcesses.filter((p:any) => p._groupName.includes('กระดาษ') || p._groupName.includes('Paper'));
+      this.paperOptions = rawPapers.map((p:any) => ({
+          ...p,
+          _displayName: '[' + p.itemCode + '] ' + p.itemNameTh
+      }));
       this.printProcesses = this.masterProcesses.filter((p:any) => p._groupName.includes('พิมพ์'));
+      this.coatingProcesses = this.masterProcesses.filter((p:any) =>
+        p._groupName.includes('เคลือบ') || p._groupName.toLowerCase().includes('coat')
+      );
+      this.stampProcesses = this.masterProcesses.filter((p:any) =>
+        p._groupName === 'บล็อคปั้ม'
+      );
+      this.stampItemProcesses = this.masterProcesses.filter((p:any) =>
+        p._groupName.includes('ปั้ม') && p._groupName !== 'บล็อคปั้ม'
+      );
 
       // Default structure if empty
       if (!this.quotation.boxes || this.quotation.boxes.length === 0) {
@@ -169,7 +183,19 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     let fg = this.fb.group({
       partName: [part.partName || 'ส่วนประกอบใหม่', [Validators.required]],
       paperId: [part.paperId || null, [Validators.required]],
-      paperSize: [part.paperSize || null, [Validators.required]],
+      paperSizeId: [part.paperSizeId || null, [Validators.required]],
+      paperGramId: [part.paperGramId || null, [Validators.required]],
+      
+      // Layout Configs
+      isCutBasePaper: [part.isCutBasePaper || false],
+      paperCutPieces: [part.paperCutPieces || null],
+      paperCutWidth: [part.paperCutWidth || null],
+      paperCutLength: [part.paperCutLength || null],
+      
+      layQty: [part.layQty || null, [Validators.required, Validators.min(1)]],
+      layHorizontal: [part.layHorizontal || null],
+      layVertical: [part.layVertical || null],
+      
       printProcessId: [part.printProcessId || null, [Validators.required]],
       printStyle: [part.printStyle || 'หน้าเดียว', [Validators.required]],
       printColorFront: [part.printColorFront || null],
@@ -179,10 +205,59 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       coatingType: [part.coatingType || null],
       isCorrugated: [part.isCorrugated || false],
       fluteType: [part.fluteType || null],
-      stamps: this.fb.array(
-        (part.stamps || []).map(s => this.createStampGroup(s))
+      coatings: this.fb.array(
+        (part.coatings || []).map((c:any) => this.createCoatingGroup(c))
+      ),
+      stampEntries: this.fb.array(
+        (part.stampEntries || []).map((e:any) => this.createStampEntryGroup(e))
       )
     });
+
+    fg.get('paperId')?.valueChanges.subscribe(val => {
+       fg.get('paperSizeId')?.patchValue(null, { emitEvent: false });
+       fg.get('paperGramId')?.patchValue(null, { emitEvent: false });
+    });
+
+    fg.get('paperSizeId')?.valueChanges.subscribe(val => {
+       fg.get('paperGramId')?.patchValue(null, { emitEvent: false });
+    });
+
+    // Layout configuration rules
+    fg.get('isCutBasePaper')?.valueChanges.subscribe(isCut => {
+        const pCutPieces = fg.get('paperCutPieces');
+        const pCutW = fg.get('paperCutWidth');
+        const pCutL = fg.get('paperCutLength');
+        
+        if (isCut) {
+            pCutPieces?.setValidators([Validators.required, Validators.min(2)]);
+            pCutW?.setValidators([Validators.required, Validators.min(0.1)]);
+            pCutL?.setValidators([Validators.required, Validators.min(0.1)]);
+        } else {
+            pCutPieces?.clearValidators();
+            pCutW?.clearValidators();
+            pCutL?.clearValidators();
+            
+            pCutPieces?.patchValue(null);
+            pCutW?.patchValue(null);
+            pCutL?.patchValue(null);
+        }
+        
+        pCutPieces?.updateValueAndValidity();
+        pCutW?.updateValueAndValidity();
+        pCutL?.updateValueAndValidity();
+    });
+
+    // Auto calculate layQty based on Horizontal x Vertical
+    const calcLayQty = () => {
+        const h = fg.get('layHorizontal')?.value || 0;
+        const v = fg.get('layVertical')?.value || 0;
+        if (h > 0 && v > 0) {
+            fg.get('layQty')?.patchValue(h * v);
+        }
+    };
+
+    fg.get('layHorizontal')?.valueChanges.subscribe(calcLayQty);
+    fg.get('layVertical')?.valueChanges.subscribe(calcLayQty);
 
     // Validations logic per part for printing
     fg.get('printStyle')?.valueChanges.subscribe(style => {
@@ -214,11 +289,44 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     return fg;
   }
 
-  createStampGroup(stamp?: any): FormGroup {
+  // Stable per-entry stamp size options map (keyed by FormGroup reference)
+  stampSizeOptionsMap = new Map<FormGroup, any[]>();
+
+  createStampEntryGroup(entry?: any): FormGroup {
+    const fg = this.fb.group({
+      id: [entry?.id || null],
+      stampProcessId: [entry?.stampProcessId || null, Validators.required],
+      stampSizeSelected: [entry?.stampSizeSelected || null, Validators.required],
+      batchNote: [entry?.batchNote || null],
+      items: this.fb.array(
+        (entry?.items || []).map((item: any) => this.createStampItemGroup(item))
+      )
+    });
+
+    // Initialise size options for existing process
+    const initId = entry?.stampProcessId;
+    if (initId) {
+      this.stampSizeOptionsMap.set(fg, this.buildStampSizeOptions(initId));
+    } else {
+      this.stampSizeOptionsMap.set(fg, this.EMPTY_ARRAY);
+    }
+
+    // Cascade: when process changes → reset size & refresh options
+    fg.get('stampProcessId')?.valueChanges.subscribe((processId: number) => {
+      fg.get('stampSizeSelected')?.patchValue(null, { emitEvent: false });
+      this.stampSizeOptionsMap.set(fg, processId ? this.buildStampSizeOptions(processId) : this.EMPTY_ARRAY);
+    });
+
+    return fg;
+  }
+
+  createStampItemGroup(item?: any): FormGroup {
     return this.fb.group({
-      stampType: [stamp?.stampType || null, Validators.required],
-      width: [stamp?.width || null, [Validators.required, Validators.min(0.1)]],
-      length: [stamp?.length || null, [Validators.required, Validators.min(0.1)]]
+      id: [item?.id || null],
+      stampItemProcessId: [item?.stampItemProcessId || null, Validators.required],
+      width: [item?.width || null, [Validators.required, Validators.min(0.1)]],
+      length: [item?.length || null, [Validators.required, Validators.min(0.1)]],
+      stampNote: [item?.stampNote || null]
     });
   }
 
@@ -263,17 +371,117 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     }
   }
 
-  addStamp(boxIndex: number, partIndex: number) {
-    this.getStampsArray(boxIndex, partIndex).push(this.createStampGroup());
+  addStampEntry(boxIndex: number, partIndex: number) {
+    this.getStampEntriesArray(boxIndex, partIndex).push(this.createStampEntryGroup());
   }
 
-  removeStamp(boxIndex: number, partIndex: number, stampIndex: number) {
-    this.getStampsArray(boxIndex, partIndex).removeAt(stampIndex);
+  removeStampEntry(boxIndex: number, partIndex: number, entryIndex: number) {
+    this.getStampEntriesArray(boxIndex, partIndex).removeAt(entryIndex);
+  }
+
+  addStampItem(boxIndex: number, partIndex: number, entryIndex: number) {
+    this.getStampItemsArray(boxIndex, partIndex, entryIndex).push(this.createStampItemGroup());
+  }
+
+  removeStampItem(boxIndex: number, partIndex: number, entryIndex: number, itemIndex: number) {
+    this.getStampItemsArray(boxIndex, partIndex, entryIndex).removeAt(itemIndex);
   }
 
   // Dynamic Options Caches
   colorOptionsCache: { [processId: number]: any[] } = {};
   cutSizeOptionsCache: { [key: string]: any[] } = {};
+  paperSizeOptionsCache: { [key: string]: any[] } = {};
+  paperGramOptionsCache: { [key: string]: any[] } = {};
+
+  getPaperSizeOptions(boxIndex: number, partIndex: number): any[] {
+     const fg = this.getPartsArray(boxIndex).at(partIndex);
+     const part = fg.value;
+     if (!part.paperId) return this.EMPTY_ARRAY;
+
+     const cacheKey = part.paperId.toString();
+     if (this.paperSizeOptionsCache[cacheKey]) {
+         return this.paperSizeOptionsCache[cacheKey];
+     }
+
+     const paper = this.paperOptions.find((p:any) => p.id === part.paperId);
+     if (!paper || !paper.sizes) return this.EMPTY_ARRAY;
+     const options = paper.sizes.map((s:any) => ({
+         id: s.id,
+         _displayName: `${s.width} x ${s.length} ${paper.unit || 'นิ้ว'}`
+     }));
+
+     this.paperSizeOptionsCache[cacheKey] = options;
+     return options;
+  }
+
+  getPaperGramOptions(boxIndex: number, partIndex: number): any[] {
+     const fg = this.getPartsArray(boxIndex).at(partIndex);
+     const part = fg.value;
+     if (!part.paperId || !part.paperSizeId) return this.EMPTY_ARRAY;
+
+     const cacheKey = `${part.paperId}_${part.paperSizeId}`;
+     if (this.paperGramOptionsCache[cacheKey]) {
+         return this.paperGramOptionsCache[cacheKey];
+     }
+
+     const paper = this.paperOptions.find((p:any) => p.id === part.paperId);
+     if (!paper || !paper.sizes) return this.EMPTY_ARRAY;
+     const size = paper.sizes.find((s:any) => s.id === part.paperSizeId);
+     if (!size || !size.grams) return this.EMPTY_ARRAY;
+     
+     const options = size.grams.map((g:any) => ({
+         id: g.id,
+         _displayName: `${g.gram} แกรม (฿${g.purchasePrice})`
+     }));
+
+     this.paperGramOptionsCache[cacheKey] = options;
+     return options;
+  }
+
+  getCoatingsArray(boxIndex: number, partIndex: number): FormArray {
+    return this.getPartsArray(boxIndex).at(partIndex).get('coatings') as FormArray;
+  }
+
+  createCoatingGroup(c: any = {}): FormGroup {
+    return this.fb.group({
+      id: [c.id || null],
+      isCutBeforeCoating: [c.isCutBeforeCoating || false],
+      coatingCutPieces: [c.coatingCutPieces || null],
+      coatingCutWidth: [c.coatingCutWidth || null],
+      coatingCutLength: [c.coatingCutLength || null],
+      items: this.fb.array(
+        (c.items || []).map((item: any) => this.createCoatingItemGroup(item))
+      )
+    });
+  }
+
+  createCoatingItemGroup(item: any = {}): FormGroup {
+    return this.fb.group({
+      id: [item.id || null],
+      coatingProcessId: [item.coatingProcessId || null, [Validators.required]],
+      coatingNote: [item.coatingNote || null]
+    });
+  }
+
+  getCoatingItemsArray(boxIndex: number, partIndex: number, coatingIndex: number): FormArray {
+    return this.getCoatingsArray(boxIndex, partIndex).at(coatingIndex).get('items') as FormArray;
+  }
+
+  addCoatingItem(boxIndex: number, partIndex: number, coatingIndex: number) {
+    this.getCoatingItemsArray(boxIndex, partIndex, coatingIndex).push(this.createCoatingItemGroup());
+  }
+
+  removeCoatingItem(boxIndex: number, partIndex: number, coatingIndex: number, itemIndex: number) {
+    this.getCoatingItemsArray(boxIndex, partIndex, coatingIndex).removeAt(itemIndex);
+  }
+
+  addCoating(boxIndex: number, partIndex: number) {
+    this.getCoatingsArray(boxIndex, partIndex).push(this.createCoatingGroup());
+  }
+
+  removeCoating(boxIndex: number, partIndex: number, coatingIndex: number) {
+    this.getCoatingsArray(boxIndex, partIndex).removeAt(coatingIndex);
+  }
 
   // Dynamic Options Getters
   getColorOptions(boxIndex: number, partIndex: number): any[] {
@@ -319,6 +527,32 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
 
      this.cutSizeOptionsCache[cacheKey] = options;
      return options;
+  }
+
+  // Stamp Size Options
+  stampSizeOptionsCache: { [processId: number]: any[] } = {};
+
+  buildStampSizeOptions(processId: number): any[] {
+    if (!processId) return this.EMPTY_ARRAY;
+    if (this.stampSizeOptionsCache[processId]) {
+      return this.stampSizeOptionsCache[processId];
+    }
+    const process = this.stampProcesses.find((p: any) => p.id === processId);
+    if (!process || !process.pricingTiers) return this.EMPTY_ARRAY;
+    const sizes = Array.from(
+      new Set(
+        process.pricingTiers
+          .map((t: any) => t.stampSize)
+          .filter((s: any) => s != null && s !== '')
+      )
+    ).sort() as string[];
+    const options = sizes.map(s => ({ value: s, text: s }));
+    this.stampSizeOptionsCache[processId] = options;
+    return options;
+  }
+
+  getStampSizeOptions(entryFg: FormGroup): any[] {
+    return this.stampSizeOptionsMap.get(entryFg) ?? this.EMPTY_ARRAY;
   }
 
   // Core Actions

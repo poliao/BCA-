@@ -10,43 +10,66 @@
 </div>
 
 <form [formGroup]="quotationDataSource.form">
-    <!-- GENERAL INFO (Quotation Level) -->
+    <!-- Header Tabs: ข้อมูลลูกค้า / ข้อมูลทั่วไป -->
     <app-card>
-        <div class="card-content">
-            <div class="row g-3 mb-4">
-                <div class="col-md-3 col-sm-6">
-                    <textbox formControlName="quotationNo" [disabled]="true">เลขที่ใบเสนอราคา (Quotation No.)</textbox>
-                </div>
-                <div class="col-md-9 col-sm-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" [(ngModel)]="rdKeyword"
-                            [ngModelOptions]="{standalone: true}"
-                            placeholder="พิมพ์เลขผู้เสียภาษี 13 หลัก หรือ ชื่อบริษัท เพื่อค้นหาข้อมูลจาก RD...">
-                        <button class="btn btn-outline-secondary" type="button" (click)="onSearchRD()"
-                            [disabled]="searchingRD">
-                            <i class="fas fa-search" [hidden]="searchingRD"></i>
-                            <i class="fas fa-spinner fa-spin" [hidden]="!searchingRD"></i> ค้นหา
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12">
-                    <textbox formControlName="customerName">ชื่อลูกค้า / บริษัท</textbox>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <textbox formControlName="taxId">เลขประจำตัวผู้เสียภาษี</textbox>
-                </div>
-                <div class="col-md-5 col-sm-12">
-                    <textbox formControlName="jobName">ชื่องานหลักโปรเจกต์ (Main Job Name)</textbox>
-                </div>
-            </div>
+        <div class="card-content p-0">
+            <mat-tab-group animationDuration="150ms">
 
-            <div class="row">
-                <div class="col-12">
-                    <textbox formControlName="address">ที่อยู่ลูกค้า</textbox>
-                </div>
-            </div>
+                <!-- TAB: ข้อมูลลูกค้า -->
+                <mat-tab label="ข้อมูลลูกค้า">
+                    <div class="pt-3 px-2 pb-2">
+                        <!-- RD Search -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-12">
+                                <label class="form-label small text-muted mb-1">
+                                    <i class="fas fa-search me-1"></i>ค้นหาข้อมูลลูกค้าจาก RD (เลขผู้เสียภาษี / ชื่อบริษัท)
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" [(ngModel)]="rdKeyword"
+                                        [ngModelOptions]="{standalone: true}"
+                                        placeholder="พิมพ์เลขผู้เสียภาษี 13 หลัก หรือ ชื่อบริษัท เพื่อค้นหาข้อมูลจาก RD...">
+                                    <button class="btn btn-outline-secondary" type="button" (click)="onSearchRD()"
+                                        [disabled]="searchingRD">
+                                        <i class="fas fa-search" [hidden]="searchingRD"></i>
+                                        <i class="fas fa-spinner fa-spin" [hidden]="!searchingRD"></i> ค้นหา
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Fields -->
+                        <div class="row g-3">
+                            <div class="col-md-5 col-sm-12">
+                                <textbox formControlName="customerName">ชื่อลูกค้า / บริษัท</textbox>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <textbox formControlName="taxId">เลขประจำตัวผู้เสียภาษี</textbox>
+                            </div>
+                            <div class="col-12">
+                                <textbox formControlName="address">ที่อยู่ลูกค้า</textbox>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+
+                <!-- TAB: ข้อมูลทั่วไป -->
+                <mat-tab label="ข้อมูลทั่วไป">
+                    <div class="pt-3 px-2 pb-2">
+                        <div class="row g-3">
+                            <div class="col-md-3 col-sm-6">
+                                <textbox formControlName="quotationNo" [disabled]="true">เลขที่ใบเสนอราคา (Quotation No.)</textbox>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <textbox formControlName="jobName">ชื่องานหลักโปรเจกต์ (Main Job Name)</textbox>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+
+            </mat-tab-group>
         </div>
     </app-card>
+
 
     <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h5 class="mb-0 text-secondary"><i class="fas fa-boxes me-2"></i> โครงสร้างกล่องและชิ้นส่วน (Boxes & Parts)</h5>
@@ -57,7 +80,7 @@
 
     <!-- BOX LEVEL -->
     <ng-container formArrayName="boxes">
-        <mat-tab-group dynamicHeight animationDuration="200ms" class="custom-box-tabs">
+        <mat-tab-group dynamicHeight animationDuration="200ms">
             <mat-tab *ngFor="let boxCtrl of boxesArray.controls; let bIndex = index" [formGroupName]="bIndex">
 
                 <ng-template mat-tab-label>
@@ -135,132 +158,395 @@
 
                                 <!-- Part Configuration Form -->
                                 <div class="pt-3 pb-1 px-1">
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-md-3">
-                                            <textbox formControlName="partName">ชื่อชิ้นส่วนย่อย (เช่น ปลอกสวม, ฐาน)
-                                            </textbox>
-                                        </div>
-                                    </div>
-
-                                    <!-- Material & Print block -->
-                                    <h6 class="border-bottom pb-2">กระดาษและการพิมพ์</h6>
-                                    <div class="row g-3 mb-2">
-                                        <div class="col-md-4">
-                                            <select-input bindLabel="processName" bindValue="id" [items]="paperOptions"
-                                                formControlName="paperId">ชนิดกระดาษ (อิง Master)</select-input>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select-input bindLabel="text" bindValue="value" [items]="paperSizeOptions"
-                                                formControlName="paperSize">ขนาดกระดาษที่ตัด</select-input>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="row g-3 mb-4 mt-1 bg-light p-2 rounded align-items-start border border-primary">
-                                        <div class="col-md-5">
-                                            <select-input bindLabel="processName" bindValue="id"
-                                                [items]="printProcesses"
-                                                formControlName="printProcessId">ระบุระบบพิมพ์</select-input>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select-input bindLabel="text" bindValue="value" [items]="printStyles"
-                                                formControlName="printStyle">รูปแบบพิมพ์</select-input>
-                                        </div>
-
-                                        <div class="col-12 mt-3" *ngIf="partCtrl.get('printProcessId')?.value">
-                                            <!-- Print Front -->
-                                            <div class="row g-2 align-items-center">
-                                                <div class="col-md-2 fw-bold text-end">หน้าหลัก :</div>
-                                                <div class="col-md-3">
-                                                    <select-input bindLabel="text" bindValue="value"
-                                                        [items]="getColorOptions(bIndex, pIndex)"
-                                                        formControlName="printColorFront">จำนวนสี</select-input>
+                                    <mat-tab-group dynamicHeight animationDuration="200ms" class="inner-part-tabs mt-1">
+                                    
+                                        <!-- TAB 1: General & Finishing -->
+                                        <mat-tab label="ข้อมูลชิ้นส่วน และสเปคหลังพิมพ์">
+                                            <div class="pt-4 border-top-0 px-2 pb-2">
+                                                <div class="row g-3 mb-4">
+                                                    <div class="col-md-5">
+                                                        <textbox formControlName="partName">ชื่อชิ้นส่วนย่อย (เช่น ปลอกสวม, ไส้ใน)</textbox>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <select-input bindLabel="text" bindValue="value"
-                                                        [items]="getCutSizeOptions(bIndex, pIndex, 'front')"
-                                                        formControlName="printCutSizeFront">ขนาดตัดหน้าพิมพ์</select-input>
+
+                                                <!-- Packaging Lamination base -->
+                                                <div class="row g-3 mb-4 align-items-center">
+                                                    <div class="col-auto">
+                                                        <checkbox formControlName="isCorrugated">ประกบลูกฟูก (ลอนกระดาษ)</checkbox>
+                                                    </div>
+                                                    <div class="col-md-3" *ngIf="partCtrl.get('isCorrugated')?.value">
+                                                        <select-input bindLabel="text" bindValue="value" [items]="fluteOptions"
+                                                            formControlName="fluteType">เลือกลอน</select-input>
+                                                    </div>
                                                 </div>
+
+                                                <!-- Finishing block -->
                                             </div>
-                                            <!-- Print Back (Only if double sided) -->
-                                            <div class="row g-2 align-items-center mt-2"
-                                                *ngIf="partCtrl.get('printStyle')?.value === 'กลับนอก'">
-                                                <div class="col-md-2 fw-bold text-end">กลับนอก :</div>
-                                                <div class="col-md-3">
-                                                    <select-input bindLabel="text" bindValue="value"
-                                                        [items]="getColorOptions(bIndex, pIndex)"
-                                                        formControlName="printColorBack">จำนวนสี</select-input>
+                                        </mat-tab>
+                                        
+                                        <!-- TAB 2: Paper, Cut, Lay & Print -->
+                                        <mat-tab label="สเปคกระดาษ ตัด/เลย์ และการพิมพ์">
+                                            <div class="pt-4 border-top-0 px-2 pb-2">
+                                                <!-- Material base spec -->
+                                                <h6 class="border-bottom pb-2 text-secondary"><i class="fas fa-scroll me-2"></i>สเปคกระดาษตั้งต้น (จากมาสเตอร์ POMT02)</h6>
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-md-4">
+                                                        <select-input bindLabel="_displayName" bindValue="id" [items]="paperOptions"
+                                                            formControlName="paperId">ชนิดกระดาษตั้งต้น</select-input>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <select-input bindLabel="_displayName" bindValue="id"
+                                                            [items]="getPaperSizeOptions(bIndex, pIndex)"
+                                                            formControlName="paperSizeId">ขนาดที่จัดซื้อ</select-input>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <select-input bindLabel="_displayName" bindValue="id"
+                                                            [items]="getPaperGramOptions(bIndex, pIndex)"
+                                                            formControlName="paperGramId">แกรม (น้ำหนัก)</select-input>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <select-input bindLabel="text" bindValue="value"
-                                                        [items]="getCutSizeOptions(bIndex, pIndex, 'back')"
-                                                        formControlName="printCutSizeBack">ขนาดตัดหน้าพิมพ์</select-input>
+
+                                                <h6 class="border-bottom pb-2 mt-4 text-info"><i class="fas fa-cut me-2"></i>ระบบการจัดการตัดกระดาษและเลย์ดาวน์ (Lay)</h6>
+                                                
+                                                <div class="row g-3 mb-3 align-items-center">
+                                                    <div class="col-md-12">
+                                                        <checkbox formControlName="isCutBasePaper" class="text-primary fw-bold">กระดาษจัดซื้อด้านบน ต้องนำมาตัดแบ่งย่อย (ผ่ากระดาษใหญ่) ก่อนส่งพิมพ์</checkbox>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Packaging Lamination base inside material spec -->
-                                    <div class="row g-3 mb-4 align-items-center">
-                                        <div class="col-auto">
-                                            <checkbox formControlName="isCorrugated">ประกบลูกฟูก</checkbox>
-                                        </div>
-                                        <div class="col-md-3" *ngIf="partCtrl.get('isCorrugated')?.value">
-                                            <select-input bindLabel="text" bindValue="value" [items]="fluteOptions"
-                                                formControlName="fluteType">เลือกลอน</select-input>
-                                        </div>
-                                    </div>
-
-                                    <!-- Finishing block -->
-                                    <h6 class="border-bottom pb-2 mt-4">งานหลังพิมพ์และตกแต่งพิเศษ</h6>
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-md-4">
-                                            <select-input bindLabel="text" bindValue="value" [items]="coatingOptions"
-                                                formControlName="coatingType">เลือกงานเคลือบผิว</select-input>
-                                        </div>
-                                    </div>
-
-                                    <div class="card bg-light border-0 shadow-sm mt-3">
-                                        <div class="card-body py-2">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6 class="mb-0 text-secondary"><i class="fas fa-stamp me-2"></i>
-                                                    รายการงานปั๊ม และไดคัทเฉพาะชิ้นส่วนนี้</h6>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                    (click)="addStamp(bIndex, pIndex)">
-                                                    <i class="fas fa-plus"></i> เพิ่มงานปั๊ม
-                                                </button>
-                                            </div>
-
-                                            <ng-container formArrayName="stamps">
-                                                <div class="row g-2 align-items-center mb-2 border-bottom pb-2"
-                                                    *ngFor="let stampCtrl of getStampsArray(bIndex, pIndex).controls; let sIndex = index"
-                                                    [formGroupName]="sIndex">
+                                                <!-- Cut specifics, visible only if 'isCutBasePaper' is true -->
+                                                <div class="row g-3 mb-3 bg-light rounded p-2 mx-0" *ngIf="partCtrl.get('isCutBasePaper')?.value">
                                                     <div class="col-md-3">
-                                                        <select-input bindLabel="text" bindValue="value"
-                                                            [items]="stampOptions" formControlName="stampType">
-                                                            ประเภทงาน
-                                                        </select-input>
+                                                        <number formControlName="paperCutPieces">แบ่งผ่าแผ่นแม่เป็นกี่ชิ้น?</number>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <number formControlName="paperCutWidth" currency [scale]="2">ผ่ากว้างออกมาเป็น (นิ้ว)</number>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <number formControlName="paperCutLength" currency [scale]="2">ผ่ายาวออกมาเป็น (นิ้ว)</number>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Lay info -->
+                                                <div class="row g-3 mb-4">
+                                                    <div class="col-12 text-muted small"><i class="fas fa-info-circle"></i> การเรียงชิ้นงานต่อ 1 ใบพิมพ์ที่ผ่าแล้ว</div>
+                                                    <div class="col-md-2">
+                                                        <number formControlName="layHorizontal">เรียงแนวนอน</number>
+                                                    </div>
+                                                    <div class="col-auto d-flex align-items-center pt-3 fw-bold text-muted">X</div>
+                                                    <div class="col-md-2">
+                                                        <number formControlName="layVertical">เรียงแนวตั้ง</number>
+                                                    </div>
+                                                    <div class="col-auto d-flex align-items-center pt-3 fw-bold fs-5 text-primary">=</div>
+                                                    <div class="col-md-3">
+                                                        <number formControlName="layQty" class="fw-bold">ได้ทั้งหมด (กล่อง/ชิ้น)</number>
+                                                    </div>
+                                                </div>
+
+                                                <h6 class="border-bottom pb-2 mt-2 text-secondary"><i class="fas fa-print me-2"></i>กระบวนการพิมพ์</h6>
+
+                                                <div
+                                                    class="row g-3 mb-4 mt-1 bg-light p-2 rounded align-items-start border border-primary">
+                                                    <div class="col-md-5">
+                                                        <select-input bindLabel="processName" bindValue="id"
+                                                            [items]="printProcesses"
+                                                            formControlName="printProcessId">ระบุระบบพิมพ์</select-input>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <number formControlName="width" currency [scale]="2">ขนาดกว้าง
-                                                            (ซม.)</number>
+                                                        <select-input bindLabel="text" bindValue="value" [items]="printStyles"
+                                                            formControlName="printStyle">รูปแบบพิมพ์</select-input>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <number formControlName="length" currency [scale]="2">ขนาดยาว
-                                                            (ซม.)</number>
-                                                    </div>
-                                                    <div class="col-md-2 mt-4">
-                                                        <button type="button"
-                                                            class="btn btn-outline-danger btn-sm w-100"
-                                                            (click)="removeStamp(bIndex, pIndex, sIndex)">
-                                                            ลบรายการ
-                                                        </button>
+
+                                                    <div class="col-12 mt-3" *ngIf="partCtrl.get('printProcessId')?.value">
+                                                        <!-- Print Front -->
+                                                        <div class="row g-2 align-items-center">
+                                                            <div class="col-md-2 fw-bold text-end">หน้าหลัก :</div>
+                                                            <div class="col-md-3">
+                                                                <select-input bindLabel="text" bindValue="value"
+                                                                    [items]="getColorOptions(bIndex, pIndex)"
+                                                                    formControlName="printColorFront">จำนวนสี</select-input>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <select-input bindLabel="text" bindValue="value"
+                                                                    [items]="getCutSizeOptions(bIndex, pIndex, 'front')"
+                                                                    formControlName="printCutSizeFront">ขนาดตัดหน้าพิมพ์</select-input>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Print Back (Only if double sided) -->
+                                                        <div class="row g-2 align-items-center mt-2"
+                                                            *ngIf="partCtrl.get('printStyle')?.value === 'กลับนอก'">
+                                                            <div class="col-md-2 fw-bold text-end">กลับนอก :</div>
+                                                            <div class="col-md-3">
+                                                                <select-input bindLabel="text" bindValue="value"
+                                                                    [items]="getColorOptions(bIndex, pIndex)"
+                                                                    formControlName="printColorBack">จำนวนสี</select-input>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <select-input bindLabel="text" bindValue="value"
+                                                                    [items]="getCutSizeOptions(bIndex, pIndex, 'back')"
+                                                                    formControlName="printCutSizeBack">ขนาดตัดหน้าพิมพ์</select-input>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </ng-container>
-                                        </div>
-                                    </div>
+                                            </div>
+                                        </mat-tab>
 
+                                        <!-- TAB 3: Coating from SUMT03 -->
+                                        <mat-tab label="งานเคลือบ">
+                                            <div class="pt-4 border-top-0 px-2 pb-2">
+                                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                                    <h6 class="mb-0 text-secondary"><i class="fas fa-layer-group me-2"></i>ชุดการเคลือบ (จาก SUMT03)</h6>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        (click)="addCoating(bIndex, pIndex)">
+                                                        <i class="fas fa-plus"></i> เพิ่มชุดการผ่า/เคลือบ
+                                                    </button>
+                                                </div>
+
+                                                <div *ngIf="coatingProcesses.length === 0" class="alert alert-warning py-2">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    ยังไม่มีข้อมูลกระบวนการเคลือบใน SUMT03 — กรุณาเพิ่ม Group ชื่อ <strong>"เคลือบ"</strong> และเพิ่ม Process ไว้ใต้ Group นั้นก่อนครับ
+                                                </div>
+
+                                                <div *ngIf="getCoatingsArray(bIndex, pIndex).length === 0"
+                                                    class="text-muted text-center py-3 border rounded">
+                                                    <i class="fas fa-paint-roller fa-2x mb-2 d-block opacity-50"></i>
+                                                    ยังไม่มีชุดเคลือบ — กดปุ่ม <strong>"เพิ่มชุดการผ่า/เคลือบ"</strong> เพื่อเริ่มต้น
+                                                </div>
+
+                                                <!-- COATING BATCHES -->
+                                                <ng-container formArrayName="coatings">
+                                                    <div class="card border mb-3"
+                                                        *ngFor="let coatingCtrl of getCoatingsArray(bIndex, pIndex).controls; let cIndex = index"
+                                                        [formGroupName]="cIndex">
+
+                                                        <!-- Batch Header: Cut step -->
+                                                        <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                                                            <span class="fw-bold text-secondary">
+                                                                <i class="fas fa-layer-group me-2"></i>ชุดที่ {{ cIndex + 1 }}
+                                                            </span>
+                                                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                (click)="removeCoating(bIndex, pIndex, cIndex)">
+                                                                <i class="fas fa-trash me-1"></i>ลบชุดนี้
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="card-body py-3 px-3">
+                                                            <!-- Cut before coating toggle -->
+                                                            <div class="mb-2">
+                                                                <checkbox formControlName="isCutBeforeCoating" class="text-warning fw-semibold">
+                                                                    <span>ใบพิมพ์ที่ออกจากเครื่องพิมพ์แล้ว ต้อง<strong>ผ่าซ้ำอีกรอบ</strong>ก่อนส่งเข้าเครื่องเคลือบในชุดนี้</span>
+                                                                </checkbox>
+                                                            </div>
+
+                                                            <!-- Cut dimensions (conditional) -->
+                                                            <div class="row g-2 mb-3 rounded p-2 mx-0 border border-warning"
+                                                                style="background: rgba(255,193,7,0.07);"
+                                                                *ngIf="coatingCtrl.get('isCutBeforeCoating')?.value">
+                                                                <div class="col-12 small text-warning fw-semibold mb-1">
+                                                                    <i class="fas fa-scissors me-1"></i>
+                                                                    พิมพ์เสร็จ → <strong>ผ่าใบพิมพ์</strong> → เคลือบทุกรายการในชุดนี้ &nbsp;|&nbsp; กรอกขนาดที่ผ่าออกต่อ 1 ใบพิมพ์
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <number formControlName="coatingCutPieces">ผ่า 1 ใบพิมพ์ออกเป็นกี่ชิ้น</number>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <number formControlName="coatingCutWidth" currency [scale]="2">กว้าง (นิ้ว)</number>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <number formControlName="coatingCutLength" currency [scale]="2">ยาว (นิ้ว)</number>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Coating Items in this batch -->
+                                                            <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1">
+                                                                <span class="small text-secondary fw-semibold">
+                                                                    <i class="fas fa-list me-1"></i>รายการเคลือบในชุดนี้ (ใช้กับแผ่นพิมพ์ชุดเดียวกัน)
+                                                                </span>
+                                                                <button type="button" class="btn btn-sm btn-outline-info"
+                                                                    [disabled]="coatingProcesses.length === 0"
+                                                                    (click)="addCoatingItem(bIndex, pIndex, cIndex)">
+                                                                    <i class="fas fa-plus"></i> เพิ่มการเคลือบ
+                                                                </button>
+                                                            </div>
+
+                                                            <ng-container formArrayName="items">
+                                                                <div *ngIf="getCoatingItemsArray(bIndex, pIndex, cIndex).length === 0"
+                                                                    class="text-muted small text-center py-2 border rounded mb-2">
+                                                                    กดปุ่ม "เพิ่มการเคลือบ" เพื่อเพิ่มรายการเคลือบสำหรับชุดนี้
+                                                                </div>
+                                                                <div class="row g-2 align-items-center mb-2"
+                                                                    *ngFor="let itemCtrl of getCoatingItemsArray(bIndex, pIndex, cIndex).controls; let iIndex = index"
+                                                                    [formGroupName]="iIndex">
+                                                                    <div class="col-auto text-muted small" style="min-width:24px">
+                                                                        {{ iIndex + 1 }}.
+                                                                    </div>
+                                                                    <div class="col-md-5">
+                                                                        <select-input
+                                                                            bindLabel="processName"
+                                                                            bindValue="id"
+                                                                            [items]="coatingProcesses"
+                                                                            formControlName="coatingProcessId">
+                                                                            ระบบเคลือบผิว
+                                                                        </select-input>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <textbox formControlName="coatingNote">หมายเหตุ / พื้นที่เคลือบ</textbox>
+                                                                    </div>
+                                                                    <div class="col-auto mt-3">
+                                                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                            (click)="removeCoatingItem(bIndex, pIndex, cIndex, iIndex)">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                </ng-container>
+
+                                                <div class="alert alert-info py-2 small mt-2" *ngIf="getCoatingsArray(bIndex, pIndex).length > 0">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    ราคาเคลือบแต่ละรายการจะคำนวณจากตาราง Pricing Tier ที่กำหนดไว้ใน SUMT03
+                                                </div>
+                                            </div>
+                                        </mat-tab>
+                                        
+                                        <!-- TAB 4: Stamp (งานปั้ม) -->
+                                        <mat-tab label="งานปั้ม">
+                                            <div class="pt-4 border-top-0 px-2 pb-2">
+                                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                                    <h6 class="mb-0 text-secondary"><i class="fas fa-stamp me-2"></i>บล็อคงานปั้ม</h6>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        (click)="addStampEntry(bIndex, pIndex)">
+                                                        <i class="fas fa-plus"></i> เพิ่มบล็อคปั้ม
+                                                    </button>
+                                                </div>
+
+                                                <div *ngIf="getStampEntriesArray(bIndex, pIndex).length === 0"
+                                                    class="text-muted text-center py-3 border rounded">
+                                                    <i class="fas fa-stamp fa-2x mb-2 d-block opacity-50"></i>
+                                                    ยังไม่มีบล็อคปั้ม — กดปุ่ม <strong>"เพิ่มบล็อคปั้ม"</strong> เพื่อเริ่มต้น
+                                                </div>
+
+                                                <!-- STAMP ENTRY BATCHES -->
+                                                <ng-container formArrayName="stampEntries">
+                                                    <div class="card border mb-3"
+                                                        *ngFor="let entryCtrl of getStampEntriesArray(bIndex, pIndex).controls; let eIndex = index"
+                                                        [formGroupName]="eIndex">
+
+                                                        <!-- Entry Header -->
+                                                        <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                                                            <span class="fw-bold text-secondary">
+                                                                <i class="fas fa-stamp me-2"></i>บล็อคปั้มที่ {{ eIndex + 1 }}
+                                                            </span>
+                                                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                (click)="removeStampEntry(bIndex, pIndex, eIndex)">
+                                                                <i class="fas fa-trash me-1"></i>ลบบล็อคนี้
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="card-body py-3 px-3">
+                                                            <!-- Step 1: เลือกบล็อคปั้มจาก SUMT03 -->
+                                                            <div *ngIf="stampProcesses.length === 0" class="alert alert-warning py-2 small mb-3">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                ยังไม่มีข้อมูลบล็อคปั้มใน SUMT03 — กรุณาเพิ่ม Group ชื่อ <strong>"บล็อคปั้ม"</strong> และเพิ่ม Process ไว้ใต้ Group นั้นก่อนครับ
+                                                            </div>
+
+                                                            <div class="row g-3 mb-3 p-2 mx-0 border rounded bg-light align-items-end">
+                                                                <div class="col-12 small text-secondary fw-semibold mb-1">
+                                                                    <i class="fas fa-stamp me-1"></i>เลือกประเภทบล็อคปั้มและขนาด
+                                                                </div>
+                                                                <div class="col-md-5">
+                                                                    <select-input
+                                                                        bindLabel="processName"
+                                                                        bindValue="id"
+                                                                        [items]="stampProcesses"
+                                                                        formControlName="stampProcessId">
+                                                                        บล็อคปั้ม (จาก SUMT03)
+                                                                    </select-input>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <select-input
+                                                                        bindLabel="text"
+                                                                        bindValue="value"
+                                                                        [items]="getStampSizeOptions($any(entryCtrl))"
+                                                                        formControlName="stampSizeSelected"
+                                                                        [disabled]="!entryCtrl.value.stampProcessId">
+                                                                        ขนาดบล็อคปั้ม
+                                                                    </select-input>
+                                                                </div>
+                                                                <div class="col-md-5">
+                                                                    <textbox formControlName="batchNote">หมายเหตุเพิ่มเติม (ไม่บังคับ)</textbox>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <!-- Stamp Items in this batch -->
+                                                            <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1">
+                                                                <span class="small text-secondary fw-semibold">
+                                                                    <i class="fas fa-list me-1"></i>รายการค่าปั้มในบล็อคนี้
+                                                                </span>
+                                                                <button type="button" class="btn btn-sm btn-outline-info"
+                                                                    (click)="addStampItem(bIndex, pIndex, eIndex)">
+                                                                    <i class="fas fa-plus"></i> เพิ่มค่าปั้ม
+                                                                </button>
+                                                            </div>
+
+                                                            <div *ngIf="stampItemProcesses.length === 0" class="alert alert-warning py-2 small mb-2">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                ยังไม่มีข้อมูลประเภทปั้มใน SUMT03 — กรุณาเพิ่ม Group ที่มีคำว่า <strong>"ปั้ม"</strong> และเพิ่ม Process ไว้ใต้ Group นั้นก่อนครับ
+                                                            </div>
+
+                                                            <ng-container formArrayName="items">
+                                                                <div *ngIf="getStampItemsArray(bIndex, pIndex, eIndex).length === 0"
+                                                                    class="text-muted small text-center py-2 border rounded mb-2">
+                                                                    กดปุ่ม "เพิ่มค่าปั้ม" เพื่อเพิ่มรายการปั้มสำหรับบล็อคนี้
+                                                                </div>
+                                                                <div class="row g-2 align-items-center mb-2"
+                                                                    *ngFor="let itemCtrl of getStampItemsArray(bIndex, pIndex, eIndex).controls; let iIndex = index"
+                                                                    [formGroupName]="iIndex">
+                                                                    <div class="col-auto text-muted small" style="min-width:24px">
+                                                                        {{ iIndex + 1 }}.
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <select-input
+                                                                            bindLabel="processName"
+                                                                            bindValue="id"
+                                                                            [items]="stampItemProcesses"
+                                                                            formControlName="stampItemProcessId">
+                                                                            ประเภทการปั้ม (จาก SUMT03)
+                                                                        </select-input>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <number formControlName="width" currency [scale]="2">กว้าง (ซม.)</number>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <number formControlName="length" currency [scale]="2">ยาว (ซม.)</number>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <textbox formControlName="stampNote">หมายเหตุ</textbox>
+                                                                    </div>
+                                                                    <div class="col-auto mt-3">
+                                                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                            (click)="removeStampItem(bIndex, pIndex, eIndex, iIndex)">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                </ng-container>
+
+                                                <div class="alert alert-info py-2 small mt-2" *ngIf="getStampEntriesArray(bIndex, pIndex).length > 0">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    แต่ละบล็อคปั้มสามารถมีหลายรายการค่าปั้มได้ — เช่น บล็อคปั้มฝาประกอบด้วย ปั้มนูน + ปั้มเคทอง
+                                                </div>
+                                            </div>
+                                        </mat-tab>
+
+                                    </mat-tab-group>
                                 </div>
                             </mat-expansion-panel>
                         </mat-accordion>
@@ -270,16 +556,4 @@
             </mat-tab>
         </mat-tab-group>
     </ng-container>
-
 </form>
-
-<style>
-    .custom-box-tabs .mat-tab-body-content {
-        background-color: transparent !important;
-    }
-
-    .custom-box-tabs .mat-tab-labels {
-        background-color: #f8f9fa;
-        border-bottom: 2px solid #005ce6;
-    }
-</style>
