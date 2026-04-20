@@ -13,6 +13,8 @@ export class Qtmt01 extends EntityBase {
   vatType!: string;
   isVatIncluded: boolean = false;
   vatRate!: number;
+  deliveryCost: number = 0;
+  operatingCost: number = 0;
 
   // New deeply nested hierarchy
   boxes: Qtmt01Box[] = [];
@@ -47,6 +49,7 @@ export class Qtmt01Part {
   layQty!: number;
   layHorizontal!: number;
   layVertical!: number;
+  wastageSheets: number = 0;
 
   // Printing
   printProcessId!: number;

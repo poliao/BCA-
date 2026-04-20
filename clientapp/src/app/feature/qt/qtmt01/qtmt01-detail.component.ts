@@ -67,6 +67,12 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
 
   rdKeyword = '';
   searchingRD = false;
+  calculationResults: any[] = [];
+  selectedQtyIndex: number = 0;
+
+  get formValue() {
+    return this.quotationDataSource?.form?.getRawValue();
+  }
 
   constructor(
     private readonly fb: FormBuilder,
@@ -177,6 +183,9 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       vatType: ['VAT 7%'],
       isVatIncluded: [false],
       vatRate: [7],
+      deliveryCost: [0],
+      operatingCost: [0],
+      profitMarginPercent: [60],
 
       boxes: this.fb.array(
         this.quotation.boxes.map(box => this.createBoxGroup(box))
@@ -213,6 +222,7 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       layQty: [part.layQty || null, [Validators.required, Validators.min(1)]],
       layHorizontal: [part.layHorizontal || null],
       layVertical: [part.layVertical || null],
+      wastageSheets: [part.wastageSheets || 0],
       
       printProcessId: [part.printProcessId || null, [Validators.required]],
       printStyle: [part.printStyle || 'หน้าเดียว', [Validators.required]],
@@ -374,12 +384,236 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     });
   }
 
+  setupCalculationListener() {
+    this.quotationDataSource.form.valueChanges.subscribe(() => {
+      this.calculateQuotation();
+    });
+  }
+
+  calculateQuotation() {
+    const formValue = this.quotationDataSource.form.getRawValue();
+    const margin = formValue.profitMarginPercent || 60;
+    
+    // Cache old overrides before regenerating
+    const oldOverrides: { [key: string]: any } = {};
+    if (this.calculationResults && this.calculationResults.length > 0) {
+      this.calculationResults.forEach((r: any, bIdx: number) => {
+        r.sheets?.forEach((s: any, qIdx: number) => {
+          s.groups?.forEach((g: any, gIdx: number) => {
+            g.items?.forEach((itm: any, iIdx: number) => {
+              const key = `${bIdx}_${qIdx}_${gIdx}_${iIdx}`;
+              oldOverrides[key] = {
+                adjRate: itm.adjRate,
+                adjTotal: itm.adjTotal,
+                isTotalOverride: itm.isTotalOverride,
+                margin: itm.margin
+              };
+            });
+          });
+        });
+      });
+    }
+
+    const boxWorksheets: any[] = [];
+    let totalGrandCost = 0;
+    let totalProfit = 0;
+    let grandTotal = 0;
+
+    formValue.boxes?.forEach((box: any, bIndex: number) => {
+      const boxWorksheet: any = {
+        boxName: box.boxName || `กล่องที่ ${bIndex + 1}`,
+        quantities: box.quantities || [],
+        sheets: []
+      };
+
+      box.quantities?.forEach((qty: number, qIndex: number) => {
+        const groups: any[] = [
+          { groupName: 'ออกแบบ', items: [] },
+          { groupName: 'กระดาษ', items: [] },
+          { groupName: 'พิมพ์', items: [] },
+          { groupName: 'หลังพิมพ์', items: [] }
+        ];
+
+        // Group 0: Operating Cost
+        if (formValue.operatingCost > 0) {
+          groups[0].items.push({ label: 'ค่าดำเนินการส่วนกลาง', qty: 1,
+            baseRate: formValue.operatingCost, adjRate: 0,
+            adjTotal: 0, costTotal: formValue.operatingCost, margin });
+        }
+
+        box.parts?.forEach((part: any) => {
+
+          // Item #1: กระดาษ
+          const paper = this.paperOptions.find((p: any) => p.id === part.paperId);
+          const size = paper?.sizes?.find((s: any) => s.id === part.paperSizeId);
+          const gramObj = size?.grams?.find((g: any) => g.id === part.paperGramId);
+          if (paper && size && gramObj) {
+            const layQty = part.layQty || 1;
+            const totalSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
+            const weightKg = (size.width * size.length * gramObj.gram * totalSheets) / 1550000;
+            const paperCost = weightKg * (gramObj.purchasePrice || 0);
+            const ratePerSheet = totalSheets > 0 ? paperCost / totalSheets : 0;
+            groups[1].items.push({
+              label: `${paper._displayName || paper.itemNameTh} (${size.width}"×${size.length}")`,
+              qty: totalSheets, baseRate: ratePerSheet, adjRate: 0,
+              costTotal: paperCost, adjTotal: 0, margin, note: `${weightKg.toFixed(3)} กก. | ${gramObj.gram} แกรม`
+            });
+          }
+
+          // Item #2: เพลท & Item #3: พิมพ์
+          const printProc = this.printProcesses.find((p: any) => p.id === part.printProcessId);
+          if (printProc?.pricingTiers) {
+            const frontColors = part.printColorFront || 0;
+            const backColors = part.printColorBack || 0;
+            const colorCount = frontColors + backColors;
+            const tier = printProc.pricingTiers.find((t: any) =>
+              t.locationId === part.productionLocationId && t.colorCount === colorCount
+            );
+            if (tier) {
+              // Plate Cost
+              const plateCost = colorCount * (tier.platePrice || 500);
+              groups[2].items.push({
+                label: `ค่าเพลท (${colorCount} สี)`, qty: colorCount,
+                baseRate: tier.platePrice || 500, adjRate: 0,
+                costTotal: plateCost, adjTotal: 0, margin
+              });
+              // Print Cost
+              const layQty = part.layQty || 1;
+              const printSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
+              const printRate = tier.price || 0.5;
+              groups[2].items.push({
+                label: `ค่าพิมพ์ ${printProc.processName}`, qty: printSheets,
+                baseRate: printRate, adjRate: 0, costTotal: printSheets * printRate,
+                adjTotal: 0, margin, note: part.printStyle !== 'หน้าเดียว' ? part.printStyle : null
+              });
+              // Item #3 Extra: Setup cost for double-sided printing
+              if (part.printStyle === 'กลับนอก' || part.printStyle === 'กลับในตัว') {
+                const setupCost = tier.setupPrice || 500;
+                groups[2].items.push({
+                  label: `ค่าตั้งเครื่อง (${part.printStyle})`, qty: 1,
+                  baseRate: setupCost, adjRate: 0, costTotal: setupCost, adjTotal: 0, margin
+                });
+              }
+            }
+          }
+
+          // Item #4: เคลือบ
+          part.coatings?.forEach((c: any) => c.items?.forEach((ci: any) => {
+            const proc = this.coatingProcesses.find((p: any) => p.id === ci.coatingProcessId);
+            const tier = proc?.pricingTiers?.[0];
+            if (tier) {
+              const layQty = part.layQty || 1;
+              const cSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
+              const coatRate = tier.price || 0.3;
+              groups[3].items.push({
+                label: `ค่าเคลือบ ${proc.processName}`, qty: cSheets,
+                baseRate: coatRate, adjRate: 0, costTotal: cSheets * coatRate, adjTotal: 0, margin
+              });
+            }
+          }));
+
+          // Item #5-10: บล็อก + ปั๊ม
+          part.stampEntries?.forEach((entry: any) => {
+            const proc = this.stampProcesses.find((p: any) => p.id === entry.stampProcessId);
+            const tier = proc?.pricingTiers?.find((t: any) => t.stampSize === entry.stampSizeSelected);
+            if (tier) {
+              entry.items?.forEach((si: any) => {
+                const blockCost = (si.width * si.length) * (tier.price || 5);
+                groups[3].items.push({
+                  label: `ค่าบล็อก (${proc.processName} ${entry.stampSizeSelected})`, qty: 1,
+                  baseRate: blockCost, adjRate: 0, costTotal: blockCost, adjTotal: 0, margin
+                });
+                const stampRate = tier.additionalPrice || 0.1;
+                groups[3].items.push({
+                  label: `ค่าปั๊ม (${entry.stampSizeSelected})`, qty: qty,
+                  baseRate: stampRate, adjRate: 0, costTotal: qty * stampRate, adjTotal: 0, margin
+                });
+              });
+            }
+          });
+
+          // Item #11: ประกบลูกฟูก (Removed for now, handled via SUMT03 standard later)
+
+          // Item #12-13: ปะกาว
+          part.gluings?.forEach((g: any) => {
+            const proc = this.gluingProcesses.find((p: any) => p.id === g.gluingProcessId);
+            if (proc) {
+              const gluingRate = proc.pricingTiers?.[0]?.price || 0.1;
+              groups[3].items.push({
+                label: `ค่าปะกาว ${proc.processName}`, qty: qty,
+                baseRate: gluingRate, adjRate: 0, costTotal: qty * gluingRate, adjTotal: 0, margin
+              });
+            }
+          });
+        });
+
+        // Item #14: ค่าจัดส่ง
+        if (formValue.deliveryCost > 0) {
+          groups[3].items.push({
+            label: 'ค่าจัดส่ง', qty: 1, baseRate: formValue.deliveryCost,
+            adjRate: 0, costTotal: formValue.deliveryCost, adjTotal: 0, margin
+          });
+        }
+
+        // Calculate totals per sheet
+        let sheetTotalCost = 0;
+        let sheetTotalPrice = 0;
+        groups.forEach((g, gIdx) => {
+          g.items.forEach((item: any, iIdx) => {
+            const key = `${bIndex}_${qIndex}_${gIdx}_${iIdx}`;
+            if (oldOverrides[key]) {
+              item.adjRate = oldOverrides[key].adjRate || 0;
+              item.adjTotal = oldOverrides[key].adjTotal || 0;
+              item.isTotalOverride = oldOverrides[key].isTotalOverride || false;
+              item.margin = oldOverrides[key].margin !== undefined ? oldOverrides[key].margin : item.margin;
+            }
+
+            const effectiveTotal = item.isTotalOverride ? item.adjTotal : (item.costTotal || 0) + ((item.adjRate || 0) * item.qty || 0);
+            item.finalTotal = effectiveTotal;
+            sheetTotalCost += effectiveTotal;
+            item.finalPrice = effectiveTotal * (1 + ((item.margin || 0) / 100));
+            sheetTotalPrice += item.finalPrice;
+          });
+        });
+
+        boxWorksheet.sheets.push({ groups, totalCost: sheetTotalCost, totalPrice: sheetTotalPrice, qty });
+
+        if (qIndex === this.selectedQtyIndex) {
+          totalGrandCost += sheetTotalCost;
+          totalProfit += (sheetTotalPrice - sheetTotalCost);
+          grandTotal += sheetTotalPrice;
+        }
+      });
+      boxWorksheets.push(boxWorksheet);
+    });
+
+    this.calculationResults = boxWorksheets;
+
+    const vatRate = formValue.vatRate || 0;
+    const vatAmount = grandTotal * (vatRate / 100);
+    const grandTotalWithVat = grandTotal + (formValue.isVatIncluded ? 0 : vatAmount);
+
+    this.quotationDataSource.form.get('totalCost')?.patchValue(totalGrandCost, { emitEvent: false });
+    this.quotationDataSource.form.get('profitAmount')?.patchValue(totalProfit, { emitEvent: false });
+    this.quotationDataSource.form.get('vatAmount')?.patchValue(vatAmount, { emitEvent: false });
+    this.quotationDataSource.form.get('totalAmount')?.patchValue(grandTotal, { emitEvent: false });
+    this.quotationDataSource.form.get('grandTotal')?.patchValue(grandTotalWithVat, { emitEvent: false });
+  }
+
   rebuildForm() {
     this.quotationDataSource = new FormDatasource<Qtmt01>(this.quotation, this.createForm());
     this.setupVatListener();
+    this.setupCalculationListener();
+    this.calculateQuotation();
+  }
+
+  onQtyChange(index: number) {
+    this.selectedQtyIndex = index;
+    this.calculateQuotation();
   }
 
   // Event Handlers
+
   addBox() {
     this.boxesArray.push(this.createBoxGroup(new Qtmt01Box()));
   }

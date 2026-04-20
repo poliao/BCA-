@@ -73,8 +73,169 @@
                             <div class="col-md-2 col-sm-6">
                                 <number formControlName="vatRate" [disabled]="quotationDataSource.form.get('vatType')?.value !== 'CUSTOM'">อัตราภาษี (%)</number>
                             </div>
+                            <div class="col-md-2 col-sm-6">
+                                <number formControlName="deliveryCost" currency>ค่าจัดส่ง</number>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <number formControlName="operatingCost" currency>ค่าดำเนินการอื่นๆ</number>
+                            </div>
                             <div class="col-12 mt-3">
                                 <areabox formControlName="remarkInternal" [rows]="3">หมายเหตุ (ภายใน)</areabox>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+
+                <!-- TAB: สรุปราคาคำนวณ -->
+                <mat-tab label="สรุปราคาคำนวณ">
+                    <div class="pt-3 px-2 pb-4">
+                        <div class="alert alert-warning mb-4" *ngIf="calculationResults.length === 0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>กรุณาระบุข้อมูลกล่องและชิ้นส่วนเพื่อเริ่มการคำนวณ
+                        </div>
+
+                        <div *ngIf="calculationResults.length > 0">
+                            <!-- Box Loop (usually 1 box, but supports multi) -->
+                            <div *ngFor="let result of calculationResults; let resIdx = index" class="mb-5">
+                                
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-box"></i> {{ result.boxName }}
+                                </h5>
+
+                                <!-- Quantity Tabs -->
+                                <div class="d-flex border-bottom mb-3 pb-2 gap-3">
+                                    <h6 class="align-self-center mb-0 me-2 text-secondary">รายละเอียดต้นทุน</h6>
+                                    <button 
+                                        *ngFor="let qtyNum of result.quantities; let qIdx = index"
+                                        class="btn btn-sm"
+                                        [ngClass]="selectedQtyIndex === qIdx ? 'btn-success fw-bold text-white shadow-sm' : 'btn-outline-secondary'"
+                                        (click)="onQtyChange(qIdx)">
+                                        {{ qtyNum | number }} <i class="fas fa-print ms-1"></i>
+                                    </button>
+                                </div>
+
+                                <!-- The Table for the selected Quantity -->
+                                <ng-container *ngIf="result.sheets[selectedQtyIndex] as sheet">
+                                    <div class="table-container mb-4">
+                                        <table class="mat-mdc-table w-100 border rounded" style="border-collapse: separate; border-spacing: 0;">
+                                            <thead class="bg-light">
+                                                <tr class="mat-mdc-header-row" style="background-color: #fce49d; border-bottom: 2px solid #e0a800;">
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037;">กลุ่มรายการ</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037;">รายการต้นทุน</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037;">จำนวน</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037;">ต้นทุน/หน่วย</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037; width: 12%;">ปรับต้นทุน/หน่วย</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037;">ต้นทุนรวม</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037; width: 15%;">ปรับต้นทุนรวม</th>
+                                                    <th class="mat-mdc-header-cell border-end py-2 px-3 text-center" style="color: #5d4037; width: 8%;">%margin</th>
+                                                    <th class="mat-mdc-header-cell py-2 px-3 text-center" style="color: #5d4037;">ราคารวม</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <ng-container *ngFor="let group of sheet.groups">
+                                                    <ng-container *ngIf="group.items.length > 0">
+                                                        <tr *ngFor="let item of group.items; let i = index" class="mat-mdc-row hover-row border-bottom">
+                                                            <!-- Group Name (rowspan) -->
+                                                            <td *ngIf="i === 0" [attr.rowspan]="group.items.length" 
+                                                                class="mat-mdc-cell border-end text-center fw-bold align-middle bg-light" 
+                                                                style="width: 10%;">
+                                                                {{ group.groupName }}
+                                                            </td>
+                                                            
+                                                            <!-- Item Details -->
+                                                            <td class="mat-mdc-cell border-end px-3 py-2 text-center align-middle">
+                                                                <div>{{ item.label }}</div>
+                                                                <div *ngIf="item.note" class="small text-muted">{{ item.note }}</div>
+                                                            </td>
+                                                            
+                                                            <!-- Quantity -->
+                                                            <td class="mat-mdc-cell border-end text-center align-middle">{{ item.qty | number }}</td>
+                                                            
+                                                            <!-- Base Rate -->
+                                                            <td class="mat-mdc-cell border-end text-center align-middle">{{ item.baseRate | number:'1.2-2' }}</td>
+                                                            
+                                                            <!-- Adjust Rate -->
+                                                            <td class="mat-mdc-cell border-end px-2 py-2 align-middle">
+                                                                <input type="number" class="form-control form-control-sm text-end" [(ngModel)]="item.adjRate" [ngModelOptions]="{standalone: true}" (change)="calculateQuotation()">
+                                                            </td>
+
+                                                            <!-- Cost Total -->
+                                                            <td class="mat-mdc-cell border-end text-center align-middle">{{ item.costTotal | number:'1.0-0' }}</td>
+
+                                                            <!-- Adjust Total -->
+                                                            <td class="mat-mdc-cell border-end px-2 py-2 align-middle">
+                                                                <div class="d-flex align-items-center justify-content-center">
+                                                                    <input type="checkbox" class="form-check-input mt-0 me-2" [(ngModel)]="item.isTotalOverride" [ngModelOptions]="{standalone: true}" (change)="calculateQuotation()">
+                                                                    <input type="number" class="form-control form-control-sm text-end" [(ngModel)]="item.adjTotal" [ngModelOptions]="{standalone: true}" [disabled]="!item.isTotalOverride" (change)="calculateQuotation()">
+                                                                </div>
+                                                            </td>
+
+                                                            <!-- Margin -->
+                                                            <td class="mat-mdc-cell border-end px-2 py-2 align-middle">
+                                                                <input type="number" class="form-control form-control-sm text-center" [(ngModel)]="item.margin" [ngModelOptions]="{standalone: true}" (change)="calculateQuotation()">
+                                                            </td>
+
+                                                            <!-- Final Price -->
+                                                            <td class="mat-mdc-cell text-end px-3 py-2 align-middle bg-light fw-semibold">
+                                                                {{ item.finalPrice | number:'1.0-0' }}
+                                                            </td>
+                                                        </tr>
+                                                    </ng-container>
+                                                </ng-container>
+
+                                                <!-- TOTAL ROW per Quantity -->
+                                                <tr class="mat-mdc-row bg-white border-bottom fw-bold" style="border-top: 2px solid #dee2e6;">
+                                                    <td colspan="5" class="mat-mdc-cell border-end text-center py-3">TOTAL</td>
+                                                    <td class="mat-mdc-cell border-end text-center py-3 text-primary fs-6">{{ sheet.totalCost | number:'1.0-0' }}</td>
+                                                    <td class="mat-mdc-cell border-end"></td>
+                                                    <td class="mat-mdc-cell border-end text-center py-3">
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <span>{{ ((sheet.totalPrice - sheet.totalCost) / sheet.totalCost) * 100 | number:'1.2-2' }} %</span>
+                                                            <span class="small text-muted">{{ sheet.totalPrice - sheet.totalCost | number:'1.2-2' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="mat-mdc-cell text-center p-0 align-middle">
+                                                        <div class="bg-primary text-white w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 60px;">
+                                                            <div class="fs-5">{{ sheet.totalPrice | number:'1.0-0' }}</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <!-- Unit Price Row -->
+                                                <tr class="mat-mdc-row bg-white">
+                                                    <td colspan="7" class="mat-mdc-cell border-end border-bottom-0"></td>
+                                                    <td class="mat-mdc-cell border-end text-center py-3 border-bottom-0">{{ sheet.totalCost / (sheet.qty || 1) | number:'1.2-2' }}</td>
+                                                    <td class="mat-mdc-cell text-center py-3 border-bottom-0 text-success fw-bold">
+                                                        <div>{{ sheet.totalPrice / (sheet.qty || 1) | number:'1.2-2' }}</div>
+                                                        <span class="badge bg-success mt-1">คลิก</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <!-- Grand Total Section -->
+                            <div class="row g-3 mt-4">
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-light rounded border">
+                                        <h6 class="text-muted small mb-2">กำไรเป้าหมายมาตรฐาน (%)</h6>
+                                        <number formControlName="profitMarginPercent" [scale]="2" class="fs-4 fw-bold"></number>
+                                        <div class="small text-secondary mt-1"><i class="fas fa-info-circle"></i> ใช้ตั้งต้นสำหรับรายการใหม่ที่เพิ่มเข้าตาราง</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="p-3 bg-dark text-white rounded border d-flex justify-content-around align-items-center">
+                                        <div>
+                                            <div class="small opacity-75">ราคาสุทธิรวมทั้งหมด (Grand Total) สำหรับระดับการผลิตที่เลือก</div>
+                                            <div class="fs-2 fw-bold text-warning">{{ quotationDataSource.form.get('grandTotal')?.value | number:'1.2-2' }} ฿</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="small opacity-75">ภาษีมูลค่าเพิ่ม ({{ quotationDataSource.form.get('vatRate')?.value }}%)</div>
+                                            <div class="fs-5">{{ quotationDataSource.form.get('vatAmount')?.value | number:'1.2-2' }} ฿</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -242,8 +403,11 @@
                                                         <number formControlName="layVertical">เรียงแนวตั้ง</number>
                                                     </div>
                                                     <div class="col-auto d-flex align-items-center pt-3 fw-bold fs-5 text-primary">=</div>
-                                                    <div class="col-md-3">
-                                                        <number formControlName="layQty" class="fw-bold">ได้ทั้งหมด (กล่อง/ชิ้น)</number>
+                                                    <div class="col-md-2">
+                                                        <number formControlName="layQty" class="fw-bold">ได้ทั้งหมด (ใบ/ชิ้น)</number>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <number formControlName="wastageSheets">เผื่อเสีย (แผ่น)</number>
                                                     </div>
                                                 </div>
 
@@ -305,7 +469,7 @@
                                         <mat-tab label="งานเคลือบ">
                                             <div class="pt-4 border-top-0 px-2 pb-2">
                                                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                                                    <h6 class="mb-0 text-secondary"><i class="fas fa-layer-group me-2"></i>ชุดการเคลือบ (จาก SUMT03)</h6>
+                                            <h6 class="mb-0 text-secondary"><i class="fas fa-layer-group me-2"></i>ชุดการเคลือบ (จาก SUMT03)</h6>
                                                     <button type="button" class="btn btn-sm btn-outline-secondary"
                                                         (click)="addCoating(bIndex, pIndex)">
                                                         <i class="fas fa-plus"></i> เพิ่มชุดการผ่า/เคลือบ

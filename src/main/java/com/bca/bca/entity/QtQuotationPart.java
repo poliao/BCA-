@@ -59,6 +59,9 @@ public class QtQuotationPart extends EntityBase {
     @Column(name = "lay_vertical")
     private Integer layVertical;
 
+    @Column(name = "wastage_sheets")
+    private Integer wastageSheets = 0;
+
     @Column(name = "print_process_id")
     private Long printProcessId;
 

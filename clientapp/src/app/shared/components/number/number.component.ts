@@ -12,6 +12,16 @@ import { BaseFormField } from '../base-form';
 })
 export class NumberComponent extends BaseFormField {
   @Input() separator: boolean = true;
+  @Input() set scale(value: number) {
+    this.imask.scale = value;
+    if (value > 0) {
+      this.imask.padFractionalZeros = true;
+      this.imask.normalizeZeros = false;
+    }
+  }
+  get scale(): number {
+    return this.imask.scale;
+  }
   imask = {
     mask: NullableMaskedNumber,  // enable number mask
     // other options are optional with defaults below

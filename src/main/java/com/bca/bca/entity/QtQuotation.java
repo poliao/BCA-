@@ -62,6 +62,12 @@ public class QtQuotation extends EntityBase {
     @Column(name = "remark_internal", columnDefinition = "TEXT")
     private String remarkInternal;
 
+    @Column(name = "delivery_cost", precision = 18, scale = 2)
+    private BigDecimal deliveryCost = BigDecimal.ZERO;
+
+    @Column(name = "operating_cost", precision = 18, scale = 2)
+    private BigDecimal operatingCost = BigDecimal.ZERO;
+
     @Column(name = "total_cost", precision = 18, scale = 2)
     private BigDecimal totalCost;
 
