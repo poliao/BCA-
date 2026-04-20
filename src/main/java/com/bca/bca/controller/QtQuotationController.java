@@ -29,6 +29,7 @@ public class QtQuotationController {
         return Map.of(
             "processes", productionProcessService.findAll(Pageable.unpaged()).getContent(),
             "groups", productionProcessService.findAllGroups(),
+            "locations", productionProcessService.findAllLocations(),
             "papers", poItemService.findAll()
         );
     }

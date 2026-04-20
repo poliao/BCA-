@@ -9,6 +9,10 @@ export class Qtmt01 extends EntityBase {
   taxId!: string;
   address!: string;
   jobName!: string;
+  remarkInternal!: string;
+  vatType!: string;
+  isVatIncluded: boolean = false;
+  vatRate!: number;
 
   // New deeply nested hierarchy
   boxes: Qtmt01Box[] = [];
@@ -28,6 +32,7 @@ export class Qtmt01Box {
 export class Qtmt01Part {
   partId!: number;
   partName!: string; // e.g. "ตัวกล่อง", "ฝาครอบ", "ไส้ใน"
+  productionLocationId!: number;
   
   // Material & Layout Details
   paperId!: number;
@@ -81,5 +86,12 @@ export class Qtmt01Part {
       length?: number;
       stampNote?: string;
     }[];
+  }[] = [];
+
+  // Gluing entries
+  gluings: {
+    id?: number;
+    gluingProcessId?: number;
+    gluingNote?: string;
   }[] = [];
 }

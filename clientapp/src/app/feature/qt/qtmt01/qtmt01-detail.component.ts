@@ -24,10 +24,12 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
   // Master Data
   masterProcesses: any[] = [];
   paperOptions: any[] = [];
+  productionLocations: any[] = [];
   printProcesses: any[] = [];
   coatingProcesses: any[] = [];
   stampProcesses: any[] = [];      // บล็อคปั้ม (block-level)
   stampItemProcesses: any[] = []; // ประเภทการปั้ม (item-level)
+  gluingProcesses: any[] = [];    // งานปะ
 
   printStyles = [
     { value: 'หน้าเดียว', text: 'พิมพ์หน้าเดียว' },
@@ -51,10 +53,16 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     { value: 'ปั้มไมโครดอท', text: 'ปั้มไมโครดอท (Microdot)' }
   ];
 
-  fluteOptions = [
-    { value: 'ลอน E', text: 'ลอน E (บาง)' },
-    { value: 'ลอน B', text: 'ลอน B (หนาปานกลาง)' },
-    { value: 'ลอน C', text: 'ลอน C (หนา)' }
+  vatOptions = [
+    { value: 'VAT 7%', text: 'VAT 7%' },
+    { value: 'VAT 0%', text: 'VAT 0%' },
+    { value: 'NON VAT', text: 'NON VAT' },
+    { value: 'CUSTOM',  text: 'กำหนดเอง (Custom)' }
+  ];
+
+  vatIncludedOptions = [
+    { value: true, text: 'รวม VAT' },
+    { value: false, text: 'ไม่รวม VAT' }
   ];
 
   rdKeyword = '';
@@ -115,6 +123,8 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
           return { ...p, _groupName: g ? g.groupName : '' };
       });
 
+      this.productionLocations = data.qtmt01.master?.locations || [];
+
       this.paperOptions = rawPapers.map((p:any) => ({
           ...p,
           _displayName: '[' + p.itemCode + '] ' + p.itemNameTh
@@ -128,6 +138,9 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       );
       this.stampItemProcesses = this.masterProcesses.filter((p:any) =>
         p._groupName.includes('ปั้ม') && p._groupName !== 'บล็อคปั้ม'
+      );
+      this.gluingProcesses = this.masterProcesses.filter((p:any) =>
+        p._groupName.includes('ปะ')
       );
 
       // Default structure if empty
@@ -160,6 +173,10 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       address: [null],
       customerCode: [null],
       jobName: [null, [Validators.required]],
+      remarkInternal: [null],
+      vatType: ['VAT 7%'],
+      isVatIncluded: [false],
+      vatRate: [7],
 
       boxes: this.fb.array(
         this.quotation.boxes.map(box => this.createBoxGroup(box))
@@ -182,6 +199,7 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
   createPartGroup(part: Qtmt01Part): FormGroup {
     let fg = this.fb.group({
       partName: [part.partName || 'ส่วนประกอบใหม่', [Validators.required]],
+      productionLocationId: [part.productionLocationId || null, [Validators.required]],
       paperId: [part.paperId || null, [Validators.required]],
       paperSizeId: [part.paperSizeId || null, [Validators.required]],
       paperGramId: [part.paperGramId || null, [Validators.required]],
@@ -203,13 +221,14 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       printCutSizeFront: [part.printCutSizeFront || null],
       printCutSizeBack: [part.printCutSizeBack || null],
       coatingType: [part.coatingType || null],
-      isCorrugated: [part.isCorrugated || false],
-      fluteType: [part.fluteType || null],
       coatings: this.fb.array(
         (part.coatings || []).map((c:any) => this.createCoatingGroup(c))
       ),
       stampEntries: this.fb.array(
         (part.stampEntries || []).map((e:any) => this.createStampEntryGroup(e))
+      ),
+      gluings: this.fb.array(
+        (part.gluings || []).map((g:any) => this.createGluingGroup(g))
       )
     });
 
@@ -259,6 +278,27 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     fg.get('layHorizontal')?.valueChanges.subscribe(calcLayQty);
     fg.get('layVertical')?.valueChanges.subscribe(calcLayQty);
 
+    // Cascading Resets
+    fg.get('printProcessId')?.valueChanges.subscribe(() => {
+      fg.get('productionLocationId')?.patchValue(null, { emitEvent: false });
+      fg.get('printColorFront')?.patchValue(null, { emitEvent: false });
+      fg.get('printColorBack')?.patchValue(null, { emitEvent: false });
+      fg.get('printCutSizeFront')?.patchValue(null, { emitEvent: false });
+      fg.get('printCutSizeBack')?.patchValue(null, { emitEvent: false });
+      this.locationOptionsCache = {};
+      this.colorOptionsCache = {};
+      this.cutSizeOptionsCache = {};
+    });
+
+    fg.get('productionLocationId')?.valueChanges.subscribe(() => {
+      fg.get('printColorFront')?.patchValue(null, { emitEvent: false });
+      fg.get('printColorBack')?.patchValue(null, { emitEvent: false });
+      fg.get('printCutSizeFront')?.patchValue(null, { emitEvent: false });
+      fg.get('printCutSizeBack')?.patchValue(null, { emitEvent: false });
+      this.colorOptionsCache = {};
+      this.cutSizeOptionsCache = {};
+    });
+
     // Validations logic per part for printing
     fg.get('printStyle')?.valueChanges.subscribe(style => {
       const backColorCtrl = fg.get('printColorBack');
@@ -274,16 +314,6 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       }
       backColorCtrl?.updateValueAndValidity();
       backCutCtrl?.updateValueAndValidity();
-    });
-
-    fg.get('isCorrugated')?.valueChanges.subscribe(checked => {
-      if (checked) {
-        fg.get('fluteType')?.setValidators([Validators.required]);
-      } else {
-        fg.get('fluteType')?.clearValidators();
-        fg.get('fluteType')?.patchValue(null);
-      }
-      fg.get('fluteType')?.updateValueAndValidity();
     });
 
     return fg;
@@ -330,8 +360,23 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     });
   }
 
+  setupVatListener() {
+    const vatTypeCtrl = this.quotationDataSource.form.get('vatType');
+    const vatRateCtrl = this.quotationDataSource.form.get('vatRate');
+
+    vatTypeCtrl?.valueChanges.subscribe(val => {
+      if (val === 'VAT 7%') {
+        vatRateCtrl?.patchValue(7);
+      } else if (val === 'VAT 0%' || val === 'NON VAT') {
+        vatRateCtrl?.patchValue(0);
+      }
+      // If CUSTOM, leave what it is or let user edit
+    });
+  }
+
   rebuildForm() {
     this.quotationDataSource = new FormDatasource<Qtmt01>(this.quotation, this.createForm());
+    this.setupVatListener();
   }
 
   // Event Handlers
@@ -388,6 +433,7 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
   }
 
   // Dynamic Options Caches
+  locationOptionsCache: { [processId: number]: any[] } = {};
   colorOptionsCache: { [processId: number]: any[] } = {};
   cutSizeOptionsCache: { [key: string]: any[] } = {};
   paperSizeOptionsCache: { [key: string]: any[] } = {};
@@ -483,40 +529,88 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
     this.getCoatingsArray(boxIndex, partIndex).removeAt(coatingIndex);
   }
 
+  // Gluing Handlers
+  getGluingsArray(boxIndex: number, partIndex: number): FormArray {
+    return this.getPartsArray(boxIndex).at(partIndex).get('gluings') as FormArray;
+  }
+
+  createGluingGroup(g: any = {}): FormGroup {
+    return this.fb.group({
+      id: [g.id || null],
+      gluingProcessId: [g.gluingProcessId || null, [Validators.required]],
+      gluingNote: [g.gluingNote || null]
+    });
+  }
+
+  addGluing(boxIndex: number, partIndex: number) {
+    this.getGluingsArray(boxIndex, partIndex).push(this.createGluingGroup());
+  }
+
+  removeGluing(boxIndex: number, partIndex: number, gIndex: number) {
+    this.getGluingsArray(boxIndex, partIndex).removeAt(gIndex);
+  }
+
   // Dynamic Options Getters
-  getColorOptions(boxIndex: number, partIndex: number): any[] {
+  getPrintProcessOptions(boxIndex?: number, partIndex?: number): any[] {
+     return this.printProcesses;
+  }
+
+  getLocationOptions(boxIndex: number, partIndex: number): any[] {
      const part = this.getPartsArray(boxIndex).at(partIndex).value;
      const processId = part.printProcessId;
-     if (!processId) return [];
+     if (!processId) return this.EMPTY_ARRAY;
 
-     if (this.colorOptionsCache[processId]) {
-         return this.colorOptionsCache[processId];
+     if (this.locationOptionsCache[processId]) {
+         return this.locationOptionsCache[processId];
      }
 
      const process = this.printProcesses.find((p:any) => p.id === processId);
-     if (!process || !process.pricingTiers) return [];
+     if (!process || !process.pricingTiers) return this.EMPTY_ARRAY;
+
+     const locationIds = Array.from(new Set(process.pricingTiers.map((t:any) => t.locationId).filter((id:any) => id != null)));
+     const options = this.productionLocations.filter((loc:any) => locationIds.includes(loc.id));
      
-     const colors = Array.from(new Set(process.pricingTiers.map((t:any) => t.colorCount).filter((c:any) => c != null))).sort();
+     this.locationOptionsCache[processId] = options;
+     return options;
+  }
+
+  getColorOptions(boxIndex: number, partIndex: number): any[] {
+     const part = this.getPartsArray(boxIndex).at(partIndex).value;
+     const processId = part.printProcessId;
+     const locationId = part.productionLocationId;
+     if (!processId || !locationId) return this.EMPTY_ARRAY;
+
+     const cacheKey = `${processId}|${locationId}`;
+     if (this.colorOptionsCache[cacheKey]) {
+         return this.colorOptionsCache[cacheKey];
+     }
+
+     const process = this.printProcesses.find((p:any) => p.id === processId);
+     if (!process || !process.pricingTiers) return this.EMPTY_ARRAY;
+     
+     const tiers = process.pricingTiers.filter((t:any) => t.locationId === locationId);
+     const colors = Array.from(new Set(tiers.map((t:any) => t.colorCount).filter((c:any) => c != null))).sort();
      const options = colors.map(c => ({ value: c, text: `${c} สี` }));
      
-     this.colorOptionsCache[processId] = options;
+     this.colorOptionsCache[cacheKey] = options;
      return options;
   }
 
   getCutSizeOptions(boxIndex: number, partIndex: number, side: 'front'|'back'): any[] {
      const part = this.getPartsArray(boxIndex).at(partIndex).value;
      const processId = part.printProcessId;
-     if (!processId) return [];
+     const locationId = part.productionLocationId;
+     if (!processId || !locationId) return this.EMPTY_ARRAY;
 
      const selectedColor = side === 'front' ? part.printColorFront : part.printColorBack;
-     const cacheKey = `${processId}|${selectedColor || 'any'}`;
+     const cacheKey = `${processId}|${locationId}|${selectedColor || 'any'}`;
 
      if (this.cutSizeOptionsCache[cacheKey]) {
          return this.cutSizeOptionsCache[cacheKey];
      }
 
      const process = this.printProcesses.find((p:any) => p.id === processId);
-     if (!process || !process.pricingTiers) return [];
+     if (!process || !process.pricingTiers) return this.EMPTY_ARRAY;
      
      let tiers = process.pricingTiers;
      if (selectedColor) {

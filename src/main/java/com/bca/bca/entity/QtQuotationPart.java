@@ -14,8 +14,8 @@ import java.util.List;
 @Entity
 @Table(name = "qt_quotation_parts")
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = { "box", "stampEntries" })
-@ToString(exclude = { "box", "stampEntries" })
+@EqualsAndHashCode(callSuper = true, exclude = { "box", "stampEntries", "gluings" })
+@ToString(exclude = { "box", "stampEntries", "gluings" })
 public class QtQuotationPart extends EntityBase {
 
     @Id
@@ -25,6 +25,9 @@ public class QtQuotationPart extends EntityBase {
 
     @Column(name = "part_name", length = 255)
     private String partName;
+
+    @Column(name = "production_location_id")
+    private Long productionLocationId;
 
     @Column(name = "paper_id")
     private Long paperId;
@@ -95,4 +98,8 @@ public class QtQuotationPart extends EntityBase {
     @OneToMany(mappedBy = "part", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<QtQuotationStampEntry> stampEntries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "part", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    private List<QtQuotationGluing> gluings = new ArrayList<>();
 }

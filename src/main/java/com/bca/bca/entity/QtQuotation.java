@@ -59,11 +59,20 @@ public class QtQuotation extends EntityBase {
     @Column(name = "remark", columnDefinition = "TEXT")
     private String remark;
 
+    @Column(name = "remark_internal", columnDefinition = "TEXT")
+    private String remarkInternal;
+
     @Column(name = "total_cost", precision = 18, scale = 2)
     private BigDecimal totalCost;
 
     @Column(name = "total_amount", precision = 18, scale = 2)
     private BigDecimal totalAmount;
+
+    @Column(name = "vat_type", length = 50)
+    private String vatType;
+
+    @Column(name = "is_vat_included")
+    private Boolean isVatIncluded = false;
 
     @Column(name = "vat_rate", precision = 5, scale = 2)
     private BigDecimal vatRate;

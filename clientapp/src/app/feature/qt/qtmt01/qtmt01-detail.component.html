@@ -62,6 +62,20 @@
                             <div class="col-md-6 col-sm-12">
                                 <textbox formControlName="jobName">ชื่องานหลักโปรเจกต์ (Main Job Name)</textbox>
                             </div>
+                            <div class="col-md-3 col-sm-6">
+                                <select-input bindLabel="text" bindValue="value" [items]="vatOptions"
+                                    formControlName="vatType">ประเภทภาษี (VAT Type)</select-input>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <select-input bindLabel="text" bindValue="value" [items]="vatIncludedOptions"
+                                    formControlName="isVatIncluded">การรวม VAT</select-input>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <number formControlName="vatRate" [disabled]="quotationDataSource.form.get('vatType')?.value !== 'CUSTOM'">อัตราภาษี (%)</number>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <areabox formControlName="remarkInternal" [rows]="3">หมายเหตุ (ภายใน)</areabox>
+                            </div>
                         </div>
                     </div>
                 </mat-tab>
@@ -169,16 +183,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Packaging Lamination base -->
-                                                <div class="row g-3 mb-4 align-items-center">
-                                                    <div class="col-auto">
-                                                        <checkbox formControlName="isCorrugated">ประกบลูกฟูก (ลอนกระดาษ)</checkbox>
-                                                    </div>
-                                                    <div class="col-md-3" *ngIf="partCtrl.get('isCorrugated')?.value">
-                                                        <select-input bindLabel="text" bindValue="value" [items]="fluteOptions"
-                                                            formControlName="fluteType">เลือกลอน</select-input>
-                                                    </div>
-                                                </div>
 
                                                 <!-- Finishing block -->
                                             </div>
@@ -187,7 +191,7 @@
                                         <!-- TAB 2: Paper, Cut, Lay & Print -->
                                         <mat-tab label="สเปคกระดาษ ตัด/เลย์ และการพิมพ์">
                                             <div class="pt-4 border-top-0 px-2 pb-2">
-                                                <!-- Material base spec -->
+                                                 <!-- Material base spec -->
                                                 <h6 class="border-bottom pb-2 text-secondary"><i class="fas fa-scroll me-2"></i>สเปคกระดาษตั้งต้น (จากมาสเตอร์ POMT02)</h6>
                                                 <div class="row g-2 mb-3">
                                                     <div class="col-md-4">
@@ -249,8 +253,13 @@
                                                     class="row g-3 mb-4 mt-1 bg-light p-2 rounded align-items-start border border-primary">
                                                     <div class="col-md-5">
                                                         <select-input bindLabel="processName" bindValue="id"
-                                                            [items]="printProcesses"
-                                                            formControlName="printProcessId">ระบุระบบพิมพ์</select-input>
+                                                            [items]="getPrintProcessOptions()"
+                                                            formControlName="printProcessId">ระบุระบบพิมพ์ (System)</select-input>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <select-input bindLabel="locationName" bindValue="id" [items]="getLocationOptions(bIndex, pIndex)"
+                                                            [disabled]="!partCtrl.get('printProcessId')?.value"
+                                                            formControlName="productionLocationId">สถานที่ผลิต (Location)</select-input>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <select-input bindLabel="text" bindValue="value" [items]="printStyles"
@@ -542,6 +551,63 @@
                                                 <div class="alert alert-info py-2 small mt-2" *ngIf="getStampEntriesArray(bIndex, pIndex).length > 0">
                                                     <i class="fas fa-info-circle me-2"></i>
                                                     แต่ละบล็อคปั้มสามารถมีหลายรายการค่าปั้มได้ — เช่น บล็อคปั้มฝาประกอบด้วย ปั้มนูน + ปั้มเคทอง
+                                                </div>
+                                            </div>
+                                        </mat-tab>
+
+                                        <!-- TAB 5: Gluing (งานปะ) -->
+                                        <mat-tab label="งานปะ">
+                                            <div class="pt-4 border-top-0 px-2 pb-2">
+                                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                                    <h6 class="mb-0 text-secondary"><i class="fas fa-box-open me-2"></i>รายการงานปะประกอบกล่อง</h6>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        (click)="addGluing(bIndex, pIndex)">
+                                                        <i class="fas fa-plus"></i> เพิ่มงานปะ
+                                                    </button>
+                                                </div>
+
+                                                <div *ngIf="gluingProcesses.length === 0" class="alert alert-warning py-2 small">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    ยังไม่มีข้อมูลกระบวนการปะใน SUMT03 — กรุณาเพิ่ม Group ที่มีคำว่า <strong>"ปะ"</strong> และเพิ่ม Process ไว้ใต้ Group นั้นก่อนครับ
+                                                </div>
+
+                                                <div *ngIf="getGluingsArray(bIndex, pIndex).length === 0"
+                                                    class="text-muted text-center py-3 border rounded">
+                                                    <i class="fas fa-fill-drip fa-2x mb-2 d-block opacity-50"></i>
+                                                    ยังไม่มีการระบุงานปะ — กดปุ่ม <strong>"เพิ่มงานปะ"</strong> เพื่อเริ่มต้น
+                                                </div>
+
+                                                <ng-container formArrayName="gluings">
+                                                    <div class="row g-2 align-items-center mb-2"
+                                                        *ngFor="let gCtrl of getGluingsArray(bIndex, pIndex).controls; let gIndex = index"
+                                                        [formGroupName]="gIndex">
+                                                        <div class="col-auto text-muted small" style="min-width:24px">
+                                                            {{ gIndex + 1 }}.
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <select-input
+                                                                bindLabel="processName"
+                                                                bindValue="id"
+                                                                [items]="gluingProcesses"
+                                                                formControlName="gluingProcessId">
+                                                                ระบบการปะ
+                                                            </select-input>
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <textbox formControlName="gluingNote">หมายเหตุ / รูปแบบการปะ</textbox>
+                                                        </div>
+                                                        <div class="col-auto mt-3">
+                                                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                (click)="removeGluing(bIndex, pIndex, gIndex)">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </ng-container>
+
+                                                <div class="alert alert-info py-2 small mt-2" *ngIf="getGluingsArray(bIndex, pIndex).length > 0">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    ระบบจะคำนวณราคาปะตามเงื่อนไขที่กำหนดไว้ในแต่ละกระบวนการ
                                                 </div>
                                             </div>
                                         </mat-tab>

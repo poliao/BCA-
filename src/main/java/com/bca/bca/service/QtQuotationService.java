@@ -53,6 +53,11 @@ public class QtQuotationService {
                                 }
                             });
                         }
+
+                        // Wire gluing entries
+                        if (part.getGluings() != null) {
+                            part.getGluings().forEach(gluing -> gluing.setPart(part));
+                        }
                     });
                 }
             });
