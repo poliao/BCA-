@@ -1,0 +1,91 @@
+<div class="modal-header bg-dark text-white p-3">
+    <h5 class="modal-title mb-0"><i class="fas fa-th-large me-2"></i>ระบบผ่ากระดาษอัตโนมัติ (Best Cut Optimizer)</h5>
+</div>
+
+<div class="modal-body p-4 bg-light">
+    <form [formGroup]="form">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="form-label fw-bold">กระดาษแผ่นแม่ (กว้าง)</label>
+                    <input type="number" class="form-control" formControlName="parentW">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="form-label fw-bold">กระดาษแผ่นแม่ (ยาว)</label>
+                    <input type="number" class="form-control" formControlName="parentL">
+                </div>
+            </div>
+            <div class="col-md-3 text-primary">
+                <div class="form-group">
+                    <label class="form-label fw-bold">ขนาดที่ต้องการผ่า (กว้าง)</label>
+                    <input type="number" class="form-control border-primary" formControlName="childW">
+                </div>
+            </div>
+            <div class="col-md-3 text-primary">
+                <div class="form-group">
+                    <label class="form-label fw-bold">ขนาดที่ต้องการผ่า (ยาว)</label>
+                    <input type="number" class="form-control border-primary" formControlName="childL">
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="sheet-preview rounded shadow-inner" 
+                [style.width.px]="result ? result.pw * scale : 0" 
+                [style.height.px]="result ? result.pl * scale : 0">
+                
+                <ng-container *ngIf="result">
+                    <div *ngFor="let box of result.layout" 
+                        class="cut-box" 
+                        [class.rotated]="box.rotated"
+                        [style.left.px]="box.x * scale"
+                        [style.top.px]="box.y * scale"
+                        [style.width.px]="box.w * scale"
+                        [style.height.px]="box.l * scale">
+                        {{ box.rotated ? 'R' : '' }}
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-secondary border-bottom pb-2">ผลลัพธ์การคำนวณ</h6>
+                    <div class="display-4 text-primary fw-bold text-center my-4">
+                        {{ result?.count || 0 }} <small class="fs-6 text-muted">ชิ้นต่อแผ่น</small>
+                    </div>
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>พื้นที่แผ่นแม่:</span>
+                            <span class="fw-bold">{{ (result?.pw || 0) * (result?.pl || 0) | number }} ตร.หน่วย</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>พื้นที่ใช้จริง:</span>
+                            <span class="fw-bold">{{ (result?.count || 0) * (result?.cw || 0) * (result?.cl || 0) | number }} ตร.หน่วย</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between text-success">
+                            <span>ประสิทธิภาพ (Yield):</span>
+                            <span class="fw-bold" *ngIf="result">{{ ((result.count * result.cw * result.cl) / (result.pw * result.pl) * 100) | number:'1.1-1' }} %</span>
+                        </li>
+                    </ul>
+
+                    <div class="alert alert-info mt-4 small">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        ระบบคำนวนแบบ <b>Mixed Orientation</b> เพื่อให้ได้จำนวนชิ้นสูงสุด (Best Cut)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer p-3 bg-white">
+    <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()">ยกเลิก</button>
+    <button type="button" class="btn btn-primary px-4" (click)="onConfirm()" [disabled]="!result || result.count === 0">
+        <i class="fas fa-check me-2"></i>ยืนยันใช้งาน ({{ result?.count || 0 }} ชิ้น)
+    </button>
+</div>

@@ -46,6 +46,9 @@
                 <button class="btn btn-primary btn-sm" (click)='addTier()'>
                     <i class="fas fa-plus-circle"></i> {{ 'label.ALL.Add' | translate }}
                 </button>
+                <button class="btn btn-outline-info btn-sm ms-2" (click)="autoCalculateStandardTiers()">
+                    <i class="fas fa-calculator"></i> คำนวณสูตร (Interpolation)
+                </button>
             </div>
             <div class="card-content">
                 <app-table [dataSource]="pricingTiersDataSource" [columns]="displayedColumns" [pagination]="false">
@@ -129,13 +132,13 @@
             header="ข้อมูลราคา {{ currentGroupName }} {{ isStampGroup ? 'แยกตามประเภทและขนาด' : 'แยกตามจำนวนสีและขนาดตัด' }}">
             <div class="card-menu">
                 <button class="btn btn-primary btn-sm" (click)='addPrintCondition()'>
-                    <i class="fas fa-plus-circle"></i> เพิ่มระบุจำนวนสีและขนาดตัดสำหรับ {{ currentGroupName }}
+                    <i class="fas fa-plus-circle"></i> เพิ่มระบุเงื่อนไข
                 </button>
             </div>
             <div class="card-content bg-light p-3">
                 <div *ngIf="activePrintConditionGroups.length === 0"
                     class="text-center text-muted p-4 bg-white border border-dashed rounded">
-                    กรุณากดปุ่ม <b>เพิ่มระบุจำนวนสีและขนาดตัด</b> เพื่อเริ่มกำหนดราคา
+                    กรุณากดปุ่ม <b>เพิ่มระบุเงื่อนไข</b> เพื่อเริ่มกำหนดราคา
                 </div>
 
                 <div class="card mb-3 border border-secondary shadow-sm"
@@ -148,21 +151,21 @@
                             <ng-container *ngIf="!isStampGroup">
                                 <div style="width: 150px;">
                                     <number formControlName="colorCount" [hasLabel]="false"
-                                        placeholder="จำนวนสี (เช่น 1, 2, 4)"></number>
+                                        placeholder="จำนวนสี"></number>
                                 </div>
                                 <div style="width: 200px;">
                                     <textbox formControlName="cutSize" [hasLabel]="false"
-                                        placeholder="ขนาดตัด (เช่น ตัด2)"></textbox>
+                                        placeholder="ขนาดตัด"></textbox>
                                 </div>
                             </ng-container>
                             <ng-container *ngIf="isStampGroup">
                                 <div style="width: 200px;">
                                     <textbox formControlName="stampType" [hasLabel]="false"
-                                        placeholder="ประเภทปั้ม (เช่น เคทอง, ปั๊มนูน)"></textbox>
+                                        placeholder="ประเภทปั้ม"></textbox>
                                 </div>
                                 <div style="width: 150px;">
                                     <textbox formControlName="stampSize" [hasLabel]="false"
-                                        placeholder="ขนาด (เช่น 0.1, 0.4)"></textbox>
+                                        placeholder="ขนาด"></textbox>
                                 </div>
                             </ng-container>
                             <div style="width: 200px;">
@@ -173,11 +176,14 @@
                             </div>
                         </div>
                         <button class="btn btn-outline-danger btn-sm" (click)="removePrintCondition(cond)">
-                            <i class="fas fa-trash"></i> ลบข้อมูลชุดนี้
+                            <i class="fas fa-trash"></i> ลบ
                         </button>
                     </div>
                     <div class="card-body p-0">
                         <div class="text-end bg-light border-bottom p-2">
+                            <button class="btn btn-outline-info btn-sm rounded-pill me-2" (click)="autoCalculateConditionTiers(cond)">
+                                <i class="fas fa-calculator"></i> คำนวณสูตร
+                            </button>
                             <button class="btn btn-primary btn-sm rounded-pill" (click)='addTierToCondition(cond)'>
                                 <i class="fas fa-plus"></i> เพิ่มระดับราคา
                             </button>

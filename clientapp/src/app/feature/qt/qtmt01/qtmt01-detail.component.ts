@@ -10,6 +10,7 @@ import { Qtmt01Service } from './qtmt01.service';
 import { SubscriptionDisposer } from '@app/shared/components/subscription-disposer';
 import { ModalService, Size } from '@app/shared/components/modal/modal.service';
 import { Qtmt01RdLookupComponent } from './qtmt01-rd-lookup.component';
+import { Qtmt01PaperCutDialogComponent } from './qtmt01-paper-cut-dialog.component';
 
 @Component({
   templateUrl: './qtmt01-detail.component.html',
@@ -477,13 +478,17 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
                 baseRate: tier.platePrice || 500, adjRate: 0,
                 costTotal: plateCost, adjTotal: 0, margin
               });
-              // Print Cost
+              // Print Cost (Interpolated)
               const layQty = part.layQty || 1;
               const printSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
-              const printRate = tier.price || 0.5;
+              const printCost = this.getInterpolatedPrice(printProc.pricingTiers, printSheets, {
+                locationId: part.productionLocationId,
+                colorCount: colorCount
+              });
+              const printRate = printSheets > 0 ? printCost / printSheets : 0;
               groups[2].items.push({
                 label: `ค่าพิมพ์ ${printProc.processName}`, qty: printSheets,
-                baseRate: printRate, adjRate: 0, costTotal: printSheets * printRate,
+                baseRate: printRate, adjRate: 0, costTotal: printCost,
                 adjTotal: 0, margin, note: part.printStyle !== 'หน้าเดียว' ? part.printStyle : null
               });
               // Item #3 Extra: Setup cost for double-sided printing
@@ -500,14 +505,16 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
           // Item #4: เคลือบ
           part.coatings?.forEach((c: any) => c.items?.forEach((ci: any) => {
             const proc = this.coatingProcesses.find((p: any) => p.id === ci.coatingProcessId);
-            const tier = proc?.pricingTiers?.[0];
-            if (tier) {
+            if (proc) {
               const layQty = part.layQty || 1;
               const cSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
-              const coatRate = tier.price || 0.3;
+              const coatCost = this.getInterpolatedPrice(proc.pricingTiers, cSheets, {
+                locationId: part.productionLocationId
+              });
+              const coatRate = cSheets > 0 ? coatCost / cSheets : 0;
               groups[3].items.push({
                 label: `ค่าเคลือบ ${proc.processName}`, qty: cSheets,
-                baseRate: coatRate, adjRate: 0, costTotal: cSheets * coatRate, adjTotal: 0, margin
+                baseRate: coatRate, adjRate: 0, costTotal: coatCost, adjTotal: 0, margin
               });
             }
           }));
@@ -515,18 +522,22 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
           // Item #5-10: บล็อก + ปั๊ม
           part.stampEntries?.forEach((entry: any) => {
             const proc = this.stampProcesses.find((p: any) => p.id === entry.stampProcessId);
-            const tier = proc?.pricingTiers?.find((t: any) => t.stampSize === entry.stampSizeSelected);
-            if (tier) {
+            if (proc) {
               entry.items?.forEach((si: any) => {
-                const blockCost = (si.width * si.length) * (tier.price || 5);
+                const blockCost = (si.width * si.length) * (5); // Simplified block cost
                 groups[3].items.push({
                   label: `ค่าบล็อก (${proc.processName} ${entry.stampSizeSelected})`, qty: 1,
                   baseRate: blockCost, adjRate: 0, costTotal: blockCost, adjTotal: 0, margin
                 });
-                const stampRate = tier.additionalPrice || 0.1;
+
+                const stampCost = this.getInterpolatedPrice(proc.pricingTiers, qty, {
+                  stampSize: entry.stampSizeSelected,
+                  locationId: part.productionLocationId
+                });
+                const stampRate = qty > 0 ? stampCost / qty : 0;
                 groups[3].items.push({
                   label: `ค่าปั๊ม (${entry.stampSizeSelected})`, qty: qty,
-                  baseRate: stampRate, adjRate: 0, costTotal: qty * stampRate, adjTotal: 0, margin
+                  baseRate: stampRate, adjRate: 0, costTotal: stampCost, adjTotal: 0, margin
                 });
               });
             }
@@ -538,10 +549,13 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
           part.gluings?.forEach((g: any) => {
             const proc = this.gluingProcesses.find((p: any) => p.id === g.gluingProcessId);
             if (proc) {
-              const gluingRate = proc.pricingTiers?.[0]?.price || 0.1;
+              const gluingCost = this.getInterpolatedPrice(proc.pricingTiers, qty, {
+                locationId: part.productionLocationId
+              });
+              const gluingRate = qty > 0 ? gluingCost / qty : 0;
               groups[3].items.push({
                 label: `ค่าปะกาว ${proc.processName}`, qty: qty,
-                baseRate: gluingRate, adjRate: 0, costTotal: qty * gluingRate, adjTotal: 0, margin
+                baseRate: gluingRate, adjRate: 0, costTotal: gluingCost, adjTotal: 0, margin
               });
             }
           });
@@ -944,6 +958,59 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       address: result.addressLocal || result.addressDescription || '',
       customerCode: null
     });
+  }
+
+  openPaperCutVisualizer(bIndex: number, pIndex: number) {
+    const part = this.getPartsArray(bIndex).at(pIndex);
+    const data = {
+      pw: part.get('paperSizeId')?.value ? 25 : 25, // Fallback or lookup from master
+      pl: part.get('paperSizeId')?.value ? 36 : 36,
+      cw: part.get('paperCutWidth')?.value || 12.5,
+      cl: part.get('paperCutLength')?.value || 19
+    };
+
+    this.modal.open(Qtmt01PaperCutDialogComponent, data, Size.Large).subscribe(result => {
+      if (result) {
+        part.patchValue({
+          paperCutWidth: result.cw,
+          paperCutLength: result.cl,
+          layQty: result.count
+        });
+        this.calculateQuotation();
+      }
+    });
+  }
+
+
+  private getInterpolatedPrice(tiers: any[], actualQty: number, filters: any = {}): number {
+    if (!tiers || tiers.length === 0) return 0;
+
+    // Filter tiers based on conditions (location, color count, etc.)
+    let activeTiers = tiers.filter(t => {
+      let match = true;
+      if (filters.locationId && t.locationId) match = match && (t.locationId === filters.locationId);
+      if (filters.colorCount !== undefined && t.colorCount !== undefined) match = match && (t.colorCount === filters.colorCount);
+      if (filters.stampSize && t.stampSize) match = match && (t.stampSize === filters.stampSize);
+      return match;
+    });
+
+    if (activeTiers.length === 0) return 0;
+
+    // Find the correct tier by minQty (descending)
+    activeTiers.sort((a, b) => b.minQty - a.minQty);
+    const tier = activeTiers.find(t => actualQty >= t.minQty) || activeTiers[activeTiers.length - 1];
+
+    if (tier) {
+      return (actualQty * (tier.variableRate || 0)) + (tier.fixedCost || 0);
+    }
+    return 0;
+  }
+
+  scrollToTable() {
+    const el = document.querySelector('.table-container');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   canDeactivate(): Observable<boolean> | boolean {

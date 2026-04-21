@@ -262,6 +262,51 @@ export class Sumt03DetailComponent extends SubscriptionDisposer implements OnIni
     });
   }
 
+  autoCalculateStandardTiers() {
+    this.calculateTiers(this.pricingTierDataSources);
+  }
+
+  autoCalculateConditionTiers(cond: PrintConditionGroup) {
+    this.calculateTiers(cond.tiers);
+  }
+
+  private calculateTiers(tiers: FormDatasource<ProcessPricingTier>[]) {
+    const activeTiers = tiers.filter(t => !t.isDelete);
+    // Sort by minQty ascending
+    activeTiers.sort((a, b) => (a.form.value.minQty || 0) - (b.form.value.minQty || 0));
+
+    for (let i = 0; i < activeTiers.length; i++) {
+      const current = activeTiers[i].form;
+      const currentQty = current.value.minQty || 0;
+      const currentPrice = current.value.totalAdditionalCost || 0;
+
+      if (i === 0) {
+        // First tier baseline: If Price > 0 and Qty > 0, assume it starts from 0 with this rate
+        // unless they want a flat minimum.
+        // User example: 0-1000 = 800. This usually means if you order 1, it costs 800.
+        // So Fixed=800, Var=0.
+        current.patchValue({
+          fixedCost: currentPrice,
+          variableRate: 0
+        });
+      } else {
+        const prev = activeTiers[i - 1].form;
+        const prevQty = prev.value.minQty || 0;
+        const prevPrice = prev.value.totalAdditionalCost || 0;
+
+        const qtyDiff = currentQty - prevQty;
+        if (qtyDiff > 0) {
+          const varRate = (currentPrice - prevPrice) / qtyDiff;
+          const fixedCost = currentPrice - (currentQty * varRate);
+          current.patchValue({
+            fixedCost: Number(fixedCost.toFixed(4)),
+            variableRate: Number(varRate.toFixed(4))
+          });
+        }
+      }
+    }
+  }
+
   // --- Save / Validate ---
 
   save() {
