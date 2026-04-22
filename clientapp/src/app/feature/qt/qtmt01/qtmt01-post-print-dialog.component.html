@@ -1,0 +1,222 @@
+<div class="dialog-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><i class="fas fa-magic me-2"></i>ตั้งค่าสเปคงานหลังพิมพ์ (Post-print Specs)</h5>
+    <button type="button" class="btn-close btn-close-white" (click)="onCancel()"></button>
+</div>
+
+<mat-tab-group animationDuration="0ms">
+    <!-- TAB 1: Coating -->
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <i class="fas fa-layer-group me-2"></i>งานเคลือบ (Coatings)
+            <span class="badge bg-primary ms-2">{{ coatings.length }}</span>
+        </ng-template>
+        <div class="p-4" style="max-height: 60vh; overflow-y: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">รายการการเคลือบแบบแยกชุด (Coating Batches)</div>
+                <button type="button" class="btn btn-sm btn-primary" (click)="addCoating()">
+                    <i class="fas fa-plus me-1"></i>เพิ่มชุดเคลือบ
+                </button>
+            </div>
+
+            <div *ngIf="coatings.length === 0" class="text-center py-5 text-muted bg-light rounded border border-dashed">
+                <i class="fas fa-info-circle fa-2x mb-2"></i>
+                <p>ยังไม่มีรายการเคลือบ กรุณากดเพิ่มชุดเคลือบหากต้องการตั้งค่า</p>
+            </div>
+
+            <div [formGroup]="form">
+                <div formArrayName="coatings">
+                    <div *ngFor="let c of coatings.controls; let cIdx = index" [formGroupName]="cIdx" 
+                        class="card-item mb-4 rounded-3 bg-white p-3 shadow-sm border-primary-subtle">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <span class="fw-bold text-primary">ชุดเคลือบที่ {{ cIdx + 1 }}</span>
+                            <button type="button" class="btn btn-outline-danger btn-sm border-0" (click)="removeCoating(cIdx)">
+                                <i class="fas fa-trash"></i> ลบชุดนี้
+                            </button>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- Pre-cut Config -->
+                            <div class="col-12">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" formControlName="isCutBeforeCoating" [id]="'cut' + cIdx">
+                                    <label class="form-check-label fw-bold" [for]="'cut' + cIdx">มีการผ่ากระดาษก่อนเคลือบชุดนี้</label>
+                                </div>
+                                <div class="row g-2 ps-4" *ngIf="c.get('isCutBeforeCoating')?.value">
+                                    <div class="col-4">
+                                        <number formControlName="coatingCutPieces">ผ่าได้ (ชิ้น)</number>
+                                    </div>
+                                    <div class="col-4">
+                                        <number formControlName="coatingCutWidth">กว้าง (นิ้ว)</number>
+                                    </div>
+                                    <div class="col-4">
+                                        <number formControlName="coatingCutLength">ยาว (นิ้ว)</number>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Coating Items -->
+                            <div class="col-12 mt-3">
+                                <div class="bg-light p-3 rounded">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-secondary">รายการกระบวนการเคลือบในชุดนี้</span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-0" (click)="addCoatingItem(cIdx)">
+                                            <i class="fas fa-plus"></i> เพิ่มกระบวนการ
+                                        </button>
+                                    </div>
+                                    
+                                    <div formArrayName="items">
+                                        <div *ngFor="let item of getCoatingItems(cIdx).controls; let iIdx = index" [formGroupName]="iIdx" 
+                                            class="row g-2 mb-2 align-items-end">
+                                            <div class="col-5">
+                                                <select-input [items]="master.coatingProcesses" bindLabel="processName" bindValue="id" formControlName="coatingProcessId" [hasLabel]="false" placeholder="เลือกชนิดการเคลือบ"></select-input>
+                                            </div>
+                                            <div class="col-6">
+                                                <textbox formControlName="coatingNote" [hasLabel]="false" placeholder="หมายเหตุเพิ่มเติม"></textbox>
+                                            </div>
+                                            <div class="col-1 text-end">
+                                                <button type="button" class="btn btn-link text-danger p-0" (click)="removeCoatingItem(cIdx, iIdx)">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+
+    <!-- TAB 2: Stamps -->
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <i class="fas fa-stamp me-2"></i>งานปั้ม (Stamps)
+            <span class="badge bg-primary ms-2">{{ stampEntries.length }}</span>
+        </ng-template>
+        <div class="p-4" style="max-height: 60vh; overflow-y: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">รายการบล็อกและการปั้ม (Stamp Batches)</div>
+                <button type="button" class="btn btn-sm btn-primary" (click)="addStampEntry()">
+                    <i class="fas fa-plus me-1"></i>เพิ่มรายการปั้ม
+                </button>
+            </div>
+
+            <div *ngIf="stampEntries.length === 0" class="text-center py-5 text-muted bg-light rounded border border-dashed">
+                <i class="fas fa-info-circle fa-2x mb-2"></i>
+                <p>ยังไม่มีรายการปั้ม กรุณากดเพิ่มรายการหากต้องการตั้งค่า</p>
+            </div>
+
+            <div [formGroup]="form">
+                <div formArrayName="stampEntries">
+                    <div *ngFor="let s of stampEntries.controls; let sIdx = index" [formGroupName]="sIdx" 
+                        class="card-item mb-4 rounded-3 bg-white p-3 shadow-sm border-warning-subtle">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <span class="fw-bold text-warning-emphasis">รายการที่ {{ sIdx + 1 }} (บล็อกปั้ม)</span>
+                            <button type="button" class="btn btn-outline-danger btn-sm border-0" (click)="removeStampEntry(sIdx)">
+                                <i class="fas fa-trash"></i> ลบรายการนี้
+                            </button>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- Block Config -->
+                            <div class="col-md-6">
+                                <select-input [items]="master.stampProcesses" bindLabel="processName" bindValue="id" formControlName="stampProcessId">ชนิดบล็อกปั้ม</select-input>
+                            </div>
+                            <div class="col-md-6">
+                                <select-input [items]="getStampSizeOptions(s.get('stampProcessId')?.value)" bindLabel="text" bindValue="value" formControlName="stampSizeSelected">ขนาดพื้นที่ปั้ม (Size)</select-input>
+                            </div>
+
+                            <!-- Stamp Items -->
+                            <div class="col-12 mt-3">
+                                <div class="bg-light p-3 rounded">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-secondary">รายละเอียดการปั้มที่ใช้บล็อกนี้</span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-0" (click)="addStampItem(sIdx)">
+                                            <i class="fas fa-plus"></i> เพิ่มจุดปั้ม
+                                        </button>
+                                    </div>
+                                    
+                                    <div formArrayName="items">
+                                        <div *ngFor="let item of getStampItems(sIdx).controls; let iIdx = index" [formGroupName]="iIdx" 
+                                            class="row g-2 mb-2 align-items-end border-bottom pb-2">
+                                            <div class="col-4">
+                                                <select-input [items]="master.stampItemProcesses" bindLabel="processName" bindValue="id" formControlName="stampItemProcessId" [hasLabel]="false" placeholder="ลักษณะการปั้ม"></select-input>
+                                            </div>
+                                            <div class="col-2">
+                                                <number formControlName="width" [hasLabel]="false" placeholder="กว้าง (นิ้ว)"></number>
+                                            </div>
+                                            <div class="col-2">
+                                                <number formControlName="length" [hasLabel]="false" placeholder="ยาว (นิ้ว)"></number>
+                                            </div>
+                                            <div class="col-3">
+                                                <textbox formControlName="stampNote" [hasLabel]="false" placeholder="หมายเหตุ"></textbox>
+                                            </div>
+                                            <div class="col-1 text-end">
+                                                <button type="button" class="btn btn-link text-danger p-0" (click)="removeStampItem(sIdx, iIdx)">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+
+    <!-- TAB 3: Gluing -->
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <i class="fas fa-box-open me-2"></i>งานปะกาว (Gluing)
+            <span class="badge bg-primary ms-2">{{ gluings.length }}</span>
+        </ng-template>
+        <div class="p-4" style="max-height: 60vh; overflow-y: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">รายการงานปะกาว (Gluing Specs)</div>
+                <button type="button" class="btn btn-sm btn-primary" (click)="addGluing()">
+                    <i class="fas fa-plus me-1"></i>เพิ่มงานปะ
+                </button>
+            </div>
+
+            <div *ngIf="gluings.length === 0" class="text-center py-5 text-muted bg-light rounded border border-dashed">
+                <i class="fas fa-info-circle fa-2x mb-2"></i>
+                <p>ยังไม่มีรายการปะกาว กรุณากดเพิ่มรายการหากต้องการตั้งค่า</p>
+            </div>
+
+            <div [formGroup]="form">
+                <div formArrayName="gluings">
+                    <div *ngFor="let g of gluings.controls; let gIdx = index" [formGroupName]="gIdx" 
+                        class="card-item mb-3 rounded-3 bg-white p-3 shadow-sm border-info-subtle">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-5">
+                                <select-input [items]="master.gluingProcesses" bindLabel="processName" bindValue="id" formControlName="gluingProcessId">ชนิดการปะกาว</select-input>
+                            </div>
+                            <div class="col-6">
+                                <textbox formControlName="gluingNote">หมายเหตุ</textbox>
+                            </div>
+                            <div class="col-1 text-end">
+                                <button type="button" class="btn btn-outline-danger btn-sm border-0" (click)="removeGluing(gIdx)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>
+
+<div class="p-3 border-top bg-light d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-secondary px-4" (click)="onCancel()">ยกเลิก</button>
+    <button type="button" class="btn btn-primary px-4" (click)="onSave()" [disabled]="form.invalid">
+        <i class="fas fa-check-circle me-1"></i>ตกลง (Confirm)
+    </button>
+</div>

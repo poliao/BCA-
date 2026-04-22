@@ -18,11 +18,12 @@ import { Qtmt01RdLookupComponent } from './qtmt01/qtmt01-rd-lookup.component';
 import { Qtmt01Service } from './qtmt01/qtmt01.service';
 import { QtRoutingModule } from './qt-routing.module';
 import { Qtmt01PaperCutDialogComponent } from './qtmt01/qtmt01-paper-cut-dialog.component';
+import { Qtmt01PostPrintDialogComponent } from './qtmt01/qtmt01-post-print-dialog.component';
 
 
 @NgModule({
   declarations: [
-    Qtmt01Component, Qtmt01DetailComponent, Qtmt01RdLookupComponent, Qtmt01PaperCutDialogComponent
+    Qtmt01Component, Qtmt01DetailComponent, Qtmt01RdLookupComponent, Qtmt01PaperCutDialogComponent, Qtmt01PostPrintDialogComponent
   ],
   imports: [
     SharedModule,

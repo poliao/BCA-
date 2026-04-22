@@ -80,6 +80,9 @@ public class QtQuotationPart extends EntityBase {
     @Column(name = "print_cut_size_back", length = 50)
     private String printCutSizeBack;
 
+    @Column(name = "plate_location_id")
+    private Long plateLocationId;
+
     @Column(name = "is_corrugated")
     private Boolean isCorrugated = false;
 

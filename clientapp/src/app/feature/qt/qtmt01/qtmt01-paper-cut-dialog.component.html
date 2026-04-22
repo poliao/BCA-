@@ -7,13 +7,13 @@
         <div class="row g-3 mb-4">
             <div class="col-md-3">
                 <div class="form-group">
-                    <label class="form-label fw-bold">กระดาษแผ่นแม่ (กว้าง)</label>
+                    <label class="form-label fw-bold">กระดาษแผ่นหลัก (กว้าง)</label>
                     <input type="number" class="form-control" formControlName="parentW">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    <label class="form-label fw-bold">กระดาษแผ่นแม่ (ยาว)</label>
+                    <label class="form-label fw-bold">กระดาษแผ่นหลัก (ยาว)</label>
                     <input type="number" class="form-control" formControlName="parentL">
                 </div>
             </div>
@@ -60,7 +60,7 @@
                     </div>
                     <ul class="list-group list-group-flush small">
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>พื้นที่แผ่นแม่:</span>
+                            <span>พื้นที่แผ่นหลัก:</span>
                             <span class="fw-bold">{{ (result?.pw || 0) * (result?.pl || 0) | number }} ตร.หน่วย</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">

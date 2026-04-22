@@ -11,6 +11,7 @@ import { SubscriptionDisposer } from '@app/shared/components/subscription-dispos
 import { ModalService, Size } from '@app/shared/components/modal/modal.service';
 import { Qtmt01RdLookupComponent } from './qtmt01-rd-lookup.component';
 import { Qtmt01PaperCutDialogComponent } from './qtmt01-paper-cut-dialog.component';
+import { Qtmt01PostPrintDialogComponent } from './qtmt01-post-print-dialog.component';
 
 @Component({
   templateUrl: './qtmt01-detail.component.html',
@@ -149,6 +150,8 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       this.gluingProcesses = this.masterProcesses.filter((p:any) =>
         p._groupName.includes('ปะ')
       );
+      this.plateProcesses = this.masterProcesses.filter((p:any) => p._groupName === 'เพลท');
+      this.updatePlateLocationOptions();
 
       // Default structure if empty
       if (!this.quotation.boxes || this.quotation.boxes.length === 0) {
@@ -231,6 +234,7 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       printColorBack: [part.printColorBack || null],
       printCutSizeFront: [part.printCutSizeFront || null],
       printCutSizeBack: [part.printCutSizeBack || null],
+      plateLocationId: [part.plateLocationId || null],
       coatingType: [part.coatingType || null],
       coatings: this.fb.array(
         (part.coatings || []).map((c:any) => this.createCoatingGroup(c))
@@ -296,6 +300,7 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       fg.get('printColorBack')?.patchValue(null, { emitEvent: false });
       fg.get('printCutSizeFront')?.patchValue(null, { emitEvent: false });
       fg.get('printCutSizeBack')?.patchValue(null, { emitEvent: false });
+      fg.get('plateLocationId')?.patchValue(null, { emitEvent: false });
       this.locationOptionsCache = {};
       this.colorOptionsCache = {};
       this.cutSizeOptionsCache = {};
@@ -309,6 +314,17 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       this.colorOptionsCache = {};
       this.cutSizeOptionsCache = {};
     });
+
+    fg.get('printColorFront')?.valueChanges.subscribe(() => {
+      fg.get('printCutSizeFront')?.patchValue(null, { emitEvent: false });
+      this.cutSizeOptionsCache = {};
+    });
+
+    fg.get('printColorBack')?.valueChanges.subscribe(() => {
+      fg.get('printCutSizeBack')?.patchValue(null, { emitEvent: false });
+      this.cutSizeOptionsCache = {};
+    });
+
 
     // Validations logic per part for printing
     fg.get('printStyle')?.valueChanges.subscribe(style => {
@@ -450,14 +466,19 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
           const gramObj = size?.grams?.find((g: any) => g.id === part.paperGramId);
           if (paper && size && gramObj) {
             const layQty = part.layQty || 1;
-            const totalSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
-            const weightKg = (size.width * size.length * gramObj.gram * totalSheets) / 1550000;
+            const paperCutPieces = part.paperCutPieces || 1;
+            const printSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
+            const mainSheets = Math.ceil(printSheets / paperCutPieces);
+            
+            const weightKg = (size.width * size.length * gramObj.gram * mainSheets) / 1550000;
             const paperCost = weightKg * (gramObj.purchasePrice || 0);
-            const ratePerSheet = totalSheets > 0 ? paperCost / totalSheets : 0;
+            const ratePerMainSheet = mainSheets > 0 ? paperCost / mainSheets : 0;
+
             groups[1].items.push({
               label: `${paper._displayName || paper.itemNameTh} (${size.width}"×${size.length}")`,
-              qty: totalSheets, baseRate: ratePerSheet, adjRate: 0,
-              costTotal: paperCost, adjTotal: 0, margin, note: `${weightKg.toFixed(3)} กก. | ${gramObj.gram} แกรม`
+              qty: mainSheets, baseRate: ratePerMainSheet, adjRate: 0,
+              costTotal: paperCost, adjTotal: 0, margin, 
+              note: `${weightKg.toFixed(3)} กก. | ${gramObj.gram} แกรม | ผ่า ${paperCutPieces} | Lay ${layQty}`
             });
           }
 
@@ -468,22 +489,48 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
             const backColors = part.printColorBack || 0;
             const colorCount = frontColors + backColors;
             const tier = printProc.pricingTiers.find((t: any) =>
-              t.locationId === part.productionLocationId && t.colorCount === colorCount
+              t.locationId === (part.plateLocationId || part.productionLocationId) && 
+              t.colorCount === colorCount &&
+              (!part.printCutSizeFront || t.cutSize === part.printCutSizeFront)
             );
             if (tier) {
-              // Plate Cost
-              const plateCost = colorCount * (tier.platePrice || 500);
+            // Plate Cost (Refers to "เพลท" group in SUMT03)
+            const selectedPlateLoc = part.plateLocationId || part.productionLocationId;
+            const selectedCutSize = part.printCutSizeFront;
+            
+            let plateUnitPrice = 0;
+            let foundPlateTier = false;
+            
+            for (const p of this.plateProcesses) {
+              const pTier = p.pricingTiers?.find((t: any) => 
+                t.locationId === selectedPlateLoc && t.cutSize === selectedCutSize
+              );
+              if (pTier) {
+                plateUnitPrice = pTier.fixedCost || pTier.platePrice || 0;
+                foundPlateTier = true;
+                break;
+              }
+            }
+            
+            if (!foundPlateTier && tier) {
+              plateUnitPrice = tier.platePrice || 500;
+            }
+
+            if (plateUnitPrice > 0 || colorCount > 0) {
+              const plateCost = colorCount * (plateUnitPrice || 500);
               groups[2].items.push({
                 label: `ค่าเพลท (${colorCount} สี)`, qty: colorCount,
-                baseRate: tier.platePrice || 500, adjRate: 0,
+                baseRate: plateUnitPrice || 500, adjRate: 0,
                 costTotal: plateCost, adjTotal: 0, margin
               });
+            }
               // Print Cost (Interpolated)
               const layQty = part.layQty || 1;
               const printSheets = Math.ceil(qty / layQty) + (part.wastageSheets || 0);
               const printCost = this.getInterpolatedPrice(printProc.pricingTiers, printSheets, {
                 locationId: part.productionLocationId,
-                colorCount: colorCount
+                colorCount: colorCount,
+                cutSize: part.printCutSizeFront
               });
               const printRate = printSheets > 0 ? printCost / printSheets : 0;
               groups[2].items.push({
@@ -871,7 +918,34 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
      return options;
   }
 
-  // Stamp Size Options
+   plateProcesses: any[] = [];
+   plateLocationOptions: any[] = [];
+   
+   updatePlateLocationOptions() {
+      if (this.plateProcesses.length === 0) {
+        this.plateLocationOptions = this.productionLocations;
+        return;
+      }
+
+      const locationIds = new Set<number>();
+      this.plateProcesses.forEach((p: any) => {
+        if (p.pricingTiers) {
+          p.pricingTiers.forEach((t: any) => {
+            if (t.locationId) locationIds.add(t.locationId);
+          });
+        }
+      });
+
+      this.plateLocationOptions = locationIds.size === 0 
+        ? this.productionLocations 
+        : this.productionLocations.filter(loc => locationIds.has(loc.id));
+   }
+
+   getPlateLocationOptions(): any[] {
+      return this.plateLocationOptions;
+   }
+
+   // Stamp Size Options
   stampSizeOptionsCache: { [processId: number]: any[] } = {};
 
   buildStampSizeOptions(processId: number): any[] {
@@ -974,8 +1048,27 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
         part.patchValue({
           paperCutWidth: result.cw,
           paperCutLength: result.cl,
-          layQty: result.count
+          paperCutPieces: result.count
         });
+        this.calculateQuotation();
+      }
+    });
+  }
+
+  openPostPrintDialog(bIndex: number, pIndex: number) {
+    const partGroup = this.getPartsArray(bIndex).at(pIndex) as FormGroup;
+    const data = {
+      form: partGroup,
+      master: {
+        coatingProcesses: this.coatingProcesses,
+        stampProcesses: this.stampProcesses,
+        stampItemProcesses: this.stampItemProcesses,
+        gluingProcesses: this.gluingProcesses
+      }
+    };
+
+    this.modal.open(Qtmt01PostPrintDialogComponent, data, Size.Large).subscribe(result => {
+      if (result) {
         this.calculateQuotation();
       }
     });
@@ -990,6 +1083,7 @@ export class Qtmt01DetailComponent extends SubscriptionDisposer implements OnIni
       let match = true;
       if (filters.locationId && t.locationId) match = match && (t.locationId === filters.locationId);
       if (filters.colorCount !== undefined && t.colorCount !== undefined) match = match && (t.colorCount === filters.colorCount);
+      if (filters.cutSize && t.cutSize) match = match && (t.cutSize === filters.cutSize);
       if (filters.stampSize && t.stampSize) match = match && (t.stampSize === filters.stampSize);
       return match;
     });

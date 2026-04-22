@@ -58,6 +58,7 @@ export class Qtmt01Part {
   printColorBack!: number;
   printCutSizeFront!: string;
   printCutSizeBack!: string;
+  plateLocationId!: number;
 
   // Corrugated specifically set at Part level for maximum flexibility
   isCorrugated!: boolean;
